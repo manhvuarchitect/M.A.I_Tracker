@@ -59,7 +59,7 @@ Reset all drink data to zero.
 ## Installation via HACS
 
 1. Open HACS → Integrations → ⋮ → Custom repositories
-2. Add URL: `https://github.com/YOUR_USERNAME/mai-drink-tracker`
+2. Add URL: `https://github.com/manhvuarchitect/M.A.I-drink-tracker`
 3. Category: Integration
 4. Click **Download**
 5. Restart Home Assistant

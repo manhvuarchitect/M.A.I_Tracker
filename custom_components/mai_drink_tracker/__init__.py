@@ -66,51 +66,77 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Load sensor platform
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # ── Service: log drink ────────────────────────────────────────
-    async def handle_log(call: ServiceCall) -> None:
-        loai: str = call.data["loai"]
-        luong_ml: float = call.data["luong_ml"]
+    # ── Services ──────────────────────────────────────────────────
+    if not hass.services.has_service(DOMAIN, SERVICE_LOG):
+        async def handle_log(call: ServiceCall) -> None:
+            prefix = call.data.get("prefix", "").strip().lower()
+            loai: str = call.data.get("loai")
+            luong_ml: float = call.data.get("luong_ml")
 
-        state = hass.data[DOMAIN][entry.entry_id]
-        d = state["data"]
+            target_state = None
+            for state in hass.data.get(DOMAIN, {}).values():
+                if state["entry"].data.get(CONF_PREFIX, "").lower() == prefix:
+                    target_state = state
+                    break
+            
+            if not target_state and len(hass.data.get(DOMAIN, {})) == 1:
+                target_state = list(hass.data[DOMAIN].values())[0]
 
-        if loai not in DRINK_TYPES:
-            _LOGGER.warning("mai_drink_tracker: unknown drink type '%s'", loai)
-            return
+            if not target_state:
+                _LOGGER.warning("mai_drink_tracker: No config entry found for prefix '%s'", prefix)
+                return
 
-        cfg = DRINK_TYPES[loai]
+            d = target_state["data"]
+            if loai not in DRINK_TYPES:
+                _LOGGER.warning("mai_drink_tracker: unknown drink type '%s'", loai)
+                return
 
-        # Cập nhật ml từng loại (clamp >= 0)
-        current = d["drinks"].get(loai, 0.0)
-        d["drinks"][loai] = max(current + luong_ml, 0.0)
+            cfg = DRINK_TYPES[loai]
+            current = d["drinks"].get(loai, 0.0)
+            d["drinks"][loai] = max(current + luong_ml, 0.0)
+            
+            caffeine_delta = (luong_ml / 100.0) * cfg["caffeine_per_100ml"]
+            d["caffeine_total"] = max(d.get("caffeine_total", 0.0) + caffeine_delta, 0.0)
+            
+            water_delta = luong_ml * cfg["water_ratio"]
+            d["water_total"] = max(d.get("water_total", 0.0) + water_delta, 0.0)
 
-        # Cập nhật tổng caffeine
-        caffeine_delta = (luong_ml / 100.0) * cfg["caffeine_per_100ml"]
-        d["caffeine_total"] = max(d.get("caffeine_total", 0.0) + caffeine_delta, 0.0)
+            await target_state["store"].async_save(d)
+            async_dispatcher_send(hass, f"{DOMAIN}_updated_{target_state['entry'].entry_id}")
+            _LOGGER.debug(
+                "Logged %sml of %s for prefix %s",
+                luong_ml, loai, target_state['entry'].data.get(CONF_PREFIX)
+            )
 
-        # Cập nhật tổng nước quy đổi
-        water_delta = luong_ml * cfg["water_ratio"]
-        d["water_total"] = max(d.get("water_total", 0.0) + water_delta, 0.0)
+        async def handle_reset(call: ServiceCall | None) -> None:
+            # Nếu call = None (từ midnight), reset tất cả
+            if call is None:
+                for state in hass.data.get(DOMAIN, {}).values():
+                    state["data"] = _default_data()
+                    await state["store"].async_save(state["data"])
+                    async_dispatcher_send(hass, f"{DOMAIN}_updated_{state['entry'].entry_id}")
+                return
 
-        await state["store"].async_save(d)
+            prefix = call.data.get("prefix", "").strip().lower()
+            target_state = None
+            for state in hass.data.get(DOMAIN, {}).values():
+                if state["entry"].data.get(CONF_PREFIX, "").lower() == prefix:
+                    target_state = state
+                    break
+            
+            if not target_state and len(hass.data.get(DOMAIN, {})) == 1:
+                target_state = list(hass.data[DOMAIN].values())[0]
 
-        # Cập nhật sensors
-        async_dispatcher_send(hass, f"{DOMAIN}_updated_{entry.entry_id}")
-        _LOGGER.debug(
-            "Logged %sml of %s | water_total=%.0f | caffeine=%.1fmg",
-            luong_ml, loai, d["water_total"], d["caffeine_total"],
-        )
+            if not target_state:
+                _LOGGER.warning("mai_drink_tracker: No config entry found for prefix '%s' to reset", prefix)
+                return
 
-    # ── Service: reset ────────────────────────────────────────────
-    async def handle_reset(call: ServiceCall) -> None:
-        state = hass.data[DOMAIN][entry.entry_id]
-        state["data"] = _default_data()
-        await state["store"].async_save(state["data"])
-        async_dispatcher_send(hass, f"{DOMAIN}_updated_{entry.entry_id}")
-        _LOGGER.info("mai_drink_tracker: reset for entry %s", entry.entry_id)
+            target_state["data"] = _default_data()
+            await target_state["store"].async_save(target_state["data"])
+            async_dispatcher_send(hass, f"{DOMAIN}_updated_{target_state['entry'].entry_id}")
 
-    hass.services.async_register(DOMAIN, SERVICE_LOG, handle_log)
-    hass.services.async_register(DOMAIN, SERVICE_RESET, handle_reset)
+        hass.services.async_register(DOMAIN, SERVICE_LOG, handle_log)
+        hass.services.async_register(DOMAIN, SERVICE_RESET, handle_reset)
 
     # ── Auto reset lúc nửa đêm ───────────────────────────────────
     async def midnight_reset(now: datetime) -> None:

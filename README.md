@@ -40,6 +40,7 @@ Log a drink intake.
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `prefix` | string | (Optional) Target user prefix if multiple users installed (e.g. `ba`, `chi`). |
 | `loai` | string | Drink type: `nuoc` / `cafe` / `tra` / `sua` / `nuoc_ep` |
 | `luong_ml` | number | Volume in ml. Use negative to undo (e.g. `-100`) |
 
@@ -47,12 +48,17 @@ Example:
 ```yaml
 service: mai_drink_tracker.log
 data:
+  prefix: ba  # Omit this line if only 1 user is installed
   loai: cafe
   luong_ml: 250
 ```
 
 ### `mai_drink_tracker.reset`
 Reset all drink data to zero.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `prefix` | string | (Optional) Target user prefix to reset (e.g. `ba`). If omitted, resets all if only 1 user installed. |
 
 ---
 

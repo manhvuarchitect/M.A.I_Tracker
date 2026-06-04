@@ -3,6 +3,13 @@ log:
   description: >
     Ghi nhận lượng đồ uống. Tự động quy đổi sang nước và tích lũy caffeine.
   fields:
+    prefix:
+      name: Prefix (Người dùng)
+      description: "Prefix người dùng (nếu cài cho nhiều người, vd: 'ba'). Để trống nếu chỉ 1 người."
+      required: false
+      example: "ba"
+      selector:
+        text:
     loai:
       name: Loại đồ uống
       description: "nuoc / cafe / tra / sua / nuoc_ep"
@@ -30,3 +37,10 @@ log:
 reset:
   name: Reset hôm nay
   description: Đặt lại toàn bộ số liệu đồ uống về 0.
+  fields:
+    prefix:
+      name: Prefix (Người dùng)
+      description: "Prefix người dùng cần reset. Để trống nếu chỉ 1 người."
+      required: false
+      selector:
+        text:

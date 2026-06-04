@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Mai Drink Tracker Setup",
+        "description": "Track daily fluid intake with automatic water conversion.",
+        "data": {
+          "prefix": "Prefix (e.g. mai, ba, chi)",
+          "water_goal": "Daily water goal (ml)"
+        },
+        "data_description": {
+          "prefix": "Used to name sensors: sensor.{prefix}_water_total",
+          "water_goal": "Target daily water intake in ml"
+        }
+      }
+    },
+    "error": {
+      "invalid_prefix": "Prefix must contain only letters, numbers, and underscores."
+    },
+    "abort": {
+      "already_configured": "This prefix is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update Settings",
+        "data": {
+          "water_goal": "Daily water goal (ml)"
+        }
+      }
+    }
+  }
+}

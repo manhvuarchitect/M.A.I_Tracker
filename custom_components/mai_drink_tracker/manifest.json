@@ -1,0 +1,11 @@
+{
+  "domain": "mai_drink_tracker",
+  "name": "Mai Drink Tracker",
+  "version": "1.0.0",
+  "documentation": "https://github.com/YOUR_USERNAME/mai-drink-tracker",
+  "issue_tracker": "https://github.com/YOUR_USERNAME/mai-drink-tracker/issues",
+  "codeowners": ["@YOUR_USERNAME"],
+  "requirements": [],
+  "iot_class": "local_push",
+  "config_flow": true
+}

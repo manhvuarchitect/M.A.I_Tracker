@@ -1,0 +1,32 @@
+log:
+  name: Ghi nhận đồ uống
+  description: >
+    Ghi nhận lượng đồ uống. Tự động quy đổi sang nước và tích lũy caffeine.
+  fields:
+    loai:
+      name: Loại đồ uống
+      description: "nuoc / cafe / tra / sua / nuoc_ep"
+      required: true
+      example: "cafe"
+      selector:
+        select:
+          options:
+            - nuoc
+            - cafe
+            - tra
+            - sua
+            - nuoc_ep
+    luong_ml:
+      name: Lượng (ml)
+      description: "Số ml cần ghi nhận. Dùng số âm để undo (vd: -100)"
+      required: true
+      example: 250
+      selector:
+        number:
+          min: -500
+          max: 1000
+          unit_of_measurement: ml
+
+reset:
+  name: Reset hôm nay
+  description: Đặt lại toàn bộ số liệu đồ uống về 0.

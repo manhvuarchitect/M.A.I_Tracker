@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Cài đặt Mai Drink Tracker",
+        "description": "Theo dõi lượng nước uống hàng ngày với quy đổi tự động.",
+        "data": {
+          "prefix": "Prefix (vd: mai, ba, chi)",
+          "water_goal": "Mục tiêu nước mỗi ngày (ml)"
+        },
+        "data_description": {
+          "prefix": "Dùng để đặt tên sensor: sensor.{prefix}_water_total",
+          "water_goal": "Lượng nước cần đạt mỗi ngày tính bằng ml"
+        }
+      }
+    },
+    "error": {
+      "invalid_prefix": "Prefix chỉ được chứa chữ thường, số và dấu gạch dưới."
+    },
+    "abort": {
+      "already_configured": "Prefix này đã được cài đặt rồi."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Cập nhật cài đặt",
+        "data": {
+          "water_goal": "Mục tiêu nước mỗi ngày (ml)"
+        }
+      }
+    }
+  }
+}

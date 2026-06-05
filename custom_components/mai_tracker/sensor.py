@@ -41,8 +41,6 @@ async def async_setup_entry(
     ]
     if coordinator.enable_absorption:
         entities.append(CaffeinePeakSensor(coordinator, entry))
-        
-    entities.append(WaterTotalSensor(coordinator, entry))
     
     # Add sensors for each drink type
     from .const import DRINK_TYPES
@@ -235,35 +233,7 @@ class CaffeinePeakSensor(_CaffeineBase):
         if not self.coordinator.data:
             return None
         return self.coordinator.data.peak_mg
-class WaterTotalSensor(_CaffeineBase):
-    """Total water consumed today."""
 
-    _attr_native_unit_of_measurement = "ml"
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
-    _attr_icon = "mdi:water"
-    _attr_translation_key = "water_today"
-
-    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, suffix="water_today")
-        self._attr_unique_id = f"{entry.entry_id}_water_today"
-
-    @property
-    def native_value(self) -> float | None:
-        if not self.coordinator.data:
-            return None
-        return self.coordinator.data.water_total
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        if not self.coordinator.data:
-            return {}
-        goal = float(self._entry.options.get("water_goal", self._entry.data.get("water_goal", 2000)))
-        total = self.coordinator.data.water_total
-        return {
-            "goal_ml": goal,
-            "percent": round(total / goal * 100) if goal > 0 else 0,
-            "remaining_ml": max(goal - total, 0),
-        }
 
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.core import callback

@@ -36,7 +36,7 @@ from .coordinator import CaffeineCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [Platform.SENSOR, Platform.NUMBER]
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 

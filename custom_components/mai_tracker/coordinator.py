@@ -309,6 +309,13 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         await self.async_refresh()
         return event_id
 
+    async def async_set_water_total(self, value: float) -> None:
+        """Manually set the total water."""
+        self.water_total = value
+        await self._async_save()
+        await self.async_refresh()
+        _LOGGER.info("Manually set water total to %.0f ml for %s", value, self.person_name)
+
     async def async_remove_last(self) -> bool:
         """Remove the most recent event. Returns True if an event was removed."""
         if not self._events:

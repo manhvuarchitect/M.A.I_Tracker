@@ -6,7 +6,9 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 
-from .const import DOMAIN, CONF_PREFIX, CONF_WATER_GOAL
+from homeassistant.helpers import selector
+
+from .const import DOMAIN, CONF_PREFIX, CONF_WATER_GOAL, CONF_NOTIFY_TARGET
 
 
 class MaiDrinkTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -73,8 +75,12 @@ class MaiDrinkTrackerOptionsFlow(config_entries.OptionsFlow):
         schema = vol.Schema({
             vol.Required(
                 CONF_WATER_GOAL,
-                default=self.config_entry.data.get(CONF_WATER_GOAL, 2000),
+                default=self.config_entry.options.get(CONF_WATER_GOAL, self.config_entry.data.get(CONF_WATER_GOAL, 2000)),
             ): vol.All(vol.Coerce(int), vol.Range(min=500, max=5000)),
+            vol.Optional(
+                CONF_NOTIFY_TARGET,
+                description={"suggested_value": self.config_entry.options.get(CONF_NOTIFY_TARGET, "")}
+            ): selector.EntitySelector(selector.EntitySelectorConfig(domain="notify")),
         })
 
         return self.async_show_form(step_id="init", data_schema=schema)

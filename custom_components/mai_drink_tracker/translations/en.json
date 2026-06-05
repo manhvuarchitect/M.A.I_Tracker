@@ -26,7 +26,8 @@
       "init": {
         "title": "Update Settings",
         "data": {
-          "water_goal": "Daily water goal (ml)"
+          "water_goal": "Daily water goal (ml)",
+          "notify_target": "Notify Target (Optional)"
         }
       }
     }

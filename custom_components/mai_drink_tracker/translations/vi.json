@@ -26,7 +26,8 @@
       "init": {
         "title": "Cập nhật cài đặt",
         "data": {
-          "water_goal": "Mục tiêu nước mỗi ngày (ml)"
+          "water_goal": "Mục tiêu nước mỗi ngày (ml)",
+          "notify_target": "Thiết bị nhận thông báo (Không bắt buộc)"
         }
       }
     }

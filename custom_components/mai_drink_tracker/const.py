@@ -14,6 +14,7 @@ STORAGE_VERSION = 1
 
 CONF_PREFIX = "prefix"
 CONF_WATER_GOAL = "water_goal"
+CONF_NOTIFY_TARGET = "notify_target"
 
 SERVICE_LOG = "log"
 SERVICE_RESET = "reset"

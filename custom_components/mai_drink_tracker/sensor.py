@@ -35,7 +35,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     prefix = entry.data.get(CONF_PREFIX, "mai")
-    water_goal = entry.data.get(CONF_WATER_GOAL, 2000)
+    water_goal = entry.options.get(CONF_WATER_GOAL, entry.data.get(CONF_WATER_GOAL, 2000))
 
     sensors = []
     sensors.append(WaterTotalSensor(hass, entry, prefix, water_goal))

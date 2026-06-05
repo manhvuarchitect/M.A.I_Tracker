@@ -68,6 +68,7 @@ class CaffeineData:
     peak_mg: float | None = None
     events: list[CaffeineEvent] = field(default_factory=list)
     water_total: float = 0.0
+    drinks_total: dict[str, float] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -188,6 +189,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         )
         self._events: list[CaffeineEvent] = []
         self.water_total: float = 0.0
+        self.drinks_total: dict[str, float] = {}
 
     async def async_load(self) -> None:
         """Load persisted events from storage."""
@@ -199,8 +201,10 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             today = datetime.now().strftime("%Y-%m-%d")
             if stored.get("date") == today:
                 self.water_total = float(stored.get("water_total", 0.0))
+                self.drinks_total = stored.get("drinks_total", {})
             else:
                 self.water_total = 0.0
+                self.drinks_total = {}
                 
         self._prune_old_events()
         _LOGGER.debug("Loaded %d events for %s", len(self._events), self.person_name)
@@ -210,6 +214,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         await self._store.async_save({
             "events": [e.to_dict() for e in self._events],
             "water_total": self.water_total,
+            "drinks_total": self.drinks_total,
             "date": today
         })
 
@@ -236,6 +241,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         stored = await self._store.async_load()
         if stored and stored.get("date") != today_str:
             self.water_total = 0.0
+            self.drinks_total = {}
             await self._async_save()
 
         if self.enable_absorption:
@@ -260,6 +266,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             peak_mg=round(peak, 1) if peak is not None else None,
             events=list(self._events),
             water_total=round(self.water_total, 1),
+            drinks_total=dict(self.drinks_total),
         )
 
     # ------------------------------------------------------------------
@@ -282,6 +289,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         
         water_delta = luong_ml * cfg["water_ratio"]
         self.water_total += water_delta
+        self.drinks_total[loai] = self.drinks_total.get(loai, 0.0) + luong_ml
         
         caffeine_delta = (luong_ml / 100.0) * cfg["caffeine_per_100ml"]
         
@@ -334,6 +342,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         midnight = local_midnight_utc(now)
         self._events = [e for e in self._events if e.timestamp < midnight]
         self.water_total = 0.0
+        self.drinks_total = {}
         await self._async_save()
         await self.async_refresh()
         _LOGGER.info("Cleared today's events and water for %s", self.person_name)

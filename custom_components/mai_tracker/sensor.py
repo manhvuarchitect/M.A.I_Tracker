@@ -44,6 +44,11 @@ async def async_setup_entry(
         
     entities.append(WaterTotalSensor(coordinator, entry))
     
+    # Add sensors for each drink type
+    from .const import DRINK_TYPES
+    for drink_key in DRINK_TYPES.keys():
+        entities.append(DrinkTypeSensor(coordinator, entry, drink_key))
+    
     temp_sensor = entry.options.get("temp_sensor", "")
     humidity_sensor = entry.options.get("humidity_sensor", "")
     if temp_sensor and humidity_sensor:
@@ -57,18 +62,66 @@ class _CaffeineBase(CoordinatorEntity[CaffeineCoordinator], SensorEntity):
 
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry, suffix: str = None) -> None:
         super().__init__(coordinator)
         self._entry = entry
+        
+        # Override entity_id exactly as requested
+        # e.g., sensor.mait_manh_water_today
+        if suffix:
+            person = coordinator.person_name.lower().replace(" ", "_")
+            self.entity_id = f"sensor.mait_{person}_{suffix}"
 
     @property
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
             identifiers={(DOMAIN, self.coordinator.entry_id)},
-            name=self.coordinator.person_name,
+            name=f"MAIT {self.coordinator.person_name}",
             manufacturer="M.A.I Tracker",
             model="Virtual Caffeine Monitor",
         )
+
+
+class DrinkTypeSensor(_CaffeineBase):
+    """Sensor tracking individual drink volumes."""
+
+    _attr_native_unit_of_measurement = "ml"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry, drink_key: str) -> None:
+        super().__init__(coordinator, entry, suffix=drink_key)
+        from .const import DRINK_TYPES
+        self._drink_key = drink_key
+        self._attr_unique_id = f"{entry.entry_id}_drink_{drink_key}"
+        self._attr_name = DRINK_TYPES[drink_key]["name"]
+        
+        if "cafe" in drink_key:
+            self._attr_icon = "mdi:coffee"
+        elif "tra" in drink_key:
+            self._attr_icon = "mdi:tea"
+        elif "nuoc_ngot" in drink_key:
+            self._attr_icon = "mdi:bottle-soda"
+        elif "sua" in drink_key:
+            self._attr_icon = "mdi:glass-mug-variant"
+        elif "bia" in drink_key:
+            self._attr_icon = "mdi:glass-mug"
+        else:
+            self._attr_icon = "mdi:cup-water"
+
+    @property
+    def native_value(self) -> float | None:
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.drinks_total.get(self._drink_key, 0.0)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        from .const import DRINK_TYPES
+        cfg = DRINK_TYPES[self._drink_key]
+        return {
+            "water_ratio": cfg["water_ratio"],
+            "caffeine_per_100ml": cfg["caffeine_per_100ml"],
+        }
 
 
 class CaffeineCurrentSensor(_CaffeineBase):
@@ -81,7 +134,7 @@ class CaffeineCurrentSensor(_CaffeineBase):
     _attr_translation_key = "current"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry)
+        super().__init__(coordinator, entry, suffix="current")
         self._attr_unique_id = f"{entry.entry_id}_current"
 
     @property
@@ -115,7 +168,7 @@ class CaffeineConsumedTodaySensor(_CaffeineBase):
     _attr_translation_key = "consumed_today"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry)
+        super().__init__(coordinator, entry, suffix="consumed_today")
         self._attr_unique_id = f"{entry.entry_id}_consumed_today"
 
     @property
@@ -133,7 +186,7 @@ class CaffeineConsumedTodayCountSensor(_CaffeineBase):
     _attr_translation_key = "consumed_today_count"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry)
+        super().__init__(coordinator, entry, suffix="consumed_today_count")
         self._attr_unique_id = f"{entry.entry_id}_consumed_today_count"
 
     @property
@@ -153,7 +206,7 @@ class CaffeineSleepSafeAtSensor(_CaffeineBase):
     _attr_translation_key = "sleep_safe_at"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry)
+        super().__init__(coordinator, entry, suffix="sleep_safe_at")
         self._attr_unique_id = f"{entry.entry_id}_sleep_safe_at"
 
     @property
@@ -161,8 +214,6 @@ class CaffeineSleepSafeAtSensor(_CaffeineBase):
         if not self.coordinator.data:
             return None
         safe_at = self.coordinator.data.sleep_safe_at
-        # None means already below threshold — return now so HA shows a valid
-        # timestamp and automations can compare against it (it will be in the past).
         return safe_at if safe_at is not None else dt_util.utcnow()
 
 
@@ -176,7 +227,7 @@ class CaffeinePeakSensor(_CaffeineBase):
     _attr_translation_key = "peak"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry)
+        super().__init__(coordinator, entry, suffix="peak")
         self._attr_unique_id = f"{entry.entry_id}_peak"
 
     @property
@@ -193,7 +244,7 @@ class WaterTotalSensor(_CaffeineBase):
     _attr_translation_key = "water_today"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry)
+        super().__init__(coordinator, entry, suffix="water_today")
         self._attr_unique_id = f"{entry.entry_id}_water_today"
 
     @property
@@ -236,12 +287,14 @@ class HeatIndexSensor(SensorEntity):
         self._attr_native_value = None
         self._person_name = person_name
         self._entry_id = entry.entry_id
+        person = person_name.lower().replace(" ", "_")
+        self.entity_id = f"sensor.mait_{person}_heat_index"
 
     @property
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
             identifiers={(DOMAIN, self._entry_id)},
-            name=self._person_name,
+            name=f"MAIT {self._person_name}",
             manufacturer="M.A.I Tracker",
             model="Virtual Caffeine Monitor",
         )

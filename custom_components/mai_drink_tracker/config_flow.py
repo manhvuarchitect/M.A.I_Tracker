@@ -79,8 +79,8 @@ class MaiDrinkTrackerOptionsFlow(config_entries.OptionsFlow):
             ): vol.All(vol.Coerce(int), vol.Range(min=500, max=5000)),
             vol.Optional(
                 CONF_NOTIFY_TARGET,
-                description={"suggested_value": self.config_entry.options.get(CONF_NOTIFY_TARGET, "")}
-            ): selector.selector({"entity": {"domain": "notify"}}),
+                default=self.config_entry.options.get(CONF_NOTIFY_TARGET, ""),
+            ): str,
         })
 
         return self.async_show_form(step_id="init", data_schema=schema)

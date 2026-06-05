@@ -8,7 +8,7 @@ from homeassistant.core import callback
 
 from homeassistant.helpers import selector
 
-from .const import DOMAIN, CONF_PREFIX, CONF_WATER_GOAL, CONF_NOTIFY_TARGET
+from .const import DOMAIN, CONF_PREFIX, CONF_WATER_GOAL, CONF_NOTIFY_TARGET, CONF_TEMP_SENSOR, CONF_HUMIDITY_SENSOR
 
 
 class MaiDrinkTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -80,6 +80,14 @@ class MaiDrinkTrackerOptionsFlow(config_entries.OptionsFlow):
             vol.Optional(
                 CONF_NOTIFY_TARGET,
                 default=self.config_entry.options.get(CONF_NOTIFY_TARGET, ""),
+            ): str,
+            vol.Optional(
+                CONF_TEMP_SENSOR,
+                default=self.config_entry.options.get(CONF_TEMP_SENSOR, ""),
+            ): str,
+            vol.Optional(
+                CONF_HUMIDITY_SENSOR,
+                default=self.config_entry.options.get(CONF_HUMIDITY_SENSOR, ""),
             ): str,
         })
 

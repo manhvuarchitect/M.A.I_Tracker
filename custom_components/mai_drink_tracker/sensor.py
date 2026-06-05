@@ -15,12 +15,15 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import (
     DOMAIN,
     DRINK_TYPES,
     CONF_PREFIX,
     CONF_WATER_GOAL,
+    CONF_TEMP_SENSOR,
+    CONF_HUMIDITY_SENSOR,
     MVADT,
     KEY_WATER_TOTAL,
     KEY_CAFFEINE_TOTAL,
@@ -40,6 +43,12 @@ async def async_setup_entry(
     sensors = []
     sensors.append(WaterTotalSensor(hass, entry, prefix, water_goal))
     sensors.append(CaffeineSensor(hass, entry, prefix))
+
+    temp_sensor = entry.options.get(CONF_TEMP_SENSOR, "")
+    humidity_sensor = entry.options.get(CONF_HUMIDITY_SENSOR, "")
+
+    if temp_sensor and humidity_sensor:
+        sensors.append(HeatIndexSensor(hass, entry, prefix, temp_sensor, humidity_sensor))
 
     async_add_entities(sensors, True)
 
@@ -117,3 +126,50 @@ class CaffeineSensor(DrinkBaseSensor):
     @property
     def native_value(self) -> float:
         return round(self._state_data.get("caffeine_total", 0.0), 1)
+
+
+class HeatIndexSensor(SensorEntity):
+    """Cảm biến oi bức tính toán từ nhiệt độ và độ ẩm."""
+
+    _attr_icon = "mdi:sun-thermometer"
+    _attr_native_unit_of_measurement = "°C"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_should_poll = False
+
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, prefix: str, temp_entity_id: str, hum_entity_id: str) -> None:
+        self.hass = hass
+        self._temp_entity_id = temp_entity_id
+        self._hum_entity_id = hum_entity_id
+        self._attr_unique_id = f"{prefix}_heat_index_sensor"
+        self.entity_id = f"sensor.muc_do_oi_buc_{prefix}"
+        self._attr_name = f"Mức độ oi bức ({prefix})"
+        self._attr_native_value = None
+
+    async def async_added_to_hass(self):
+        @callback
+        def async_state_changed_listener(event):
+            self.async_schedule_update_ha_state(True)
+            
+        self.async_on_remove(
+            async_track_state_change_event(
+                self.hass, [self._temp_entity_id, self._hum_entity_id], async_state_changed_listener
+            )
+        )
+        # Update once on startup
+        self.async_schedule_update_ha_state(True)
+
+    async def async_update(self):
+        temp_state = self.hass.states.get(self._temp_entity_id)
+        hum_state = self.hass.states.get(self._hum_entity_id)
+        
+        if temp_state and hum_state and temp_state.state not in ['unavailable', 'unknown'] and hum_state.state not in ['unavailable', 'unknown']:
+            try:
+                t = float(temp_state.state)
+                h = float(hum_state.state)
+                # T + 0.5555 * ((6.11 * (10 ** ((7.5 * T) / (237.7 + T))) * (H / 100)) - 10)
+                val = t + 0.5555 * ((6.11 * (10 ** ((7.5 * t) / (237.7 + t))) * (h / 100)) - 10)
+                self._attr_native_value = round(val, 1)
+            except ValueError:
+                self._attr_native_value = None
+        else:
+            self._attr_native_value = None

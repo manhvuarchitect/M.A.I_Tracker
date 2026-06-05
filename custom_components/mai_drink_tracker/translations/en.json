@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Mai Drink Tracker Setup",
+        "title": "M.A.I Drink Tracker Setup",
         "description": "Track daily fluid intake with automatic water conversion.",
         "data": {
           "prefix": "Prefix (e.g. mai, ba, chi)",
@@ -27,7 +27,9 @@
         "title": "Update Settings",
         "data": {
           "water_goal": "Daily water goal (ml)",
-          "notify_target": "Notify Target (Optional)"
+          "notify_target": "Notify Target (Optional)",
+          "temp_sensor": "Temperature Sensor (Entity ID, Optional)",
+          "humidity_sensor": "Humidity Sensor (Entity ID, Optional)"
         }
       }
     }

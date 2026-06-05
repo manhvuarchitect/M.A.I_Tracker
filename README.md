@@ -1,9 +1,6 @@
-# Mai Drink Tracker
+# M.A.I Drink Tracker (Home Assistant Custom Component)
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
-[![HA Version](https://img.shields.io/badge/HA-2023.1%2B-blue.svg)](https://www.home-assistant.io/)
-
-Track daily fluid intake in Home Assistant. Automatically converts each drink type to water equivalent and tracks caffeine accumulation. Resets at midnight.
+A simple Home Assistant integration to track daily fluid intake, convert caffeine to water equivalent, and reset daily.
 
 ---
 

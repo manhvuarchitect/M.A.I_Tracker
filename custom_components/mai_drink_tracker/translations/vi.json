@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Cài đặt Mai Drink Tracker",
+        "title": "Cài đặt M.A.I Drink Tracker",
         "description": "Theo dõi lượng nước uống hàng ngày với quy đổi tự động.",
         "data": {
           "prefix": "Prefix (vd: mai, ba, chi)",
@@ -27,7 +27,9 @@
         "title": "Cập nhật cài đặt",
         "data": {
           "water_goal": "Mục tiêu nước mỗi ngày (ml)",
-          "notify_target": "Thiết bị nhận thông báo (Không bắt buộc)"
+          "notify_target": "Thiết bị nhận thông báo (Không bắt buộc)",
+          "temp_sensor": "Cảm biến Nhiệt độ (Entity ID, Không bắt buộc)",
+          "humidity_sensor": "Cảm biến Độ ẩm (Entity ID, Không bắt buộc)"
         }
       }
     }

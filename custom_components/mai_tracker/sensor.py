@@ -38,6 +38,7 @@ async def async_setup_entry(
         CaffeineConsumedTodaySensor(coordinator, entry),
         CaffeineConsumedTodayCountSensor(coordinator, entry),
         CaffeineSleepSafeAtSensor(coordinator, entry),
+        CaffeinePercentSensor(coordinator, entry),
     ]
     if coordinator.enable_absorption:
         entities.append(CaffeinePeakSensor(coordinator, entry))
@@ -131,6 +132,27 @@ class CaffeineConsumedTodaySensor(_CaffeineBase):
         return (
             self.coordinator.data.consumed_today_mg if self.coordinator.data else None
         )
+
+class CaffeinePercentSensor(_CaffeineBase):
+    """Percentage of FDA safe daily limit (400mg)."""
+
+    _attr_native_unit_of_measurement = "%"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:percent"
+    _attr_suggested_display_precision = 0
+    _attr_translation_key = "caffeine_percent"
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, suffix="caffeine_percent")
+        self._attr_unique_id = f"{entry.entry_id}_caffeine_percent"
+
+    @property
+    def native_value(self) -> float | None:
+        if not self.coordinator.data:
+            return None
+        consumed = self.coordinator.data.consumed_today_mg
+        # Default FDA limit is 400mg
+        return round((consumed / 400.0) * 100.0, 0)
 
 
 class CaffeineConsumedTodayCountSensor(_CaffeineBase):

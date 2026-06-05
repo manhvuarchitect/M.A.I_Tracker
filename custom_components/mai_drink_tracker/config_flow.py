@@ -72,23 +72,31 @@ class MaiDrinkTrackerOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        schema = vol.Schema({
-            vol.Required(
-                CONF_WATER_GOAL,
-                default=self.config_entry.options.get(CONF_WATER_GOAL, self.config_entry.data.get(CONF_WATER_GOAL, 2000)),
-            ): vol.All(vol.Coerce(int), vol.Range(min=500, max=5000)),
-            vol.Optional(
-                CONF_NOTIFY_TARGET,
-                default=self.config_entry.options.get(CONF_NOTIFY_TARGET, ""),
-            ): str,
-            vol.Optional(
-                CONF_TEMP_SENSOR,
-                default=self.config_entry.options.get(CONF_TEMP_SENSOR, ""),
-            ): str,
-            vol.Optional(
-                CONF_HUMIDITY_SENSOR,
-                default=self.config_entry.options.get(CONF_HUMIDITY_SENSOR, ""),
-            ): str,
-        })
+        options = self.config_entry.options
+        data = self.config_entry.data
+        schema = {}
 
-        return self.async_show_form(step_id="init", data_schema=schema)
+        schema[vol.Required(
+            CONF_WATER_GOAL,
+            default=options.get(CONF_WATER_GOAL, data.get(CONF_WATER_GOAL, 2000)),
+        )] = vol.All(vol.Coerce(int), vol.Range(min=500, max=5000))
+
+        notify_target = options.get(CONF_NOTIFY_TARGET)
+        if notify_target:
+            schema[vol.Optional(CONF_NOTIFY_TARGET, description={"suggested_value": notify_target})] = selector.EntitySelector(selector.EntitySelectorConfig(domain="notify"))
+        else:
+            schema[vol.Optional(CONF_NOTIFY_TARGET)] = selector.EntitySelector(selector.EntitySelectorConfig(domain="notify"))
+
+        temp_sensor = options.get(CONF_TEMP_SENSOR)
+        if temp_sensor:
+            schema[vol.Optional(CONF_TEMP_SENSOR, description={"suggested_value": temp_sensor})] = selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor", device_class="temperature"))
+        else:
+            schema[vol.Optional(CONF_TEMP_SENSOR)] = selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor", device_class="temperature"))
+
+        hum_sensor = options.get(CONF_HUMIDITY_SENSOR)
+        if hum_sensor:
+            schema[vol.Optional(CONF_HUMIDITY_SENSOR, description={"suggested_value": hum_sensor})] = selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor", device_class="humidity"))
+        else:
+            schema[vol.Optional(CONF_HUMIDITY_SENSOR)] = selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor", device_class="humidity"))
+
+        return self.async_show_form(step_id="init", data_schema=vol.Schema(schema))

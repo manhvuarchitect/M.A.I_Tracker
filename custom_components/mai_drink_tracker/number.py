@@ -1,7 +1,13 @@
 """Number platform for Mai Drink Tracker.
 
-Tạo number entity cho từng loại đồ uống — có thanh slider,
-hiển thị % progress, read-write, dùng được với bubble-card slider.
+Entity ID pattern: number.{prefix}_mvadt_{key}
+Ví dụ prefix="mai":
+  number.mai_mvadt_water_total
+  number.mai_mvadt_cafe
+  number.mai_mvadt_tra
+  number.mai_mvadt_nuoc_loc
+  number.mai_mvadt_sua
+  number.mai_mvadt_nuoc_ep
 """
 
 from __future__ import annotations
@@ -20,6 +26,8 @@ from .const import (
     DRINK_TYPES,
     CONF_PREFIX,
     CONF_WATER_GOAL,
+    MVADT,
+    KEY_WATER_TOTAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -34,11 +42,7 @@ async def async_setup_entry(
     water_goal = entry.data.get(CONF_WATER_GOAL, 2000)
 
     entities = []
-
-    # Number tổng nước (max = water_goal)
     entities.append(WaterTotalNumber(hass, entry, prefix, water_goal))
-
-    # Number từng loại đồ uống
     for drink_id, cfg in DRINK_TYPES.items():
         entities.append(DrinkTypeNumber(hass, entry, prefix, drink_id, cfg))
 
@@ -46,8 +50,6 @@ async def async_setup_entry(
 
 
 class DrinkBaseNumber(NumberEntity):
-    """Base class cho drink number entities."""
-
     _attr_should_poll = False
     _attr_mode = NumberMode.SLIDER
     _attr_native_min_value = 0
@@ -81,17 +83,19 @@ class DrinkBaseNumber(NumberEntity):
             self._unsub()
 
     async def async_set_native_value(self, value: float) -> None:
-        """Không cho phép set trực tiếp — dùng service log thay thế."""
+        """Read-only — dùng service mai_drink_tracker.log để ghi nhận."""
         pass
 
 
 class WaterTotalNumber(DrinkBaseNumber):
-    """Number tổng nước quy đổi — dùng làm entity chính cho bubble slider."""
+    """number.{prefix}_mvadt_water_total"""
 
     def __init__(self, hass, entry, prefix, water_goal) -> None:
         super().__init__(hass, entry, prefix)
         self._water_goal = water_goal
-        self._attr_unique_id = f"{prefix}_number_water_total"
+        # Entity ID cố định: number.{prefix}_mvadt_water_total
+        self._attr_unique_id = f"{prefix}_{MVADT}_{KEY_WATER_TOTAL}"
+        self.entity_id = f"number.{prefix}_{MVADT}_{KEY_WATER_TOTAL}"
         self._attr_name = f"Tổng nước ({prefix})"
         self._attr_icon = "mdi:water"
         self._attr_native_max_value = water_goal
@@ -114,13 +118,15 @@ class WaterTotalNumber(DrinkBaseNumber):
 
 
 class DrinkTypeNumber(DrinkBaseNumber):
-    """Number từng loại đồ uống — có slider, hiển thị ml đã uống."""
+    """number.{prefix}_mvadt_{drink_id}"""
 
     def __init__(self, hass, entry, prefix, drink_id, cfg) -> None:
         super().__init__(hass, entry, prefix)
         self._drink_id = drink_id
         self._cfg = cfg
-        self._attr_unique_id = f"{prefix}_number_{drink_id}"
+        # Entity ID cố định: number.{prefix}_mvadt_{drink_id}
+        self._attr_unique_id = f"{prefix}_{MVADT}_{drink_id}"
+        self.entity_id = f"number.{prefix}_{MVADT}_{drink_id}"
         self._attr_name = f"{cfg['name']} ({prefix})"
         self._attr_icon = cfg["icon"]
 

@@ -2,6 +2,10 @@
 
 Thêm loại đồ uống mới: copy 1 entry trong DRINK_TYPES,
 điền caffeine_per_100ml và water_ratio. Không cần sửa file khác.
+
+Entity ID pattern: {prefix}_mvadt_{key}
+  mvadt = ManhVuArchitect Drink Tracker
+  Ví dụ prefix "mai": number.mai_mvadt_cafe, sensor.mai_mvadt_caffeine
 """
 
 DOMAIN = "mai_drink_tracker"
@@ -14,13 +18,16 @@ CONF_WATER_GOAL = "water_goal"
 SERVICE_LOG = "log"
 SERVICE_RESET = "reset"
 
+# Namespace cố định — không đổi, đảm bảo entity ID duy nhất
+MVADT = "mvadt"
+
 # ─────────────────────────────────────────────────────────────────
 # DRINK TYPES CONFIG
 # caffeine_per_100ml : mg caffeine mỗi 100ml (0 nếu không có)
 # water_ratio        : tỉ lệ quy đổi sang nước uống hiệu quả
 #                      1.0 = 100ml → 100ml nước
 #                      0.8 = 100ml cafe → 80ml nước (lợi tiểu nhẹ)
-# icon               : MDI icon cho sensor
+# icon               : MDI icon
 # ─────────────────────────────────────────────────────────────────
 DRINK_TYPES: dict = {
     "nuoc": {
@@ -55,11 +62,7 @@ DRINK_TYPES: dict = {
     },
 }
 
-# Sensor IDs (tự động prefix bằng entry prefix khi setup)
-SENSOR_WATER_TOTAL    = "water_total"
-SENSOR_WATER_PURE     = "nuoc"
-SENSOR_CAFE           = "cafe"
-SENSOR_TRA            = "tra"
-SENSOR_SUA            = "sua"
-SENSOR_NUOC_EP        = "nuoc_ep"
-SENSOR_CAFFEINE_TOTAL = "caffeine_total"
+# Entity key constants — {prefix}_mvadt_{KEY}
+# Ví dụ prefix="mai": number.mai_mvadt_water_total
+KEY_WATER_TOTAL    = "water_total"
+KEY_CAFFEINE_TOTAL = "caffeine_total"

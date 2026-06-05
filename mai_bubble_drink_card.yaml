@@ -1,0 +1,237 @@
+# ═══════════════════════════════════════════════════════════════════
+# FILE: mai_bubble_drink_card_v4.yaml
+# VERSION: 4.0 — dùng entity ID cố định mvadt
+#
+# ENTITY ID PATTERN: {platform}.{prefix}_mvadt_{key}
+#   number.mai_mvadt_water_total   — tổng nước (slider %)
+#   number.mai_mvadt_nuoc          — nước lọc
+#   number.mai_mvadt_cafe          — cafe
+#   number.mai_mvadt_tra           — trà
+#   sensor.mai_mvadt_caffeine      — caffeine
+#
+# SERVICE: mai_drink_tracker.log / mai_drink_tracker.reset
+# FILE LIÊN QUAN: assistant_health_calendar_v14.yaml
+# ═══════════════════════════════════════════════════════════════════
+
+type: vertical-stack
+cards:
+
+  # ── TỔNG NƯỚC ──────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: button
+    button_type: slider
+    entity: number.mai_mvadt_water_total
+    name: Tổng nước hôm nay
+    show_state: true
+    icon: mdi:water
+    max_value: 2500
+    slider_value_position: right
+    card_layout: normal
+    styles: |-
+      :host {
+        --color-main: #0262c9;
+        --color-second: #000094;
+        --accent-active: #0084ff;
+        --color-off: #ffffff;
+      }
+      .bubble-button-background {
+        background: linear-gradient(45deg,
+          var(--color-main) 0%,
+          var(--color-main) 40%,
+          var(--color-second) 100%
+        ) !important;
+      }
+      .bubble-sub-button { background: rgba(255,255,255,0.1) !important; }
+      .bubble-sub-button .bubble-sub-button-name { color: var(--color-off) !important; }
+    sub_button:
+      main:
+        - name: "+100"
+          icon: mdi:water-plus
+          show_name: true
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: nuoc, luong_ml: 100}
+        - name: "+250"
+          icon: mdi:water-plus
+          show_name: true
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: nuoc, luong_ml: 250}
+        - name: "+500"
+          icon: mdi:water-plus
+          show_name: true
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: nuoc, luong_ml: 500}
+        - icon: mdi:undo
+          show_name: false
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: nuoc, luong_ml: -100}
+
+  # ── CAFE ───────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: button
+    button_type: slider
+    entity: number.mai_mvadt_cafe
+    name: Cafe
+    show_state: true
+    icon: mdi:coffee
+    max_value: 2000
+    slider_value_position: right
+    card_layout: normal
+    styles: |-
+      :host {
+        --color-main: #3d1c00;
+        --color-second: #7b4a1e;
+        --accent-active: #ff9500;
+        --color-off: #ffffff;
+      }
+      .bubble-button-background {
+        background: linear-gradient(45deg,
+          var(--color-main) 0%,
+          var(--color-main) 40%,
+          var(--color-second) 100%
+        ) !important;
+      }
+      .bubble-sub-button { background: rgba(255,255,255,0.1) !important; }
+      .bubble-sub-button .bubble-sub-button-name { color: var(--color-off) !important; }
+    sub_button:
+      main:
+        - name: "+100"
+          icon: mdi:coffee
+          show_name: true
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: cafe, luong_ml: 100}
+        - name: "+250"
+          icon: mdi:coffee
+          show_name: true
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: cafe, luong_ml: 250}
+        - name: "+500"
+          icon: mdi:coffee
+          show_name: true
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: cafe, luong_ml: 500}
+        - icon: mdi:undo
+          show_name: false
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: cafe, luong_ml: -100}
+
+  # ── TRÀ ────────────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: button
+    button_type: slider
+    entity: number.mai_mvadt_tra
+    name: Trà
+    show_state: true
+    icon: mdi:tea
+    max_value: 2000
+    slider_value_position: right
+    card_layout: normal
+    styles: |-
+      :host {
+        --color-main: #1a3d00;
+        --color-second: #2d6600;
+        --accent-active: #7bc67e;
+        --color-off: #ffffff;
+      }
+      .bubble-button-background {
+        background: linear-gradient(45deg,
+          var(--color-main) 0%,
+          var(--color-main) 40%,
+          var(--color-second) 100%
+        ) !important;
+      }
+      .bubble-sub-button { background: rgba(255,255,255,0.1) !important; }
+      .bubble-sub-button .bubble-sub-button-name { color: var(--color-off) !important; }
+    sub_button:
+      main:
+        - name: "+100"
+          icon: mdi:tea
+          show_name: true
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: tra, luong_ml: 100}
+        - name: "+250"
+          icon: mdi:tea
+          show_name: true
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: tra, luong_ml: 250}
+        - name: "+500"
+          icon: mdi:tea
+          show_name: true
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: tra, luong_ml: 500}
+        - icon: mdi:undo
+          show_name: false
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.log
+            data: {loai: tra, luong_ml: -100}
+
+  # ── THỐNG KÊ ───────────────────────────────────────────────────
+  - type: custom:bubble-card
+    card_type: button
+    button_type: button
+    entity: sensor.mai_mvadt_caffeine
+    name: Caffeine hôm nay
+    show_state: true
+    icon: mdi:chart-bar
+    card_layout: normal
+    styles: |-
+      :host {
+        --color-main: #1a1a2e;
+        --color-second: #16213e;
+        --color-off: #aaaaaa;
+      }
+      .bubble-button-background {
+        background: linear-gradient(45deg,
+          var(--color-main) 0%,
+          var(--color-second) 100%
+        ) !important;
+      }
+      .bubble-sub-button { background: rgba(255,255,255,0.08) !important; }
+      .bubble-sub-button .bubble-sub-button-name {
+        color: var(--color-off) !important;
+        font-size: 11px !important;
+      }
+    sub_button:
+      main:
+        - entity: number.mai_mvadt_nuoc
+          name: Nước
+          icon: mdi:water
+          show_name: true
+          show_state: true
+        - entity: number.mai_mvadt_cafe
+          name: Cafe
+          icon: mdi:coffee
+          show_name: true
+          show_state: true
+        - entity: number.mai_mvadt_tra
+          name: Trà
+          icon: mdi:tea
+          show_name: true
+          show_state: true
+        - icon: mdi:restart
+          show_name: false
+          tap_action:
+            action: perform-action
+            perform_action: mai_drink_tracker.reset

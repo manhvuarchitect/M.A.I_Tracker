@@ -29,7 +29,11 @@
           "water_goal": "Daily water goal (ml)",
           "notify_target": "Notify Target (Optional)",
           "temp_sensor": "Temperature Sensor (Entity ID, Optional)",
-          "humidity_sensor": "Humidity Sensor (Entity ID, Optional)"
+          "humidity_sensor": "Humidity Sensor (Entity ID, Optional)",
+          "half_life_hours": "Caffeine Half-life (Hours)",
+          "sleep_safe_mg": "Safe sleep threshold (mg)",
+          "enable_absorption": "Simulate absorption time",
+          "absorption_time_min": "Absorption Time (Minutes)"
         }
       }
     }

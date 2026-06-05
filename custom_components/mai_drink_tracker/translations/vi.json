@@ -29,7 +29,11 @@
           "water_goal": "Mục tiêu nước mỗi ngày (ml)",
           "notify_target": "Thiết bị nhận thông báo (Không bắt buộc)",
           "temp_sensor": "Cảm biến Nhiệt độ (Entity ID, Không bắt buộc)",
-          "humidity_sensor": "Cảm biến Độ ẩm (Entity ID, Không bắt buộc)"
+          "humidity_sensor": "Cảm biến Độ ẩm (Entity ID, Không bắt buộc)",
+          "half_life_hours": "Thời gian bán phân hủy Cafein (Giờ)",
+          "sleep_safe_mg": "Ngưỡng Cafein an toàn để đi ngủ (mg)",
+          "enable_absorption": "Mô phỏng thời gian hấp thụ vào máu",
+          "absorption_time_min": "Thời gian hấp thụ (Phút)"
         }
       }
     }

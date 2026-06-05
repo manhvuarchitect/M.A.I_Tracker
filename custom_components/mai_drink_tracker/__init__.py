@@ -29,7 +29,16 @@ from .const import (
     SERVICE_RESET,
     CONF_PREFIX,
     CONF_NOTIFY_TARGET,
+    CONF_HALF_LIFE_HOURS,
+    CONF_SLEEP_SAFE_MG,
+    CONF_ENABLE_ABSORPTION,
+    CONF_ABSORPTION_TIME_MIN,
+    DEFAULT_HALF_LIFE_HOURS,
+    DEFAULT_SLEEP_SAFE_MG,
+    DEFAULT_ENABLE_ABSORPTION,
+    DEFAULT_ABSORPTION_TIME_MIN,
 )
+from .coordinator import CaffeineCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,11 +66,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if data.get("date") != today:
         data = _default_data()
 
+    caffeine_coordinator = CaffeineCoordinator(
+        hass,
+        entry.entry_id,
+        prefix,
+        half_life_hours=entry.options.get(CONF_HALF_LIFE_HOURS, DEFAULT_HALF_LIFE_HOURS),
+        sleep_safe_mg=entry.options.get(CONF_SLEEP_SAFE_MG, DEFAULT_SLEEP_SAFE_MG),
+        enable_absorption=entry.options.get(CONF_ENABLE_ABSORPTION, DEFAULT_ENABLE_ABSORPTION),
+        absorption_time_min=entry.options.get(CONF_ABSORPTION_TIME_MIN, DEFAULT_ABSORPTION_TIME_MIN),
+    )
+    await caffeine_coordinator.async_load()
+    await caffeine_coordinator.async_config_entry_first_refresh()
+
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
         "store": store,
         "data": data,
         "entry": entry,
+        "caffeine_coordinator": caffeine_coordinator,
     }
 
     # Đăng ký listener để reload khi options thay đổi
@@ -102,6 +124,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             caffeine_delta = (luong_ml / 100.0) * cfg["caffeine_per_100ml"]
             d["caffeine_total"] = max(d.get("caffeine_total", 0.0) + caffeine_delta, 0.0)
             
+            if caffeine_delta > 0:
+                await target_state["caffeine_coordinator"].async_log_consumption(caffeine_delta, cfg["name"])
+            
             water_delta = luong_ml * cfg["water_ratio"]
             d["water_total"] = max(d.get("water_total", 0.0) + water_delta, 0.0)
 
@@ -130,6 +155,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     state["data"] = _default_data()
                     await state["store"].async_save(state["data"])
                     async_dispatcher_send(hass, f"{DOMAIN}_updated_{state['entry'].entry_id}")
+                    await state["caffeine_coordinator"].async_clear_today()
                 return
 
             prefix = call.data.get("prefix", "").strip().lower()
@@ -149,6 +175,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             target_state["data"] = _default_data()
             await target_state["store"].async_save(target_state["data"])
             async_dispatcher_send(hass, f"{DOMAIN}_updated_{target_state['entry'].entry_id}")
+            await target_state["caffeine_coordinator"].async_clear_today()
 
         hass.services.async_register(DOMAIN, SERVICE_LOG, handle_log)
         hass.services.async_register(DOMAIN, SERVICE_RESET, handle_reset)

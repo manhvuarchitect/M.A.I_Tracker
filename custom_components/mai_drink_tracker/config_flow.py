@@ -6,9 +6,18 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 
-from homeassistant.helpers import selector
-
-from .const import DOMAIN, CONF_PREFIX, CONF_WATER_GOAL, CONF_NOTIFY_TARGET, CONF_TEMP_SENSOR, CONF_HUMIDITY_SENSOR
+from .const import (
+    DOMAIN, 
+    CONF_PREFIX, 
+    CONF_WATER_GOAL, 
+    CONF_NOTIFY_TARGET, 
+    CONF_TEMP_SENSOR, 
+    CONF_HUMIDITY_SENSOR,
+    CONF_HALF_LIFE_HOURS,
+    CONF_SLEEP_SAFE_MG,
+    CONF_ENABLE_ABSORPTION,
+    CONF_ABSORPTION_TIME_MIN,
+)
 
 
 class MaiDrinkTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -81,6 +90,27 @@ class MaiDrinkTrackerOptionsFlow(config_entries.OptionsFlow):
             CONF_WATER_GOAL,
             default=options.get(CONF_WATER_GOAL, data.get(CONF_WATER_GOAL, 2000)),
         )] = vol.All(vol.Coerce(int), vol.Range(min=500, max=5000))
+
+        # Caffeine settings
+        schema[vol.Required(
+            CONF_HALF_LIFE_HOURS, 
+            default=float(options.get(CONF_HALF_LIFE_HOURS, data.get(CONF_HALF_LIFE_HOURS, 5.0)))
+        )] = vol.All(vol.Coerce(float), vol.Range(min=1.0, max=24.0))
+
+        schema[vol.Required(
+            CONF_SLEEP_SAFE_MG, 
+            default=float(options.get(CONF_SLEEP_SAFE_MG, data.get(CONF_SLEEP_SAFE_MG, 50.0)))
+        )] = vol.All(vol.Coerce(float), vol.Range(min=0.0, max=500.0))
+
+        schema[vol.Required(
+            CONF_ENABLE_ABSORPTION, 
+            default=bool(options.get(CONF_ENABLE_ABSORPTION, data.get(CONF_ENABLE_ABSORPTION, False)))
+        )] = bool
+
+        schema[vol.Required(
+            CONF_ABSORPTION_TIME_MIN, 
+            default=float(options.get(CONF_ABSORPTION_TIME_MIN, data.get(CONF_ABSORPTION_TIME_MIN, 45.0)))
+        )] = vol.All(vol.Coerce(float), vol.Range(min=5.0, max=120.0))
 
         # 2. Build dynamic dicts for dropdowns
         notify_dict = {"": "Không sử dụng"}

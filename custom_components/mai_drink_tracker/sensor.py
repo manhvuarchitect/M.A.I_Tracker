@@ -14,6 +14,7 @@ from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from datetime import datetime
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_state_change_event
 
@@ -40,9 +41,15 @@ async def async_setup_entry(
     prefix = entry.data.get(CONF_PREFIX, "mai")
     water_goal = entry.options.get(CONF_WATER_GOAL, entry.data.get(CONF_WATER_GOAL, 2000))
 
+    coordinator = hass.data[DOMAIN][entry.entry_id].get("caffeine_coordinator")
+
     sensors = []
     sensors.append(WaterTotalSensor(hass, entry, prefix, water_goal))
-    sensors.append(CaffeineSensor(hass, entry, prefix))
+    
+    if coordinator:
+        sensors.append(CaffeineTodaySensor(coordinator, entry, prefix))
+        sensors.append(CaffeineActiveSensor(coordinator, entry, prefix))
+        sensors.append(CaffeineSleepSafeSensor(coordinator, entry, prefix))
 
     temp_sensor = entry.options.get(CONF_TEMP_SENSOR, "")
     humidity_sensor = entry.options.get(CONF_HUMIDITY_SENSOR, "")
@@ -112,20 +119,77 @@ class WaterTotalSensor(DrinkBaseSensor):
         }
 
 
-class CaffeineSensor(DrinkBaseSensor):
-    """sensor.{prefix}_mvadt_caffeine"""
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-    def __init__(self, hass, entry, prefix) -> None:
-        super().__init__(hass, entry, prefix)
+class CaffeineTodaySensor(CoordinatorEntity, SensorEntity):
+    """sensor.{prefix}_mvadt_caffeine (Tổng đã nạp hôm nay)."""
+
+    def __init__(self, coordinator, entry, prefix) -> None:
+        super().__init__(coordinator)
         self._attr_unique_id = f"{prefix}_{MVADT}_{KEY_CAFFEINE_TOTAL}"
         self.entity_id = f"sensor.{prefix}_{MVADT}_caffeine"
         self._attr_name = f"Caffeine hôm nay ({prefix})"
         self._attr_icon = "mdi:coffee-to-go"
         self._attr_native_unit_of_measurement = "mg"
+        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
 
     @property
-    def native_value(self) -> float:
-        return round(self._state_data.get("caffeine_total", 0.0), 1)
+    def native_value(self) -> float | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.consumed_today_mg
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        if self.coordinator.data is None:
+            return {}
+        return {
+            "events_today": self.coordinator.data.consumed_today_count,
+        }
+
+class CaffeineActiveSensor(CoordinatorEntity, SensorEntity):
+    """sensor.caffeine_active_{prefix} (Lượng đang phân rã trong người)."""
+
+    def __init__(self, coordinator, entry, prefix) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{prefix}_caffeine_active"
+        self.entity_id = f"sensor.caffeine_active_{prefix}"
+        self._attr_name = f"Caffeine đang hoạt động ({prefix})"
+        self._attr_icon = "mdi:molecule"
+        self._attr_native_unit_of_measurement = "mg"
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def native_value(self) -> float | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.current_mg
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        if self.coordinator.data is None:
+            return {}
+        return {
+            "peak_mg": self.coordinator.data.peak_mg,
+        }
+
+class CaffeineSleepSafeSensor(CoordinatorEntity, SensorEntity):
+    """sensor.sleep_safe_at_{prefix} (Giờ đi ngủ an toàn)."""
+
+    def __init__(self, coordinator, entry, prefix) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{prefix}_caffeine_sleep_safe_at"
+        self.entity_id = f"sensor.sleep_safe_at_{prefix}"
+        self._attr_name = f"Giờ đi ngủ an toàn ({prefix})"
+        self._attr_icon = "mdi:sleep"
+        # SensorStateClass = None for timestamp
+        self._attr_device_class = "timestamp"
+
+    @property
+    def native_value(self) -> datetime | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.sleep_safe_at
 
 
 class HeatIndexSensor(SensorEntity):

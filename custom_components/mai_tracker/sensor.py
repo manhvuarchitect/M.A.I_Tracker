@@ -42,11 +42,7 @@ async def async_setup_entry(
     if coordinator.enable_absorption:
         entities.append(CaffeinePeakSensor(coordinator, entry))
     
-    # Add sensors for each drink type
-    from .const import DRINK_TYPES
-    for drink_key in DRINK_TYPES.keys():
-        entities.append(DrinkTypeSensor(coordinator, entry, drink_key))
-    
+
     temp_sensor = entry.options.get("temp_sensor", "")
     humidity_sensor = entry.options.get("humidity_sensor", "")
     if temp_sensor and humidity_sensor:
@@ -80,46 +76,7 @@ class _CaffeineBase(CoordinatorEntity[CaffeineCoordinator], SensorEntity):
         )
 
 
-class DrinkTypeSensor(_CaffeineBase):
-    """Sensor tracking individual drink volumes."""
 
-    _attr_native_unit_of_measurement = "ml"
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
-
-    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry, drink_key: str) -> None:
-        super().__init__(coordinator, entry, suffix=drink_key)
-        from .const import DRINK_TYPES
-        self._drink_key = drink_key
-        self._attr_unique_id = f"{entry.entry_id}_drink_{drink_key}"
-        self._attr_name = DRINK_TYPES[drink_key]["name"]
-        
-        if "cafe" in drink_key:
-            self._attr_icon = "mdi:coffee"
-        elif "tra" in drink_key:
-            self._attr_icon = "mdi:tea"
-        elif "nuoc_ngot" in drink_key:
-            self._attr_icon = "mdi:bottle-soda"
-        elif "sua" in drink_key:
-            self._attr_icon = "mdi:glass-mug-variant"
-        elif "bia" in drink_key:
-            self._attr_icon = "mdi:glass-mug"
-        else:
-            self._attr_icon = "mdi:cup-water"
-
-    @property
-    def native_value(self) -> float | None:
-        if not self.coordinator.data:
-            return None
-        return self.coordinator.data.drinks_total.get(self._drink_key, 0.0)
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        from .const import DRINK_TYPES
-        cfg = DRINK_TYPES[self._drink_key]
-        return {
-            "water_ratio": cfg["water_ratio"],
-            "caffeine_per_100ml": cfg["caffeine_per_100ml"],
-        }
 
 
 class CaffeineCurrentSensor(_CaffeineBase):

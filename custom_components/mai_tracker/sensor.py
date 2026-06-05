@@ -76,9 +76,9 @@ class _CaffeineBase(CoordinatorEntity[CaffeineCoordinator], SensorEntity):
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
             identifiers={(DOMAIN, self.coordinator.entry_id)},
-            name=f"MAIT {self.coordinator.person_name}",
+            name=f"M.A.I Tracker {self.coordinator.person_name}",
             manufacturer="M.A.I Tracker",
-            model="Virtual Caffeine Monitor",
+            model="Assistant Tracker",
         )
 
 
@@ -294,9 +294,9 @@ class HeatIndexSensor(SensorEntity):
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
             identifiers={(DOMAIN, self._entry_id)},
-            name=f"MAIT {self._person_name}",
+            name=f"M.A.I Tracker {self._person_name}",
             manufacturer="M.A.I Tracker",
-            model="Virtual Caffeine Monitor",
+            model="Assistant Tracker",
         )
 
     async def async_added_to_hass(self):

@@ -76,27 +76,43 @@ class MaiDrinkTrackerOptionsFlow(config_entries.OptionsFlow):
         data = self.config_entry.data
         schema = {}
 
+        # 1. Goal
         schema[vol.Required(
             CONF_WATER_GOAL,
             default=options.get(CONF_WATER_GOAL, data.get(CONF_WATER_GOAL, 2000)),
         )] = vol.All(vol.Coerce(int), vol.Range(min=500, max=5000))
 
-        notify_target = options.get(CONF_NOTIFY_TARGET)
-        if notify_target:
-            schema[vol.Optional(CONF_NOTIFY_TARGET, description={"suggested_value": notify_target})] = selector.EntitySelector(selector.EntitySelectorConfig(domain="notify"))
-        else:
-            schema[vol.Optional(CONF_NOTIFY_TARGET)] = selector.EntitySelector(selector.EntitySelectorConfig(domain="notify"))
+        # 2. Build dynamic dicts for dropdowns
+        notify_dict = {"": "Không sử dụng"}
+        for svc in self.hass.services.async_services().get("notify", {}).keys():
+            notify_dict[f"notify.{svc}"] = f"notify.{svc}"
 
-        temp_sensor = options.get(CONF_TEMP_SENSOR)
-        if temp_sensor:
-            schema[vol.Optional(CONF_TEMP_SENSOR, description={"suggested_value": temp_sensor})] = selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor", device_class="temperature"))
-        else:
-            schema[vol.Optional(CONF_TEMP_SENSOR)] = selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor", device_class="temperature"))
+        temp_dict = {"": "Không sử dụng"}
+        hum_dict = {"": "Không sử dụng"}
+        
+        for state in self.hass.states.async_all("sensor"):
+            dc = state.attributes.get("device_class")
+            if dc == "temperature":
+                temp_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
+            elif dc == "humidity":
+                hum_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
 
-        hum_sensor = options.get(CONF_HUMIDITY_SENSOR)
-        if hum_sensor:
-            schema[vol.Optional(CONF_HUMIDITY_SENSOR, description={"suggested_value": hum_sensor})] = selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor", device_class="humidity"))
-        else:
-            schema[vol.Optional(CONF_HUMIDITY_SENSOR)] = selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor", device_class="humidity"))
+        # Ensure current selections are in the dicts
+        cur_notify = options.get(CONF_NOTIFY_TARGET, "")
+        if cur_notify and cur_notify not in notify_dict:
+            notify_dict[cur_notify] = cur_notify
+            
+        cur_temp = options.get(CONF_TEMP_SENSOR, "")
+        if cur_temp and cur_temp not in temp_dict:
+            temp_dict[cur_temp] = cur_temp
+
+        cur_hum = options.get(CONF_HUMIDITY_SENSOR, "")
+        if cur_hum and cur_hum not in hum_dict:
+            hum_dict[cur_hum] = cur_hum
+
+        # 3. Add to schema using vol.In
+        schema[vol.Optional(CONF_NOTIFY_TARGET, default=cur_notify)] = vol.In(notify_dict)
+        schema[vol.Optional(CONF_TEMP_SENSOR, default=cur_temp)] = vol.In(temp_dict)
+        schema[vol.Optional(CONF_HUMIDITY_SENSOR, default=cur_hum)] = vol.In(hum_dict)
 
         return self.async_show_form(step_id="init", data_schema=vol.Schema(schema))

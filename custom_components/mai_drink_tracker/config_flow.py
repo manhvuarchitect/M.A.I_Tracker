@@ -80,7 +80,7 @@ class MaiDrinkTrackerOptionsFlow(config_entries.OptionsFlow):
             vol.Optional(
                 CONF_NOTIFY_TARGET,
                 description={"suggested_value": self.config_entry.options.get(CONF_NOTIFY_TARGET, "")}
-            ): selector.EntitySelector(selector.EntitySelectorConfig(domain="notify")),
+            ): selector.selector({"entity": {"domain": "notify"}}),
         })
 
         return self.async_show_form(step_id="init", data_schema=schema)

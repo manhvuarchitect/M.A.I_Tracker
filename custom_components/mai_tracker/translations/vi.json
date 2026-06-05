@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Cài đặt M.A.I Tracker",
+        "data": {
+          "person_name": "Tên người dùng (Prefix)",
+          "water_goal": "Mục tiêu nước (ml)",
+          "half_life_hours": "Thời gian bán phân hủy Cafein",
+          "sleep_safe_mg": "Ngưỡng Cafein an toàn để ngủ",
+          "enable_absorption": "Mô phỏng hấp thụ",
+          "absorption_time_min": "Thời gian hấp thụ (Phút)"
+        }
+      }
+    },
+    "error": {
+      "name_taken": "Tên này đã được sử dụng."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Cấu hình M.A.I Tracker",
+        "data": {
+          "water_goal": "Mục tiêu nước (ml)",
+          "half_life_hours": "Thời gian bán phân hủy Cafein",
+          "sleep_safe_mg": "Ngưỡng an toàn để ngủ",
+          "enable_absorption": "Mô phỏng hấp thụ",
+          "absorption_time_min": "Thời gian hấp thụ",
+          "notify_target": "Thiết bị nhận thông báo",
+          "temp_sensor": "Cảm biến nhiệt độ",
+          "humidity_sensor": "Cảm biến độ ẩm"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current": { "name": "Caffeine Đang Hoạt Động" },
+      "consumed_today": { "name": "Caffeine Hôm Nay" },
+      "consumed_today_count": { "name": "Số lần uống Cafein" },
+      "sleep_safe_at": { "name": "Giờ đi ngủ an toàn" },
+      "peak": { "name": "Mức Cafein đỉnh điểm" },
+      "water_today": { "name": "Tổng Nước Hôm Nay" },
+      "heat_index": { "name": "Mức độ oi bức" }
+    }
+  }
+}

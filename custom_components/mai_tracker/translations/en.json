@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "M.A.I Tracker Setup",
+        "data": {
+          "person_name": "User Name (Prefix)",
+          "water_goal": "Daily Water Goal (ml)",
+          "half_life_hours": "Caffeine half-life",
+          "sleep_safe_mg": "Sleep-safe threshold",
+          "enable_absorption": "Model gradual absorption",
+          "absorption_time_min": "Absorption time"
+        }
+      }
+    },
+    "error": {
+      "name_taken": "A profile with this name already exists."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update Settings",
+        "data": {
+          "water_goal": "Daily Water Goal (ml)",
+          "half_life_hours": "Caffeine half-life",
+          "sleep_safe_mg": "Sleep-safe threshold",
+          "enable_absorption": "Model gradual absorption",
+          "absorption_time_min": "Absorption time constant",
+          "notify_target": "Notify Target",
+          "temp_sensor": "Temperature Sensor",
+          "humidity_sensor": "Humidity Sensor"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current": { "name": "Caffeine Active Level" },
+      "consumed_today": { "name": "Caffeine Consumed Today" },
+      "consumed_today_count": { "name": "Consumptions Today" },
+      "sleep_safe_at": { "name": "Sleep Safe At" },
+      "peak": { "name": "Estimated Peak Level" },
+      "water_today": { "name": "Water Consumed Today" },
+      "heat_index": { "name": "Heat Index" }
+    }
+  }
+}

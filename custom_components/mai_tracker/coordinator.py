@@ -1,4 +1,4 @@
-"""Caffeine Tracker data coordinator."""
+"""M.A.I Tracker data coordinator."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from .const import (
     DEFAULT_SLEEP_SAFE_MG,
     DOMAIN,
     MAX_EVENT_AGE_MULTIPLIER,
-    STORAGE_KEY,
+    STORAGE_KEY_PREFIX,
     STORAGE_VERSION,
 )
 
@@ -67,6 +67,7 @@ class CaffeineData:
     # Only set when absorption model is enabled
     peak_mg: float | None = None
     events: list[CaffeineEvent] = field(default_factory=list)
+    water_total: float = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -183,20 +184,34 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self.enable_absorption = enable_absorption
         self.absorption_time_min = absorption_time_min
         self._store: Store = Store(
-            hass, STORAGE_VERSION, f"{STORAGE_KEY}_{entry_id}_caffeine"
+            hass, STORAGE_VERSION, f"{STORAGE_KEY_PREFIX}_{entry_id}"
         )
         self._events: list[CaffeineEvent] = []
+        self.water_total: float = 0.0
 
     async def async_load(self) -> None:
         """Load persisted events from storage."""
         stored = await self._store.async_load()
-        if stored and "events" in stored:
-            self._events = [CaffeineEvent.from_dict(e) for e in stored["events"]]
+        if stored:
+            if "events" in stored:
+                self._events = [CaffeineEvent.from_dict(e) for e in stored["events"]]
+            
+            today = datetime.now().strftime("%Y-%m-%d")
+            if stored.get("date") == today:
+                self.water_total = float(stored.get("water_total", 0.0))
+            else:
+                self.water_total = 0.0
+                
         self._prune_old_events()
         _LOGGER.debug("Loaded %d events for %s", len(self._events), self.person_name)
 
     async def _async_save(self) -> None:
-        await self._store.async_save({"events": [e.to_dict() for e in self._events]})
+        today = datetime.now().strftime("%Y-%m-%d")
+        await self._store.async_save({
+            "events": [e.to_dict() for e in self._events],
+            "water_total": self.water_total,
+            "date": today
+        })
 
     def _prune_old_events(self) -> None:
         cutoff = dt_util.utcnow() - timedelta(
@@ -216,6 +231,12 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         midnight = local_midnight_utc(now)
         today_mg = compute_consumed_today_mg(self._events, midnight)
         today_count = compute_consumed_today_count(self._events, midnight)
+
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        stored = await self._store.async_load()
+        if stored and stored.get("date") != today_str:
+            self.water_total = 0.0
+            await self._async_save()
 
         if self.enable_absorption:
             peak = compute_peak_mg(
@@ -238,30 +259,47 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             sleep_safe_at=safe_at,
             peak_mg=round(peak, 1) if peak is not None else None,
             events=list(self._events),
+            water_total=round(self.water_total, 1),
         )
 
     # ------------------------------------------------------------------
     # Service handlers (called by sensor entity methods)
     # ------------------------------------------------------------------
 
-    async def async_log_consumption(
+    async def async_log_drink(
         self,
-        mg: float,
-        label: str,
+        loai: str,
+        luong_ml: float,
         timestamp: datetime | None = None,
-    ) -> str:
-        """Record a caffeine intake event. Returns the new event ID."""
-        event = CaffeineEvent(
-            id=str(uuid.uuid4()),
-            timestamp=timestamp or dt_util.utcnow(),
-            mg=mg,
-            label=label,
-        )
-        self._events.append(event)
+    ) -> str | None:
+        """Log a drink, update water and add caffeine event if any."""
+        from .const import DRINK_TYPES
+        if loai not in DRINK_TYPES:
+            _LOGGER.warning("Unknown drink type: %s", loai)
+            return None
+            
+        cfg = DRINK_TYPES[loai]
+        
+        water_delta = luong_ml * cfg["water_ratio"]
+        self.water_total += water_delta
+        
+        caffeine_delta = (luong_ml / 100.0) * cfg["caffeine_per_100ml"]
+        
+        event_id = None
+        if caffeine_delta > 0:
+            event = CaffeineEvent(
+                id=str(uuid.uuid4()),
+                timestamp=timestamp or dt_util.utcnow(),
+                mg=caffeine_delta,
+                label=cfg["name"],
+            )
+            self._events.append(event)
+            event_id = event.id
+            _LOGGER.info("Logged %.0f mg (%s) for %s", caffeine_delta, cfg["name"], self.person_name)
+
         await self._async_save()
         await self.async_refresh()
-        _LOGGER.info("Logged %.0f mg (%s) for %s", mg, label, self.person_name)
-        return event.id
+        return event_id
 
     async def async_remove_last(self) -> bool:
         """Remove the most recent event. Returns True if an event was removed."""
@@ -295,6 +333,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         now = dt_util.utcnow()
         midnight = local_midnight_utc(now)
         self._events = [e for e in self._events if e.timestamp < midnight]
+        self.water_total = 0.0
         await self._async_save()
         await self.async_refresh()
-        _LOGGER.info("Cleared today's events for %s", self.person_name)
+        _LOGGER.info("Cleared today's events and water for %s", self.person_name)

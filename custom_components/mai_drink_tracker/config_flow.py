@@ -5,6 +5,7 @@ from __future__ import annotations
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
+from homeassistant.helpers import selector
 
 from .const import (
     DOMAIN, 
@@ -95,22 +96,37 @@ class MaiDrinkTrackerOptionsFlow(config_entries.OptionsFlow):
         schema[vol.Required(
             CONF_HALF_LIFE_HOURS, 
             default=float(options.get(CONF_HALF_LIFE_HOURS, data.get(CONF_HALF_LIFE_HOURS, 5.0)))
-        )] = vol.All(vol.Coerce(float), vol.Range(min=1.0, max=24.0))
+        )] = selector.selector({
+            "number": {
+                "min": 1.0, "max": 24.0, "step": 0.5, 
+                "mode": "box", "unit_of_measurement": "h"
+            }
+        })
 
         schema[vol.Required(
             CONF_SLEEP_SAFE_MG, 
             default=float(options.get(CONF_SLEEP_SAFE_MG, data.get(CONF_SLEEP_SAFE_MG, 50.0)))
-        )] = vol.All(vol.Coerce(float), vol.Range(min=0.0, max=500.0))
+        )] = selector.selector({
+            "number": {
+                "min": 0.0, "max": 500.0, "step": 5.0, 
+                "mode": "box", "unit_of_measurement": "mg"
+            }
+        })
 
         schema[vol.Required(
             CONF_ENABLE_ABSORPTION, 
             default=bool(options.get(CONF_ENABLE_ABSORPTION, data.get(CONF_ENABLE_ABSORPTION, False)))
-        )] = bool
+        )] = selector.selector({"boolean": {}})
 
         schema[vol.Required(
             CONF_ABSORPTION_TIME_MIN, 
             default=float(options.get(CONF_ABSORPTION_TIME_MIN, data.get(CONF_ABSORPTION_TIME_MIN, 45.0)))
-        )] = vol.All(vol.Coerce(float), vol.Range(min=5.0, max=120.0))
+        )] = selector.selector({
+            "number": {
+                "min": 5.0, "max": 120.0, "step": 1.0, 
+                "mode": "box", "unit_of_measurement": "min"
+            }
+        })
 
         # 2. Build dynamic dicts for dropdowns
         notify_dict = {"": "Không sử dụng"}

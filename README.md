@@ -1,103 +1,75 @@
-# M.A.I Drink Tracker (Home Assistant Custom Component)
+# M.A.I Tracker (Home Assistant Custom Component)
 
-A simple Home Assistant integration to track daily fluid intake, convert caffeine to water equivalent, and reset daily.
+**Current Version: 2.0.0**
+
+A powerful Home Assistant integration to track daily fluid intake, manage caffeine half-life, monitor sleep-safe caffeine levels, and calculate heat index. This is a rebuilt and optimized version based on `caffeine_tracker`.
 
 ---
 
-## Sensors created
+## 🚀 Features in v2.0.0
+- **Advanced Caffeine Tracking**: Uses exponential decay model to track active caffeine in your body.
+- **Water Tracking**: Converts drinks (coffee, tea, etc.) into equivalent water intake and tracks against a daily goal.
+- **Heat Index Sensor**: Calculates "Feels Like" temperature based on temperature and humidity sensors.
+- **Smart Notifications**: Automatically notifies your phone when a drink is logged.
+- **Midnight Reset**: Automatically resets your daily water count at midnight while keeping caffeine timeline intact.
+
+---
+
+## 📊 Sensors Created
 
 | Entity | Description |
 |--------|-------------|
-| `sensor.{prefix}_water_total` | Total water equivalent today (ml) |
-| `sensor.{prefix}_drink_nuoc` | Pure water (ml) |
-| `sensor.{prefix}_drink_cafe` | Coffee (ml) |
-| `sensor.{prefix}_drink_tra` | Tea (ml) |
-| `sensor.{prefix}_drink_sua` | Milk (ml) |
-| `sensor.{prefix}_drink_nuoc_ep` | Juice (ml) |
-| `sensor.{prefix}_caffeine_total` | Total caffeine today (mg) |
-
-### Sensor attributes
-
-`sensor.{prefix}_water_total` includes:
-- `goal_ml` — daily target
-- `percent` — % of goal reached
-- `remaining_ml` — ml left to reach goal
-
-Each drink sensor includes:
-- `water_equivalent_ml` — converted water value
-- `caffeine_mg` — caffeine from this drink
-- `water_ratio` — conversion ratio used
+| `sensor.{prefix}_water_today` | Total water consumed today (ml) |
+| `sensor.{prefix}_current` | Active caffeine level currently in your body (mg) |
+| `sensor.{prefix}_consumed_today` | Total caffeine consumed today (mg) |
+| `sensor.{prefix}_consumed_today_count` | Number of caffeinated drinks today |
+| `sensor.{prefix}_sleep_safe_at` | The exact time your caffeine will drop below your sleep threshold |
+| `sensor.{prefix}_peak` | Estimated peak caffeine level (if absorption is enabled) |
+| `sensor.{prefix}_heat_index` | Heat Index calculated from Temp & Humidity (°C) |
 
 ---
 
-## Services
+## 🛠️ Services
 
-### `mai_drink_tracker.log`
+### `mai_tracker.log_drink`
 Log a drink intake.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `prefix` | string | (Optional) Target user prefix if multiple users installed (e.g. `ba`, `chi`). |
-| `loai` | string | Drink type: `nuoc` / `cafe` / `tra` / `sua` / `nuoc_ep` |
-| `luong_ml` | number | Volume in ml. Use negative to undo (e.g. `-100`) |
+| `loai` | string | Drink type: `nuoc_loc`, `cafe`, `tra`, `nuoc_ngot`, `sua`, `bia` |
+| `luong_ml` | number | Volume in ml. |
 
 Example:
 ```yaml
-service: mai_drink_tracker.log
+service: mai_tracker.log_drink
+target:
+  entity_id: sensor.manh_current
 data:
-  prefix: ba  # Omit this line if only 1 user is installed
   loai: cafe
   luong_ml: 250
 ```
 
-### `mai_drink_tracker.reset`
-Reset all drink data to zero.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `prefix` | string | (Optional) Target user prefix to reset (e.g. `ba`). If omitted, resets all if only 1 user installed. |
-
 ---
 
-## Installation via HACS
+## 📥 Installation via HACS
 
 1. Open HACS → Integrations → ⋮ → Custom repositories
 2. Add URL: `https://github.com/manhvuarchitect/M.A.I-drink-tracker`
 3. Category: Integration
-4. Click **Download**
+4. Click **Download** (Select `main` from version dropdown to get the absolute latest if `2.0.0` is cached).
 5. Restart Home Assistant
-6. Go to Settings → Integrations → Add → **Mai Drink Tracker**
-7. Enter your prefix and daily water goal
+6. Go to Settings → Devices & Services → Add Integration → **M.A.I Tracker**
+7. Enter your profile settings (Name, Water Goal, Notification device, etc.)
 
 ---
 
-## Water conversion ratios
+## 💧 Water Conversion Ratios
 
-| Drink | Ratio | Reason |
+| Drink | Water Ratio | Caffeine per 100ml |
 |-------|-------|--------|
-| Water | 1.0 | Direct |
-| Coffee | 0.8 | Mild diuretic effect |
-| Tea | 0.9 | Mild diuretic effect |
-| Milk | 1.0 | High water content |
-| Juice | 1.0 | High water content |
-
----
-
-## Cloning for another household
-
-1. Install via HACS on the new HA instance
-2. Add integration with a different prefix (e.g. `ba`, `chi`)
-3. All sensors will be prefixed accordingly — no conflicts
-
----
-
-## File reference
-
-| File | Purpose |
-|------|---------|
-| `custom_components/mai_drink_tracker/__init__.py` | Core logic, services, midnight reset |
-| `custom_components/mai_drink_tracker/sensor.py` | Sensor entities |
-| `custom_components/mai_drink_tracker/config_flow.py` | Setup wizard |
-| `custom_components/mai_drink_tracker/const.py` | Drink types config — edit here to add new drinks |
-| `custom_components/mai_drink_tracker/services.yaml` | Service definitions |
-| `custom_components/mai_drink_tracker/translations/` | UI translations (en, vi) |
+| Nước lọc (Water) | 1.0 | 0 mg |
+| Cà phê (Coffee) | 0.8 | 40 mg |
+| Trà (Tea) | 0.85 | 20 mg |
+| Nước ngọt (Soda) | 0.9 | 10 mg |
+| Sữa (Milk) | 0.85 | 0 mg |
+| Bia (Beer) | 0.95 | 0 mg |

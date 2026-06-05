@@ -56,6 +56,39 @@ class CaffeineEvent:
             label=data.get("label", "unknown"),
         )
 
+@dataclass
+class MedicineEvent:
+    id: str
+    name: str
+    med_type: str
+    timestamp: datetime
+    reminder_time: datetime | None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "med_type": self.med_type,
+            "timestamp": self.timestamp.isoformat(),
+            "reminder_time": self.reminder_time.isoformat() if self.reminder_time else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> MedicineEvent:
+        ts = datetime.fromisoformat(data["timestamp"])
+        if ts.tzinfo is None: ts = ts.replace(tzinfo=UTC)
+        rm = None
+        if data.get("reminder_time"):
+            rm = datetime.fromisoformat(data["reminder_time"])
+            if rm.tzinfo is None: rm = rm.replace(tzinfo=UTC)
+        return cls(
+            id=data["id"],
+            name=data["name"],
+            med_type=data.get("med_type", "general"),
+            timestamp=ts,
+            reminder_time=rm,
+        )
+
 
 @dataclass
 class CaffeineData:
@@ -69,6 +102,11 @@ class CaffeineData:
     events: list[CaffeineEvent] = field(default_factory=list)
     water_total: float = 0.0
     drinks_total: dict[str, float] = field(default_factory=dict)
+    alcohol_events: list[CaffeineEvent] = field(default_factory=list)
+    medicines: list[MedicineEvent] = field(default_factory=list)
+    caffeine_history: list[dict[str, Any]] = field(default_factory=list)
+    current_bac: float = 0.0
+    drive_safe_at: datetime | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -153,6 +191,38 @@ def local_midnight_utc(now_utc: datetime) -> datetime:
     midnight_local = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
     return dt_util.as_utc(midnight_local)
 
+def compute_current_bac(
+    events: list[CaffeineEvent],
+    weight_kg: float,
+    gender: str,
+    now: datetime
+) -> float:
+    """Compute Blood Alcohol Concentration (Widmark Formula)."""
+    if not events: return 0.0
+    r = 0.68 if gender == "male" else 0.55
+    total_grams = 0.0
+    
+    elimination_rate_bac_per_hour = 0.015
+    grams_per_hour = (elimination_rate_bac_per_hour / 100) * (weight_kg * 1000 * r)
+
+    for event in events:
+        elapsed_hours = max(0.0, (now - event.timestamp).total_seconds() / 3600.0)
+        remaining = event.mg - (grams_per_hour * elapsed_hours)
+        if remaining > 0:
+            total_grams += remaining
+
+    if total_grams <= 0: return 0.0
+    bac = (total_grams / (weight_kg * 1000 * r)) * 100
+    return max(0.0, bac)
+
+def compute_drive_safe_at(
+    current_bac: float,
+    now: datetime
+) -> datetime | None:
+    if current_bac <= 0: return None
+    hours_needed = current_bac / 0.015
+    return now + timedelta(hours=hours_needed)
+
 
 # ---------------------------------------------------------------------------
 # Coordinator
@@ -184,10 +254,15 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self.sleep_safe_mg = sleep_safe_mg
         self.enable_absorption = enable_absorption
         self.absorption_time_min = absorption_time_min
+        self.weight_kg = 65.0 # Updated via options
+        self.gender = "male" # Updated via options
         self._store: Store = Store(
             hass, STORAGE_VERSION, f"{STORAGE_KEY_PREFIX}_{entry_id}"
         )
         self._events: list[CaffeineEvent] = []
+        self._alcohol_events: list[CaffeineEvent] = []
+        self._medicines: list[MedicineEvent] = []
+        self._caffeine_history: list[dict[str, Any]] = []
         self.water_total: float = 0.0
         self.drinks_total: dict[str, float] = {}
 
@@ -197,12 +272,25 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         if stored:
             if "events" in stored:
                 self._events = [CaffeineEvent.from_dict(e) for e in stored["events"]]
+            if "alcohol_events" in stored:
+                self._alcohol_events = [CaffeineEvent.from_dict(e) for e in stored["alcohol_events"]]
+            if "medicines" in stored:
+                self._medicines = [MedicineEvent.from_dict(e) for e in stored["medicines"]]
+            if "caffeine_history" in stored:
+                self._caffeine_history = stored["caffeine_history"]
             
             today = datetime.now().strftime("%Y-%m-%d")
             if stored.get("date") == today:
                 self.water_total = float(stored.get("water_total", 0.0))
                 self.drinks_total = stored.get("drinks_total", {})
             else:
+                # If a new day started while HA was off, push yesterday's total to history
+                last_date = stored.get("date")
+                last_total = float(stored.get("last_consumed_today_mg", 0.0))
+                if last_date and last_total > 0:
+                    self._caffeine_history.append({"date": last_date, "mg": last_total})
+                    if len(self._caffeine_history) > 5:
+                        self._caffeine_history.pop(0)
                 self.water_total = 0.0
                 self.drinks_total = {}
                 
@@ -211,11 +299,19 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
 
     async def _async_save(self) -> None:
         today = datetime.now().strftime("%Y-%m-%d")
+        now = dt_util.utcnow()
+        midnight = local_midnight_utc(now)
+        today_mg = compute_consumed_today_mg(self._events, midnight)
+        
         await self._store.async_save({
             "events": [e.to_dict() for e in self._events],
+            "alcohol_events": [e.to_dict() for e in self._alcohol_events],
+            "medicines": [e.to_dict() for e in self._medicines],
+            "caffeine_history": self._caffeine_history,
             "water_total": self.water_total,
             "drinks_total": self.drinks_total,
-            "date": today
+            "date": today,
+            "last_consumed_today_mg": today_mg
         })
 
     def _prune_old_events(self) -> None:
@@ -240,9 +336,25 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         today_str = datetime.now().strftime("%Y-%m-%d")
         stored = await self._store.async_load()
         if stored and stored.get("date") != today_str:
+            # Auto-clear trigger
+            last_date = stored.get("date")
+            last_total = float(stored.get("last_consumed_today_mg", 0.0))
+            if last_date and last_total > 0:
+                self._caffeine_history.append({"date": last_date, "mg": last_total})
+                if len(self._caffeine_history) > 5:
+                    self._caffeine_history.pop(0)
             self.water_total = 0.0
             self.drinks_total = {}
             await self._async_save()
+
+        # Compute BAC
+        entry = self.hass.config_entries.async_get_entry(self.entry_id)
+        if entry:
+            self.weight_kg = float(entry.options.get("weight_kg", entry.data.get("weight_kg", 65.0)))
+            self.gender = entry.options.get("gender", entry.data.get("gender", "male"))
+
+        bac = compute_current_bac(self._alcohol_events, self.weight_kg, self.gender, now)
+        drive_safe = compute_drive_safe_at(bac, now)
 
         if self.enable_absorption:
             peak = compute_peak_mg(
@@ -267,6 +379,11 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             events=list(self._events),
             water_total=round(self.water_total, 1),
             drinks_total=dict(self.drinks_total),
+            alcohol_events=list(self._alcohol_events),
+            medicines=list(self._medicines),
+            caffeine_history=list(self._caffeine_history),
+            current_bac=round(bac, 4),
+            drive_safe_at=drive_safe,
         )
 
     # ------------------------------------------------------------------
@@ -287,6 +404,17 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             
         cfg = DRINK_TYPES[loai]
         
+        # Medicine interaction check
+        now = timestamp or dt_util.utcnow()
+        if cfg["caffeine_per_100ml"] > 0:
+            for med in self._medicines:
+                if med.med_type in ["iron", "antibiotic"] and (now - med.timestamp).total_seconds() < 7200:
+                    _LOGGER.warning("Interaction alert: %s taken within 2 hours of caffeine!", med.name)
+                    self.hass.components.persistent_notification.async_create(
+                        f"Cảnh báo: Bạn vừa uống {med.name} cách đây chưa tới 2 tiếng. Uống Cafe/Trà bây giờ sẽ làm mất tác dụng của thuốc!",
+                        title="M.A.I Tracker Cảnh báo Y tế ⚠️"
+                    )
+
         water_delta = luong_ml * cfg["water_ratio"]
         self.water_total += water_delta
         self.drinks_total[loai] = self.drinks_total.get(loai, 0.0) + luong_ml
@@ -294,10 +422,10 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         caffeine_delta = (luong_ml / 100.0) * cfg["caffeine_per_100ml"]
         
         event_id = None
-        if caffeine_delta > 0:
+        if caffeine_delta != 0:
             event = CaffeineEvent(
                 id=str(uuid.uuid4()),
-                timestamp=timestamp or dt_util.utcnow(),
+                timestamp=now,
                 mg=caffeine_delta,
                 label=cfg["name"],
             )
@@ -305,9 +433,46 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             event_id = event.id
             _LOGGER.info("Logged %.0f mg (%s) for %s", caffeine_delta, cfg["name"], self.person_name)
 
+        alcohol_abv = cfg.get("alcohol_abv", 0.0)
+        alcohol_grams = luong_ml * alcohol_abv * 0.789
+        if alcohol_grams != 0:
+            event = CaffeineEvent(
+                id=str(uuid.uuid4()),
+                timestamp=now,
+                mg=alcohol_grams,
+                label=cfg["name"] + " (Alcohol)",
+            )
+            self._alcohol_events.append(event)
+
         await self._async_save()
         await self.async_refresh()
         return event_id
+
+    async def async_log_medicine(
+        self,
+        name: str,
+        med_type: str,
+        reminder_time: datetime | None = None,
+        timestamp: datetime | None = None,
+    ) -> None:
+        """Log a medicine event."""
+        now = timestamp or dt_util.utcnow()
+        event = MedicineEvent(
+            id=str(uuid.uuid4()),
+            name=name,
+            med_type=med_type,
+            timestamp=now,
+            reminder_time=reminder_time,
+        )
+        self._medicines.append(event)
+        
+        # Keep only the last 20 medicines
+        if len(self._medicines) > 20:
+            self._medicines = self._medicines[-20:]
+            
+        await self._async_save()
+        await self.async_refresh()
+        _LOGGER.info("Logged medicine %s for %s", name, self.person_name)
 
     async def async_set_water_total(self, value: float) -> None:
         """Manually set the total water."""
@@ -347,7 +512,17 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         """Remove all events from today (local time)."""
         now = dt_util.utcnow()
         midnight = local_midnight_utc(now)
+        
+        # Push to history before clearing
+        today_mg = compute_consumed_today_mg(self._events, midnight)
+        today_str = dt_util.as_local(now).strftime("%Y-%m-%d")
+        if today_mg > 0:
+            self._caffeine_history.append({"date": today_str, "mg": today_mg})
+            if len(self._caffeine_history) > 5:
+                self._caffeine_history.pop(0)
+                
         self._events = [e for e in self._events if e.timestamp < midnight]
+        self._alcohol_events = [e for e in self._alcohol_events if e.timestamp < midnight]
         self.water_total = 0.0
         self.drinks_total = {}
         await self._async_save()

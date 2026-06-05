@@ -31,13 +31,24 @@ CONF_NOTIFY_TARGET = "notify_target"
 CONF_TEMP_SENSOR = "temp_sensor"
 CONF_HUMIDITY_SENSOR = "humidity_sensor"
 
+# New Feature Constants
+CONF_WEIGHT_KG = "weight_kg"
+CONF_GENDER = "gender"
+CONF_TTS_TARGET = "tts_target"
+CONF_TTS_MESSAGE = "tts_message"
+
+DEFAULT_WEIGHT_KG = 65.0
+DEFAULT_GENDER = "male"
+DEFAULT_TTS_MESSAGE = "Nhiệt độ hôm nay rất oi bức. Mai Tracker đã tự động tăng mục tiêu nước của bạn thêm {ml} ml. Hãy nhớ uống nhiều nước nhé!"
+
 DRINK_TYPES = {
-    "nuoc_loc": {"name": "Nước lọc", "water_ratio": 1.0, "caffeine_per_100ml": 0},
-    "cafe": {"name": "Cà phê", "water_ratio": 0.8, "caffeine_per_100ml": 40},
-    "tra": {"name": "Trà", "water_ratio": 0.85, "caffeine_per_100ml": 20},
-    "nuoc_ngot": {"name": "Nước ngọt", "water_ratio": 0.9, "caffeine_per_100ml": 10},
-    "sua": {"name": "Sữa", "water_ratio": 0.85, "caffeine_per_100ml": 0},
-    "bia": {"name": "Bia", "water_ratio": 0.95, "caffeine_per_100ml": 0},
+    "nuoc_loc": {"name": "Nước lọc", "water_ratio": 1.0, "caffeine_per_100ml": 0, "alcohol_abv": 0.0},
+    "cafe": {"name": "Cà phê", "water_ratio": 0.8, "caffeine_per_100ml": 40, "alcohol_abv": 0.0},
+    "tra": {"name": "Trà", "water_ratio": 0.85, "caffeine_per_100ml": 20, "alcohol_abv": 0.0},
+    "nuoc_ngot": {"name": "Nước ngọt", "water_ratio": 0.9, "caffeine_per_100ml": 10, "alcohol_abv": 0.0},
+    "sua": {"name": "Sữa", "water_ratio": 0.85, "caffeine_per_100ml": 0, "alcohol_abv": 0.0},
+    "bia": {"name": "Bia", "water_ratio": 0.95, "caffeine_per_100ml": 0, "alcohol_abv": 0.05},
+    "ruou": {"name": "Rượu", "water_ratio": 0.5, "caffeine_per_100ml": 0, "alcohol_abv": 0.40},
 }
 
 ATTR_EVENTS = "events"

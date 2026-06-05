@@ -39,6 +39,11 @@ async def async_setup_entry(
         CaffeineConsumedTodayCountSensor(coordinator, entry),
         CaffeineSleepSafeAtSensor(coordinator, entry),
         CaffeinePercentSensor(coordinator, entry),
+        BACLevelSensor(coordinator, entry),
+        DriveSafeAtSensor(coordinator, entry),
+        LastMedicineSensor(coordinator, entry),
+        CaffeineCrashRiskSensor(coordinator, entry),
+        CaffeineHistorySensor(coordinator, entry),
     ]
     if coordinator.enable_absorption:
         entities.append(CaffeinePeakSensor(coordinator, entry))
@@ -48,6 +53,7 @@ async def async_setup_entry(
     humidity_sensor = entry.options.get("humidity_sensor", "")
     if temp_sensor and humidity_sensor:
         entities.append(HeatIndexSensor(coordinator.hass, entry, temp_sensor, humidity_sensor, coordinator.person_name))
+        entities.append(DynamicWaterGoalSensor(coordinator.hass, entry, coordinator))
 
     async_add_entities(entities)
 
@@ -213,6 +219,107 @@ class CaffeinePeakSensor(_CaffeineBase):
             return None
         return self.coordinator.data.peak_mg
 
+class BACLevelSensor(_CaffeineBase):
+    """Blood Alcohol Concentration (%)"""
+    _attr_native_unit_of_measurement = "%"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:glass-wine"
+    _attr_translation_key = "bac_level"
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, suffix="bac_level")
+        self._attr_unique_id = f"{entry.entry_id}_bac_level"
+
+    @property
+    def native_value(self) -> float | None:
+        return self.coordinator.data.current_bac if self.coordinator.data else 0.0
+
+class DriveSafeAtSensor(_CaffeineBase):
+    """When BAC reaches 0."""
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_icon = "mdi:car"
+    _attr_translation_key = "drive_safe_at"
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, suffix="drive_safe_at")
+        self._attr_unique_id = f"{entry.entry_id}_drive_safe_at"
+
+    @property
+    def native_value(self) -> datetime | None:
+        return self.coordinator.data.drive_safe_at if self.coordinator.data else None
+
+class LastMedicineSensor(_CaffeineBase):
+    """Last taken medicine."""
+    _attr_icon = "mdi:pill"
+    _attr_translation_key = "last_medicine"
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, suffix="last_medicine")
+        self._attr_unique_id = f"{entry.entry_id}_last_medicine"
+
+    @property
+    def native_value(self) -> str | None:
+        if not self.coordinator.data or not self.coordinator.data.medicines:
+            return "None"
+        last = self.coordinator.data.medicines[-1]
+        return last.name
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        if not self.coordinator.data or not self.coordinator.data.medicines:
+            return {}
+        last = self.coordinator.data.medicines[-1]
+        return {
+            "type": last.med_type,
+            "timestamp": last.timestamp.isoformat(),
+            "reminder_time": last.reminder_time.isoformat() if last.reminder_time else None
+        }
+
+class CaffeineCrashRiskSensor(_CaffeineBase):
+    """Risk of caffeine withdrawal."""
+    _attr_icon = "mdi:alert-circle"
+    _attr_translation_key = "caffeine_crash_risk"
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, suffix="caffeine_crash_risk")
+        self._attr_unique_id = f"{entry.entry_id}_caffeine_crash_risk"
+
+    @property
+    def native_value(self) -> str | None:
+        if not self.coordinator.data: return "Low"
+        history = self.coordinator.data.caffeine_history
+        if len(history) < 3: return "Low"
+        
+        avg = sum(d["mg"] for d in history) / len(history)
+        today = self.coordinator.data.consumed_today_mg
+        now = dt_util.utcnow()
+        local_now = dt_util.as_local(now)
+        
+        if avg > 300 and today == 0 and local_now.hour >= 10:
+            return "High"
+        if avg > 200 and today == 0 and local_now.hour >= 12:
+            return "Medium"
+        return "Low"
+
+class CaffeineHistorySensor(_CaffeineBase):
+    """Holds 5-day caffeine history."""
+    _attr_icon = "mdi:chart-bar"
+    _attr_translation_key = "caffeine_history"
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, suffix="caffeine_history")
+        self._attr_unique_id = f"{entry.entry_id}_caffeine_history"
+
+    @property
+    def native_value(self) -> str | None:
+        if not self.coordinator.data: return "0"
+        return str(len(self.coordinator.data.caffeine_history))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        if not self.coordinator.data: return {}
+        return {"history": self.coordinator.data.caffeine_history}
+
 
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.core import callback
@@ -274,3 +381,76 @@ class HeatIndexSensor(SensorEntity):
                 self._attr_native_value = None
         else:
             self._attr_native_value = None
+
+class DynamicWaterGoalSensor(SensorEntity):
+    """Mục tiêu nước động theo Heat Index."""
+
+    _attr_icon = "mdi:water-plus"
+    _attr_native_unit_of_measurement = "ml"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_should_poll = False
+    _attr_has_entity_name = True
+
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, coordinator: CaffeineCoordinator) -> None:
+        self.hass = hass
+        self._coordinator = coordinator
+        self._entry = entry
+        self._attr_unique_id = f"{entry.entry_id}_dynamic_water_goal"
+        self._attr_name = f"Mục tiêu nước hôm nay"
+        self._attr_translation_key = "dynamic_water_goal"
+        self._attr_native_value = None
+        self._person_name = coordinator.person_name
+        self._entry_id = entry.entry_id
+        person = self._person_name.lower().replace(" ", "_")
+        self.entity_id = f"sensor.mait_{person}_dynamic_water_goal"
+        self._heat_sensor_id = f"sensor.mait_{person}_heat_index"
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry_id)},
+            name=f"M.A.I Tracker {self._person_name}",
+        )
+
+    async def async_added_to_hass(self):
+        @callback
+        def async_state_changed_listener(event):
+            self.async_schedule_update_ha_state(True)
+            
+        self.async_on_remove(
+            async_track_state_change_event(
+                self.hass, [self._heat_sensor_id], async_state_changed_listener
+            )
+        )
+        self.async_schedule_update_ha_state(True)
+
+    async def async_update(self):
+        base_goal = float(self._entry.options.get("water_goal", self._entry.data.get("water_goal", 2000)))
+        heat_state = self.hass.states.get(self._heat_sensor_id)
+        
+        bonus = 0
+        if heat_state and heat_state.state not in ['unavailable', 'unknown']:
+            try:
+                hi = float(heat_state.state)
+                if hi > 39: bonus = 800
+                elif hi > 35: bonus = 500
+                elif hi > 32: bonus = 300
+            except ValueError:
+                pass
+                
+        new_goal = base_goal + bonus
+        
+        # Check if goal increased, trigger TTS
+        if self._attr_native_value is not None and new_goal > self._attr_native_value and bonus > 0:
+            tts_target = self._entry.options.get("tts_target")
+            tts_msg = self._entry.options.get("tts_message", "Nhiệt độ hôm nay rất oi bức. Mai Tracker đã tự động tăng mục tiêu nước của bạn thêm {ml} ml.")
+            if tts_target:
+                msg = tts_msg.replace("{ml}", str(bonus))
+                self.hass.async_create_task(
+                    self.hass.services.async_call("tts", "cloud_say", {
+                        "entity_id": tts_target,
+                        "message": msg
+                    }, blocking=False)
+                )
+
+        self._attr_native_value = new_goal

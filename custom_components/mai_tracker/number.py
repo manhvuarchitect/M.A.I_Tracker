@@ -66,7 +66,18 @@ class WaterTotalNumber(CoordinatorEntity[CaffeineCoordinator], NumberEntity):
 
     @property
     def native_max_value(self) -> float:
+        # Get dynamic goal if available, otherwise fallback to options
+        person = self.coordinator.person_name.lower().replace(" ", "_")
+        dynamic_sensor = f"sensor.mait_{person}_dynamic_water_goal"
+        state = self.coordinator.hass.states.get(dynamic_sensor)
+        
         goal = float(self._entry.options.get("water_goal", self._entry.data.get("water_goal", 2000)))
+        if state and state.state not in ['unavailable', 'unknown']:
+            try:
+                goal = float(state.state)
+            except ValueError:
+                pass
+                
         current = self.native_value or 0.0
         return max(goal, current)
 
@@ -80,7 +91,18 @@ class WaterTotalNumber(CoordinatorEntity[CaffeineCoordinator], NumberEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         if not self.coordinator.data:
             return {}
+            
+        person = self.coordinator.person_name.lower().replace(" ", "_")
+        dynamic_sensor = f"sensor.mait_{person}_dynamic_water_goal"
+        state = self.coordinator.hass.states.get(dynamic_sensor)
+        
         goal = float(self._entry.options.get("water_goal", self._entry.data.get("water_goal", 2000)))
+        if state and state.state not in ['unavailable', 'unknown']:
+            try:
+                goal = float(state.state)
+            except ValueError:
+                pass
+                
         total = self.coordinator.data.water_total
         return {
             "goal_ml": goal,

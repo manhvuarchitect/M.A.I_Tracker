@@ -27,6 +27,13 @@ from .const import (
     MAX_HALF_LIFE_HOURS,
     MIN_ABSORPTION_TIME_MIN,
     MIN_HALF_LIFE_HOURS,
+    CONF_WEIGHT_KG,
+    CONF_GENDER,
+    CONF_TTS_TARGET,
+    CONF_TTS_MESSAGE,
+    DEFAULT_WEIGHT_KG,
+    DEFAULT_GENDER,
+    DEFAULT_TTS_MESSAGE,
 )
 
 
@@ -82,6 +89,28 @@ def _settings_schema(
                     step=1,
                     mode=selector.NumberSelectorMode.BOX,
                     unit_of_measurement="min",
+                )
+            ),
+            vol.Required(
+                CONF_WEIGHT_KG, default=DEFAULT_WEIGHT_KG
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=30.0,
+                    max=200.0,
+                    step=0.5,
+                    mode=selector.NumberSelectorMode.BOX,
+                    unit_of_measurement="kg",
+                )
+            ),
+            vol.Required(
+                CONF_GENDER, default=DEFAULT_GENDER
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "male", "label": "Nam"},
+                        {"value": "female", "label": "Nữ"}
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
                 )
             ),
         }
@@ -192,6 +221,20 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         schema[vol.Optional(CONF_NOTIFY_TARGET, default=cur_notify)] = vol.In(notify_dict)
         schema[vol.Optional(CONF_TEMP_SENSOR, default=cur_temp)] = vol.In(temp_dict)
         schema[vol.Optional(CONF_HUMIDITY_SENSOR, default=cur_hum)] = vol.In(hum_dict)
+
+        # 3. Build dynamic dicts for TTS Media Players
+        tts_dict = {"": "Không sử dụng"}
+        for state in self.hass.states.async_all("media_player"):
+            tts_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
+            
+        cur_tts = str(_get(CONF_TTS_TARGET, ""))
+        if cur_tts and cur_tts not in tts_dict:
+            tts_dict[cur_tts] = cur_tts
+            
+        schema[vol.Optional(CONF_TTS_TARGET, default=cur_tts)] = vol.In(tts_dict)
+        schema[vol.Optional(CONF_TTS_MESSAGE, default=str(_get(CONF_TTS_MESSAGE, DEFAULT_TTS_MESSAGE)))] = selector.TextSelector(
+            selector.TextSelectorConfig(multiline=True)
+        )
 
         return self.async_show_form(
             step_id="init",

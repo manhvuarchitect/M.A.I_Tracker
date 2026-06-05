@@ -90,6 +90,26 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             elif call.service == SERVICE_CLEAR_TODAY:
                 await coordinator.async_clear_today()
 
+            elif call.service == "log_medicine":
+                name = call.data["name"]
+                med_type = call.data.get("med_type", "general")
+                timestamp_str = call.data.get(ATTR_TIMESTAMP)
+                reminder_str = call.data.get("reminder_time")
+                
+                ts = None
+                if timestamp_str:
+                    ts = dt_util.parse_datetime(timestamp_str)
+                    if ts and ts.tzinfo is None: ts = dt_util.as_utc(ts)
+                    
+                rm = None
+                if reminder_str:
+                    rm = dt_util.parse_datetime(reminder_str)
+                    if rm and rm.tzinfo is None: rm = dt_util.as_utc(rm)
+
+                await coordinator.async_log_medicine(
+                    name=name, med_type=med_type, reminder_time=rm, timestamp=ts
+                )
+
     hass.services.async_register(
         DOMAIN,
         "log_drink",
@@ -121,6 +141,19 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         SERVICE_CLEAR_TODAY,
         handle_service,
         schema=cv.make_entity_service_schema({}),
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "log_medicine",
+        handle_service,
+        schema=cv.make_entity_service_schema(
+            {
+                vol.Required("name"): cv.string,
+                vol.Optional("med_type"): vol.In(["iron", "antibiotic", "vitamin", "general"]),
+                vol.Optional("reminder_time"): cv.string,
+                vol.Optional(ATTR_TIMESTAMP): cv.string,
+            }
+        ),
     )
 
     return True

@@ -93,11 +93,11 @@ class CaffeineCurrentSensor(_CaffeineBase):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:coffee"
     _attr_suggested_display_precision = 0
-    _attr_translation_key = "current"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="current")
         self._attr_unique_id = f"{entry.entry_id}_current"
+        self._attr_name = "Caffeine Active Level"
 
     @property
     def native_value(self) -> float | None:
@@ -127,11 +127,11 @@ class CaffeineConsumedTodaySensor(_CaffeineBase):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_icon = "mdi:coffee-maker"
     _attr_suggested_display_precision = 0
-    _attr_translation_key = "consumed_today"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="consumed_today")
         self._attr_unique_id = f"{entry.entry_id}_consumed_today"
+        self._attr_name = "Caffeine Consumed Today"
 
     @property
     def native_value(self) -> float | None:
@@ -146,11 +146,11 @@ class CaffeinePercentSensor(_CaffeineBase):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:percent"
     _attr_suggested_display_precision = 0
-    _attr_translation_key = "caffeine_percent"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="caffeine_percent")
         self._attr_unique_id = f"{entry.entry_id}_caffeine_percent"
+        self._attr_name = "Caffeine Limit Percent"
 
     @property
     def native_value(self) -> float | None:
@@ -166,11 +166,11 @@ class CaffeineConsumedTodayCountSensor(_CaffeineBase):
 
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_icon = "mdi:counter"
-    _attr_translation_key = "consumed_today_count"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="consumed_today_count")
         self._attr_unique_id = f"{entry.entry_id}_consumed_today_count"
+        self._attr_name = "Consumptions Today"
 
     @property
     def native_value(self) -> int | None:
@@ -186,11 +186,11 @@ class CaffeineSleepSafeAtSensor(_CaffeineBase):
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_icon = "mdi:sleep"
-    _attr_translation_key = "sleep_safe_at"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="sleep_safe_at")
         self._attr_unique_id = f"{entry.entry_id}_sleep_safe_at"
+        self._attr_name = "Sleep Safe At"
 
     @property
     def native_value(self) -> datetime | None:
@@ -207,11 +207,11 @@ class CaffeinePeakSensor(_CaffeineBase):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:trending-up"
     _attr_suggested_display_precision = 0
-    _attr_translation_key = "peak"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="peak")
         self._attr_unique_id = f"{entry.entry_id}_peak"
+        self._attr_name = "Peak Level"
 
     @property
     def native_value(self) -> float | None:
@@ -224,11 +224,11 @@ class BACLevelSensor(_CaffeineBase):
     _attr_native_unit_of_measurement = "%"
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:glass-wine"
-    _attr_translation_key = "bac_level"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="bac_level")
         self._attr_unique_id = f"{entry.entry_id}_bac_level"
+        self._attr_name = "BAC Level"
 
     @property
     def native_value(self) -> float | None:
@@ -238,11 +238,11 @@ class DriveSafeAtSensor(_CaffeineBase):
     """When BAC reaches 0."""
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_icon = "mdi:car"
-    _attr_translation_key = "drive_safe_at"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="drive_safe_at")
         self._attr_unique_id = f"{entry.entry_id}_drive_safe_at"
+        self._attr_name = "Drive Safe At"
 
     @property
     def native_value(self) -> datetime | None:
@@ -251,11 +251,11 @@ class DriveSafeAtSensor(_CaffeineBase):
 class LastMedicineSensor(_CaffeineBase):
     """Last taken medicine."""
     _attr_icon = "mdi:pill"
-    _attr_translation_key = "last_medicine"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="last_medicine")
         self._attr_unique_id = f"{entry.entry_id}_last_medicine"
+        self._attr_name = "Last Medicine"
 
     @property
     def native_value(self) -> str | None:
@@ -278,11 +278,11 @@ class LastMedicineSensor(_CaffeineBase):
 class CaffeineCrashRiskSensor(_CaffeineBase):
     """Risk of caffeine withdrawal."""
     _attr_icon = "mdi:alert-circle"
-    _attr_translation_key = "caffeine_crash_risk"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="caffeine_crash_risk")
         self._attr_unique_id = f"{entry.entry_id}_caffeine_crash_risk"
+        self._attr_name = "Crash Risk"
 
     @property
     def native_value(self) -> str | None:
@@ -304,11 +304,11 @@ class CaffeineCrashRiskSensor(_CaffeineBase):
 class CaffeineHistorySensor(_CaffeineBase):
     """Holds 5-day caffeine history."""
     _attr_icon = "mdi:chart-bar"
-    _attr_translation_key = "caffeine_history"
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="caffeine_history")
         self._attr_unique_id = f"{entry.entry_id}_caffeine_history"
+        self._attr_name = "Caffeine History"
 
     @property
     def native_value(self) -> str | None:

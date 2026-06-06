@@ -20,16 +20,46 @@
   "options": {
     "step": {
       "init": {
-        "title": "Cấu hình M.A.I Tracker",
+        "title": "Cấu hình Cơ bản (Bước 1/4)",
+        "description": "Thiết lập các thông số cơ thể và mục tiêu Cafein/Nước cơ bản của bạn.",
         "data": {
           "water_goal": "Mục tiêu nước (ml)",
           "half_life_hours": "Thời gian bán phân hủy Cafein",
-          "sleep_safe_mg": "Ngưỡng an toàn để ngủ",
-          "enable_absorption": "Mô phỏng hấp thụ",
-          "absorption_time_min": "Thời gian hấp thụ",
-          "notify_target": "Thiết bị nhận thông báo",
+          "sleep_safe_mg": "Ngưỡng Cafein an toàn để ngủ",
+          "enable_absorption": "Mô phỏng hấp thụ (Gradual Absorption)",
+          "absorption_time_min": "Thời gian hấp thụ (Phút)",
+          "weight_kg": "Cân nặng (kg)",
+          "gender": "Giới tính"
+        }
+      },
+      "environment": {
+        "title": "Cảm biến Môi trường (Bước 2/4)",
+        "description": "Lựa chọn các cảm biến để M.A.I Tracker tự động điều chỉnh lượng nước khi trời nóng.",
+        "data": {
           "temp_sensor": "Cảm biến nhiệt độ",
           "humidity_sensor": "Cảm biến độ ẩm"
+        }
+      },
+      "notifications": {
+        "title": "Thông báo & Phát thanh (Bước 3/4)",
+        "description": "Thiết lập các cảnh báo y tế và nhắc nhở uống nước bằng giọng nói (TTS).",
+        "data": {
+          "notify_target": "Thiết bị nhận thông báo (Điện thoại)",
+          "tts_target": "Loa phát thanh (TTS Target)",
+          "tts_message": "Nội dung phát thanh nhắc uống nước"
+        },
+        "data_description": {
+          "tts_message": "Bạn có thể sử dụng biến {ml} trong câu để M.A.I Tracker tự động đọc số ml nước cần uống thêm."
+        }
+      },
+      "medicine": {
+        "title": "Lịch Uống Thuốc (Bước 4/4)",
+        "description": "Khai báo danh sách các loại thuốc bạn cần uống hằng ngày. Hệ thống sẽ tự động gọi Loa và đẩy Thông báo có nút bấm xác nhận [Đã Uống] xuống điện thoại của bạn.",
+        "data": {
+          "medicine_schedule": "Danh sách Thuốc"
+        },
+        "data_description": {
+          "medicine_schedule": "Nhập mỗi loại thuốc trên 1 dòng theo cú pháp:\nTên Thuốc | Giờ:Phút\n(Ví dụ: Sắt | 08:00)"
         }
       }
     }

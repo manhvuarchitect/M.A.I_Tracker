@@ -163,26 +163,29 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
     """Handle options (re-configuration) for an existing entry."""
 
+    def __init__(self) -> None:
+        """Initialize options flow."""
+        self._options: dict[str, Any] = {}
+        self._first_time = True
+
+    def _get(self, key: str, default: Any) -> Any:
+        if self._first_time:
+            return self.config_entry.options.get(key, self.config_entry.data.get(key, default))
+        return self._options.get(key, self.config_entry.options.get(key, self.config_entry.data.get(key, default)))
+
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         if user_input is not None:
-            return self.async_create_entry(data=user_input)
+            self._options.update(user_input)
+            self._first_time = False
+            return await self.async_step_environment()
 
-        def _get(key: str, default: float | bool | int | str) -> Any:
-            return self.config_entry.options.get(
-                key, self.config_entry.data.get(key, default)
-            )
-
-        current_water_goal = int(_get(CONF_WATER_GOAL, 2000))
-        current_half_life = float(_get(CONF_HALF_LIFE_HOURS, DEFAULT_HALF_LIFE_HOURS))
-        current_sleep_safe = float(_get(CONF_SLEEP_SAFE_MG, DEFAULT_SLEEP_SAFE_MG))
-        current_enable_absorption = bool(
-            _get(CONF_ENABLE_ABSORPTION, DEFAULT_ENABLE_ABSORPTION)
-        )
-        current_absorption_time = float(
-            _get(CONF_ABSORPTION_TIME_MIN, DEFAULT_ABSORPTION_TIME_MIN)
-        )
+        current_water_goal = int(self._get(CONF_WATER_GOAL, 2000))
+        current_half_life = float(self._get(CONF_HALF_LIFE_HOURS, DEFAULT_HALF_LIFE_HOURS))
+        current_sleep_safe = float(self._get(CONF_SLEEP_SAFE_MG, DEFAULT_SLEEP_SAFE_MG))
+        current_enable_absorption = bool(self._get(CONF_ENABLE_ABSORPTION, DEFAULT_ENABLE_ABSORPTION))
+        current_absorption_time = float(self._get(CONF_ABSORPTION_TIME_MIN, DEFAULT_ABSORPTION_TIME_MIN))
 
         schema = _settings_schema(
             current_water_goal,
@@ -192,10 +195,17 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             current_absorption_time,
         ).schema
 
-        # 2. Build dynamic dicts for dropdowns
-        notify_dict = {"": "Không sử dụng"}
-        for svc in self.hass.services.async_services().get("notify", {}).keys():
-            notify_dict[f"notify.{svc}"] = f"notify.{svc}"
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(schema),
+        )
+
+    async def async_step_environment(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if user_input is not None:
+            self._options.update(user_input)
+            return await self.async_step_notifications()
 
         temp_dict = {"": "Không sử dụng"}
         hum_dict = {"": "Không sử dụng"}
@@ -207,40 +217,79 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             elif dc == "humidity":
                 hum_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
 
-        cur_notify = str(_get(CONF_NOTIFY_TARGET, ""))
-        if cur_notify and cur_notify not in notify_dict:
-            notify_dict[cur_notify] = cur_notify
+        cur_temp = str(self._get(CONF_TEMP_SENSOR, ""))
+        if cur_temp and cur_temp not in temp_dict: temp_dict[cur_temp] = cur_temp
+
+        cur_hum = str(self._get(CONF_HUMIDITY_SENSOR, ""))
+        if cur_hum and cur_hum not in hum_dict: hum_dict[cur_hum] = cur_hum
+
+        schema = {
+            vol.Optional(CONF_TEMP_SENSOR, default=cur_temp): vol.In(temp_dict),
+            vol.Optional(CONF_HUMIDITY_SENSOR, default=cur_hum): vol.In(hum_dict),
+        }
+
+        return self.async_show_form(
+            step_id="environment",
+            data_schema=vol.Schema(schema),
+        )
+
+    async def async_step_notifications(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if user_input is not None:
+            self._options.update(user_input)
+            return await self.async_step_medicine()
+
+        notify_dict = {"": "Không sử dụng"}
+        for svc in self.hass.services.async_services().get("notify", {}).keys():
+            notify_dict[f"notify.{svc}"] = f"notify.{svc}"
             
-        cur_temp = str(_get(CONF_TEMP_SENSOR, ""))
-        if cur_temp and cur_temp not in temp_dict:
-            temp_dict[cur_temp] = cur_temp
+        cur_notify = str(self._get(CONF_NOTIFY_TARGET, ""))
+        if cur_notify and cur_notify not in notify_dict: notify_dict[cur_notify] = cur_notify
 
-        cur_hum = str(_get(CONF_HUMIDITY_SENSOR, ""))
-        if cur_hum and cur_hum not in hum_dict:
-            hum_dict[cur_hum] = cur_hum
-
-        schema[vol.Optional(CONF_NOTIFY_TARGET, default=cur_notify)] = vol.In(notify_dict)
-        schema[vol.Optional(CONF_TEMP_SENSOR, default=cur_temp)] = vol.In(temp_dict)
-        schema[vol.Optional(CONF_HUMIDITY_SENSOR, default=cur_hum)] = vol.In(hum_dict)
-
-        # 3. Build dynamic dicts for TTS Media Players
         tts_dict = {"": "Không sử dụng"}
         for state in self.hass.states.async_all("media_player"):
             tts_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
             
-        cur_tts = str(_get(CONF_TTS_TARGET, ""))
-        if cur_tts and cur_tts not in tts_dict:
-            tts_dict[cur_tts] = cur_tts
-            
-        schema[vol.Optional(CONF_TTS_TARGET, default=cur_tts)] = vol.In(tts_dict)
-        schema[vol.Optional(CONF_TTS_MESSAGE, default=str(_get(CONF_TTS_MESSAGE, DEFAULT_TTS_MESSAGE)))] = selector.TextSelector(
-            selector.TextSelectorConfig(multiline=True)
-        )
-        schema[vol.Optional(CONF_MEDICINE_SCHEDULE, default=str(_get(CONF_MEDICINE_SCHEDULE, "")))] = selector.TextSelector(
-            selector.TextSelectorConfig(multiline=True)
-        )
+        cur_tts = str(self._get(CONF_TTS_TARGET, ""))
+        if cur_tts and cur_tts not in tts_dict: tts_dict[cur_tts] = cur_tts
+        
+        cur_msg = str(self._get(CONF_TTS_MESSAGE, DEFAULT_TTS_MESSAGE))
+
+        schema = {
+            vol.Optional(CONF_NOTIFY_TARGET, default=cur_notify): vol.In(notify_dict),
+            vol.Optional(CONF_TTS_TARGET, default=cur_tts): vol.In(tts_dict),
+            vol.Optional(CONF_TTS_MESSAGE, default=cur_msg): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+        }
 
         return self.async_show_form(
-            step_id="init",
+            step_id="notifications",
             data_schema=vol.Schema(schema),
+        )
+
+    async def async_step_medicine(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if user_input is not None:
+            self._options.update(user_input)
+            
+            # Khởi tạo một dict chứa TẤT CẢ các options để tránh mất các field cũ
+            final_options = dict(self.config_entry.options)
+            final_options.update(self._options)
+            return self.async_create_entry(title="", data=final_options)
+
+        cur_med = str(self._get(CONF_MEDICINE_SCHEDULE, ""))
+
+        schema = {
+            vol.Optional(CONF_MEDICINE_SCHEDULE, default=cur_med): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+        }
+
+        return self.async_show_form(
+            step_id="medicine",
+            data_schema=vol.Schema(schema),
+            description_placeholders={"info": "Nhập danh sách thuốc."},
         )

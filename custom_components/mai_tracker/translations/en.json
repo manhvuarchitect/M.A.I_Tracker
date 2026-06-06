@@ -20,16 +20,46 @@
   "options": {
     "step": {
       "init": {
-        "title": "Update Settings",
+        "title": "Basic Settings (Step 1/4)",
+        "description": "Configure your basic body and caffeine/water targets.",
         "data": {
           "water_goal": "Daily Water Goal (ml)",
           "half_life_hours": "Caffeine half-life",
           "sleep_safe_mg": "Sleep-safe threshold",
           "enable_absorption": "Model gradual absorption",
-          "absorption_time_min": "Absorption time constant",
-          "notify_target": "Notify Target",
+          "absorption_time_min": "Absorption time",
+          "weight_kg": "Weight (kg)",
+          "gender": "Gender"
+        }
+      },
+      "environment": {
+        "title": "Environment Sensors (Step 2/4)",
+        "description": "Select sensors for automatic heat index adjustments.",
+        "data": {
           "temp_sensor": "Temperature Sensor",
           "humidity_sensor": "Humidity Sensor"
+        }
+      },
+      "notifications": {
+        "title": "Notifications & TTS (Step 3/4)",
+        "description": "Configure medical alerts and voice reminders.",
+        "data": {
+          "notify_target": "Notify Target",
+          "tts_target": "TTS Target (Speaker)",
+          "tts_message": "TTS Message content"
+        },
+        "data_description": {
+          "tts_message": "Use {ml} placeholder for the required water amount."
+        }
+      },
+      "medicine": {
+        "title": "Medicine Schedule (Step 4/4)",
+        "description": "Set up your daily medicine schedule for TTS and actionable notifications.",
+        "data": {
+          "medicine_schedule": "Medicine Schedule"
+        },
+        "data_description": {
+          "medicine_schedule": "Enter one medicine per line:\nName | HH:MM\n(Example: Iron | 08:00)"
         }
       }
     }

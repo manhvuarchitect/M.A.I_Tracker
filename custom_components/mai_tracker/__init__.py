@@ -202,6 +202,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async_track_time_change(hass, midnight_reset, hour=0, minute=0, second=0)
     )
 
+    # Listen to mobile app actionable notifications
+    async def handle_mobile_action(event):
+        action = event.data.get("action", "")
+        prefix = f"MAIT_MED_LOG_{entry.entry_id}_"
+        if action.startswith(prefix):
+            med_name = action[len(prefix):]
+            await coordinator.async_log_medicine(name=med_name, med_type="general")
+            _LOGGER.info("Medicine %s logged from notification for %s", med_name, coordinator.person_name)
+
+    entry.async_on_unload(
+        hass.bus.async_listen("mobile_app_notification_action", handle_mobile_action)
+    )
+
     return True
 
 

@@ -34,6 +34,7 @@ from .const import (
     DEFAULT_WEIGHT_KG,
     DEFAULT_GENDER,
     DEFAULT_TTS_MESSAGE,
+    CONF_MEDICINE_SCHEDULE,
 )
 
 
@@ -233,6 +234,9 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             
         schema[vol.Optional(CONF_TTS_TARGET, default=cur_tts)] = vol.In(tts_dict)
         schema[vol.Optional(CONF_TTS_MESSAGE, default=str(_get(CONF_TTS_MESSAGE, DEFAULT_TTS_MESSAGE)))] = selector.TextSelector(
+            selector.TextSelectorConfig(multiline=True)
+        )
+        schema[vol.Optional(CONF_MEDICINE_SCHEDULE, default=str(_get(CONF_MEDICINE_SCHEDULE, "")))] = selector.TextSelector(
             selector.TextSelectorConfig(multiline=True)
         )
 

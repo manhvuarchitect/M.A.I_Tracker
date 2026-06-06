@@ -265,6 +265,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self._caffeine_history: list[dict[str, Any]] = []
         self.water_total: float = 0.0
         self.drinks_total: dict[str, float] = {}
+        self._fired_medicines: set[str] = set()
 
     async def async_load(self) -> None:
         """Load persisted events from storage."""
@@ -352,6 +353,57 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         if entry:
             self.weight_kg = float(entry.options.get("weight_kg", entry.data.get("weight_kg", 65.0)))
             self.gender = entry.options.get("gender", entry.data.get("gender", "male"))
+            
+            # Medicine Scheduler Logic
+            schedule_str = entry.options.get("medicine_schedule", "")
+            if schedule_str:
+                local_now = dt_util.as_local(now)
+                current_time_str = local_now.strftime("%H:%M")
+                today_date_str = local_now.strftime("%Y-%m-%d")
+                
+                notify_target = entry.options.get("notify_target")
+                tts_target = entry.options.get("tts_target")
+                
+                for line in schedule_str.split("\n"):
+                    if "|" not in line: continue
+                    parts = line.split("|")
+                    if len(parts) == 2:
+                        med_name = parts[0].strip()
+                        med_time = parts[1].strip()
+                        
+                        if current_time_str == med_time:
+                            fire_key = f"{today_date_str}_{med_name}_{med_time}"
+                            if fire_key not in self._fired_medicines:
+                                self._fired_medicines.add(fire_key)
+                                
+                                # Send TTS
+                                if tts_target:
+                                    msg = f"Đã đến giờ uống thuốc {med_name}. Bạn hãy kiểm tra điện thoại để xác nhận nhé!"
+                                    self.hass.async_create_task(
+                                        self.hass.services.async_call("tts", "cloud_say", {
+                                            "entity_id": tts_target,
+                                            "message": msg
+                                        }, blocking=False)
+                                    )
+                                    
+                                # Send Actionable Notification
+                                if notify_target:
+                                    target_service = notify_target.replace("notify.", "")
+                                    action_id = f"MAIT_MED_LOG_{self.entry_id}_{med_name}"
+                                    self.hass.async_create_task(
+                                        self.hass.services.async_call("notify", target_service, {
+                                            "message": f"Đến giờ uống thuốc {med_name} rồi sếp!",
+                                            "title": "Nhắc nhở Uống Thuốc 💊",
+                                            "data": {
+                                                "actions": [
+                                                    {
+                                                        "action": action_id,
+                                                        "title": f"Đã uống {med_name}"
+                                                    }
+                                                ]
+                                            }
+                                        }, blocking=False)
+                                    )
 
         bac = compute_current_bac(self._alcohol_events, self.weight_kg, self.gender, now)
         drive_safe = compute_drive_safe_at(bac, now)

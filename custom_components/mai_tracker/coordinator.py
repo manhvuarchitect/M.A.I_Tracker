@@ -355,55 +355,54 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             self.gender = entry.options.get("gender", entry.data.get("gender", "male"))
             
             # Medicine Scheduler Logic
-            schedule_str = entry.options.get("medicine_schedule", "")
-            if schedule_str:
-                local_now = dt_util.as_local(now)
-                current_time_str = local_now.strftime("%H:%M")
-                today_date_str = local_now.strftime("%Y-%m-%d")
+            local_now = dt_util.as_local(now)
+            current_time_str = local_now.strftime("%H:%M:%S")
+            # If TimeSelector doesn't use seconds, we can match prefix
+            current_time_short = local_now.strftime("%H:%M")
+            today_date_str = local_now.strftime("%Y-%m-%d")
+            
+            for i in range(1, 11):
+                med_name = entry.options.get(f"medicine_{i}_name", "").strip()
+                med_time = entry.options.get(f"medicine_{i}_time", "").strip()
+                if not med_name or not med_time: continue
                 
-                notify_target = entry.options.get("notify_target")
-                tts_target = entry.options.get("tts_target")
-                
-                for line in schedule_str.split("\n"):
-                    if "|" not in line: continue
-                    parts = line.split("|")
-                    if len(parts) == 2:
-                        med_name = parts[0].strip()
-                        med_time = parts[1].strip()
+                # HA time selector usually returns 'HH:MM:SS' or 'HH:MM'
+                if current_time_str == med_time or current_time_short == med_time or med_time.startswith(current_time_short):
+                    fire_key = f"{today_date_str}_{med_name}_{med_time}"
+                    if fire_key not in self._fired_medicines:
+                        self._fired_medicines.add(fire_key)
                         
-                        if current_time_str == med_time:
-                            fire_key = f"{today_date_str}_{med_name}_{med_time}"
-                            if fire_key not in self._fired_medicines:
-                                self._fired_medicines.add(fire_key)
-                                
-                                # Send TTS
-                                if tts_target:
-                                    msg = f"Đã đến giờ uống thuốc {med_name}. Bạn hãy kiểm tra điện thoại để xác nhận nhé!"
-                                    self.hass.async_create_task(
-                                        self.hass.services.async_call("tts", "cloud_say", {
-                                            "entity_id": tts_target,
-                                            "message": msg
-                                        }, blocking=False)
-                                    )
-                                    
-                                # Send Actionable Notification
-                                if notify_target:
-                                    target_service = notify_target.replace("notify.", "")
-                                    action_id = f"MAIT_MED_LOG_{self.entry_id}_{med_name}"
-                                    self.hass.async_create_task(
-                                        self.hass.services.async_call("notify", target_service, {
-                                            "message": f"Đến giờ uống thuốc {med_name} rồi sếp!",
-                                            "title": "Nhắc nhở Uống Thuốc 💊",
-                                            "data": {
-                                                "actions": [
-                                                    {
-                                                        "action": action_id,
-                                                        "title": f"Đã uống {med_name}"
-                                                    }
-                                                ]
+                        notify_target = entry.options.get(f"medicine_{i}_notify", "")
+                        tts_target = entry.options.get(f"medicine_{i}_tts", "")
+                        
+                        # Send TTS
+                        if tts_target:
+                            msg = f"Đã đến giờ uống thuốc {med_name}. Bạn hãy kiểm tra điện thoại để xác nhận nhé!"
+                            self.hass.async_create_task(
+                                self.hass.services.async_call("tts", "cloud_say", {
+                                    "entity_id": tts_target,
+                                    "message": msg
+                                }, blocking=False)
+                            )
+                            
+                        # Send Actionable Notification
+                        if notify_target:
+                            target_service = notify_target.replace("notify.", "")
+                            action_id = f"MAIT_MED_LOG_{self.entry_id}_{med_name}"
+                            self.hass.async_create_task(
+                                self.hass.services.async_call("notify", target_service, {
+                                    "message": f"Đến giờ uống thuốc {med_name} rồi sếp!",
+                                    "title": "Nhắc nhở Uống Thuốc 💊",
+                                    "data": {
+                                        "actions": [
+                                            {
+                                                "action": action_id,
+                                                "title": f"Đã uống {med_name}"
                                             }
-                                        }, blocking=False)
-                                    )
+                                        ]
+                                    }
+                                }, blocking=False)
+                            )
 
         bac = compute_current_bac(self._alcohol_events, self.weight_kg, self.gender, now)
         drive_safe = compute_drive_safe_at(bac, now)

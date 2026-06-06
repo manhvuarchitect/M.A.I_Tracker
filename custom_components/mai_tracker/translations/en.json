@@ -54,12 +54,48 @@
       },
       "medicine": {
         "title": "Medicine Schedule (Step 4/4)",
-        "description": "Set up your daily medicine schedule for TTS and actionable notifications.",
+        "description": "Configure up to 10 medicine schedules. Leave the Medicine Name empty to disable a slot.",
         "data": {
-          "medicine_schedule": "Medicine Schedule"
-        },
-        "data_description": {
-          "medicine_schedule": "Enter one medicine per line:\nName | HH:MM\n(Example: Iron | 08:00)"
+          "medicine_1_name": "[1] Medicine Name",
+          "medicine_1_time": "[1] Time",
+          "medicine_1_notify": "[1] Notify Device",
+          "medicine_1_tts": "[1] TTS Speaker",
+          "medicine_2_name": "[2] Medicine Name",
+          "medicine_2_time": "[2] Time",
+          "medicine_2_notify": "[2] Notify Device",
+          "medicine_2_tts": "[2] TTS Speaker",
+          "medicine_3_name": "[3] Medicine Name",
+          "medicine_3_time": "[3] Time",
+          "medicine_3_notify": "[3] Notify Device",
+          "medicine_3_tts": "[3] TTS Speaker",
+          "medicine_4_name": "[4] Medicine Name",
+          "medicine_4_time": "[4] Time",
+          "medicine_4_notify": "[4] Notify Device",
+          "medicine_4_tts": "[4] TTS Speaker",
+          "medicine_5_name": "[5] Medicine Name",
+          "medicine_5_time": "[5] Time",
+          "medicine_5_notify": "[5] Notify Device",
+          "medicine_5_tts": "[5] TTS Speaker",
+          "medicine_6_name": "[6] Medicine Name",
+          "medicine_6_time": "[6] Time",
+          "medicine_6_notify": "[6] Notify Device",
+          "medicine_6_tts": "[6] TTS Speaker",
+          "medicine_7_name": "[7] Medicine Name",
+          "medicine_7_time": "[7] Time",
+          "medicine_7_notify": "[7] Notify Device",
+          "medicine_7_tts": "[7] TTS Speaker",
+          "medicine_8_name": "[8] Medicine Name",
+          "medicine_8_time": "[8] Time",
+          "medicine_8_notify": "[8] Notify Device",
+          "medicine_8_tts": "[8] TTS Speaker",
+          "medicine_9_name": "[9] Medicine Name",
+          "medicine_9_time": "[9] Time",
+          "medicine_9_notify": "[9] Notify Device",
+          "medicine_9_tts": "[9] TTS Speaker",
+          "medicine_10_name": "[10] Medicine Name",
+          "medicine_10_time": "[10] Time",
+          "medicine_10_notify": "[10] Notify Device",
+          "medicine_10_tts": "[10] TTS Speaker"
         }
       }
     }

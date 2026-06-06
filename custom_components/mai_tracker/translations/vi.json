@@ -54,12 +54,48 @@
       },
       "medicine": {
         "title": "Lịch Uống Thuốc (Bước 4/4)",
-        "description": "Khai báo danh sách các loại thuốc bạn cần uống hằng ngày. Hệ thống sẽ tự động gọi Loa và đẩy Thông báo có nút bấm xác nhận [Đã Uống] xuống điện thoại của bạn.",
+        "description": "Khai báo tối đa 10 khung giờ uống thuốc. Để trống Tên Thuốc nếu không sử dụng đến khe cắm đó.",
         "data": {
-          "medicine_schedule": "Danh sách Thuốc"
-        },
-        "data_description": {
-          "medicine_schedule": "Nhập mỗi loại thuốc trên 1 dòng theo cú pháp:\nTên Thuốc | Giờ:Phút\n(Ví dụ: Sắt | 08:00)"
+          "medicine_1_name": "[1] Tên Thuốc",
+          "medicine_1_time": "[1] Giờ uống",
+          "medicine_1_notify": "[1] Điện thoại",
+          "medicine_1_tts": "[1] Loa phát thanh",
+          "medicine_2_name": "[2] Tên Thuốc",
+          "medicine_2_time": "[2] Giờ uống",
+          "medicine_2_notify": "[2] Điện thoại",
+          "medicine_2_tts": "[2] Loa phát thanh",
+          "medicine_3_name": "[3] Tên Thuốc",
+          "medicine_3_time": "[3] Giờ uống",
+          "medicine_3_notify": "[3] Điện thoại",
+          "medicine_3_tts": "[3] Loa phát thanh",
+          "medicine_4_name": "[4] Tên Thuốc",
+          "medicine_4_time": "[4] Giờ uống",
+          "medicine_4_notify": "[4] Điện thoại",
+          "medicine_4_tts": "[4] Loa phát thanh",
+          "medicine_5_name": "[5] Tên Thuốc",
+          "medicine_5_time": "[5] Giờ uống",
+          "medicine_5_notify": "[5] Điện thoại",
+          "medicine_5_tts": "[5] Loa phát thanh",
+          "medicine_6_name": "[6] Tên Thuốc",
+          "medicine_6_time": "[6] Giờ uống",
+          "medicine_6_notify": "[6] Điện thoại",
+          "medicine_6_tts": "[6] Loa phát thanh",
+          "medicine_7_name": "[7] Tên Thuốc",
+          "medicine_7_time": "[7] Giờ uống",
+          "medicine_7_notify": "[7] Điện thoại",
+          "medicine_7_tts": "[7] Loa phát thanh",
+          "medicine_8_name": "[8] Tên Thuốc",
+          "medicine_8_time": "[8] Giờ uống",
+          "medicine_8_notify": "[8] Điện thoại",
+          "medicine_8_tts": "[8] Loa phát thanh",
+          "medicine_9_name": "[9] Tên Thuốc",
+          "medicine_9_time": "[9] Giờ uống",
+          "medicine_9_notify": "[9] Điện thoại",
+          "medicine_9_tts": "[9] Loa phát thanh",
+          "medicine_10_name": "[10] Tên Thuốc",
+          "medicine_10_time": "[10] Giờ uống",
+          "medicine_10_notify": "[10] Điện thoại",
+          "medicine_10_tts": "[10] Loa phát thanh"
         }
       }
     }

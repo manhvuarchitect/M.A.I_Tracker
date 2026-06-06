@@ -278,18 +278,35 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             # Khởi tạo một dict chứa TẤT CẢ các options để tránh mất các field cũ
             final_options = dict(self.config_entry.options)
             final_options.update(self._options)
+            # Remove old string schedule if it exists
+            if CONF_MEDICINE_SCHEDULE in final_options:
+                del final_options[CONF_MEDICINE_SCHEDULE]
             return self.async_create_entry(title="", data=final_options)
 
-        cur_med = str(self._get(CONF_MEDICINE_SCHEDULE, ""))
+        notify_dict = {"": "Không sử dụng"}
+        for svc in self.hass.services.async_services().get("notify", {}).keys():
+            notify_dict[f"notify.{svc}"] = f"notify.{svc}"
 
-        schema = {
-            vol.Optional(CONF_MEDICINE_SCHEDULE, default=cur_med): selector.TextSelector(
-                selector.TextSelectorConfig(multiline=True)
-            ),
-        }
+        tts_dict = {"": "Không sử dụng"}
+        for state in self.hass.states.async_all("media_player"):
+            tts_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
+
+        schema = {}
+        for i in range(1, 11):
+            cur_name = str(self._get(f"medicine_{i}_name", ""))
+            cur_time = str(self._get(f"medicine_{i}_time", ""))
+            cur_notify = str(self._get(f"medicine_{i}_notify", ""))
+            cur_tts = str(self._get(f"medicine_{i}_tts", ""))
+
+            if cur_notify and cur_notify not in notify_dict: notify_dict[cur_notify] = cur_notify
+            if cur_tts and cur_tts not in tts_dict: tts_dict[cur_tts] = cur_tts
+
+            schema[vol.Optional(f"medicine_{i}_name", default=cur_name)] = selector.TextSelector()
+            schema[vol.Optional(f"medicine_{i}_time", default=cur_time)] = selector.TimeSelector()
+            schema[vol.Optional(f"medicine_{i}_notify", default=cur_notify)] = vol.In(notify_dict)
+            schema[vol.Optional(f"medicine_{i}_tts", default=cur_tts)] = vol.In(tts_dict)
 
         return self.async_show_form(
             step_id="medicine",
             data_schema=vol.Schema(schema),
-            description_placeholders={"info": "Nhập danh sách thuốc."},
         )

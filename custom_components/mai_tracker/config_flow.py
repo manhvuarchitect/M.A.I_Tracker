@@ -251,7 +251,12 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             notify_dict[f"notify.{svc}"] = f"notify.{svc}"
             
         cur_notify = str(self._get(CONF_NOTIFY_TARGET, ""))
+        cur_notify_2 = str(self._get("notify_target_2", ""))
+        cur_notify_3 = str(self._get("notify_target_3", ""))
+        
         if cur_notify and cur_notify not in notify_dict: notify_dict[cur_notify] = cur_notify
+        if cur_notify_2 and cur_notify_2 not in notify_dict: notify_dict[cur_notify_2] = cur_notify_2
+        if cur_notify_3 and cur_notify_3 not in notify_dict: notify_dict[cur_notify_3] = cur_notify_3
 
         tts_dict = {"": "Không sử dụng"}
         for state in self.hass.states.async_all("media_player"):
@@ -264,6 +269,8 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
 
         schema = {
             vol.Optional(CONF_NOTIFY_TARGET, default=cur_notify): vol.In(notify_dict),
+            vol.Optional("notify_target_2", default=cur_notify_2): vol.In(notify_dict),
+            vol.Optional("notify_target_3", default=cur_notify_3): vol.In(notify_dict),
             vol.Optional(CONF_TTS_TARGET, default=cur_tts): vol.In(tts_dict),
             vol.Optional(CONF_TTS_MESSAGE, default=cur_msg): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)

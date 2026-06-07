@@ -44,7 +44,9 @@
         "title": "Notifications & TTS (Step 3/4)",
         "description": "Configure medical alerts and voice reminders.",
         "data": {
-          "notify_target": "Notify Target",
+          "notify_target": "Notification Target 1",
+          "notify_target_2": "Notification Target 2 (Backup)",
+          "notify_target_3": "Notification Target 3 (Backup)",
           "tts_target": "TTS Target (Speaker)",
           "tts_message": "TTS Message content"
         },

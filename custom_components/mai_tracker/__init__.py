@@ -71,28 +71,38 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 
                 # Check notification
                 entry_options = hass.config_entries.async_get_entry(entry_id).options
-                notify_target = entry_options.get("notify_target")
-                if notify_target:
+                targets = []
+                for key in ["notify_target", "notify_target_2", "notify_target_3"]:
+                    val = entry_options.get(key)
+                    if val: targets.append(val)
+                    
+                if targets:
                     from .const import DRINK_TYPES
                     drink_name = DRINK_TYPES.get(loai, {}).get("name", loai)
                     message = f"Tài khoản {coordinator.person_name} vừa uống thêm {luong_ml}ml {drink_name}."
-                    target_service = notify_target.replace("notify.", "")
-                    hass.async_create_task(
-                        hass.services.async_call("notify", target_service, {"message": message, "title": "Ghi nhận đồ uống 💧"}, blocking=False)
-                    )
+                    for notify_target in targets:
+                        target_service = notify_target.replace("notify.", "")
+                        hass.async_create_task(
+                            hass.services.async_call("notify", target_service, {"message": message, "title": "Ghi nhận đồ uống 💧"}, blocking=False)
+                        )
 
             elif call.service == SERVICE_REMOVE_LAST:
                 await coordinator.async_remove_last()
                 
                 # Check notification
                 entry_options = hass.config_entries.async_get_entry(entry_id).options
-                notify_target = entry_options.get("notify_target")
-                if notify_target:
+                targets = []
+                for key in ["notify_target", "notify_target_2", "notify_target_3"]:
+                    val = entry_options.get(key)
+                    if val: targets.append(val)
+                    
+                if targets:
                     message = f"Tài khoản {coordinator.person_name} vừa hoàn tác (xoá) đồ uống gần nhất."
-                    target_service = notify_target.replace("notify.", "")
-                    hass.async_create_task(
-                        hass.services.async_call("notify", target_service, {"message": message, "title": "Hoàn tác đồ uống ↩️"}, blocking=False)
-                    )
+                    for notify_target in targets:
+                        target_service = notify_target.replace("notify.", "")
+                        hass.async_create_task(
+                            hass.services.async_call("notify", target_service, {"message": message, "title": "Hoàn tác đồ uống ↩️"}, blocking=False)
+                        )
 
             elif call.service == SERVICE_REMOVE_BY_ID:
                 await coordinator.async_remove_by_id(call.data[ATTR_EVENT_ID])

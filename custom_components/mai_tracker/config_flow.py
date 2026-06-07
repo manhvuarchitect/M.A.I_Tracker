@@ -44,6 +44,8 @@ def _settings_schema(
     default_sleep_safe: float = DEFAULT_SLEEP_SAFE_MG,
     default_enable_absorption: bool = DEFAULT_ENABLE_ABSORPTION,
     default_absorption_time: float = DEFAULT_ABSORPTION_TIME_MIN,
+    default_weight: float = DEFAULT_WEIGHT_KG,
+    default_gender: str = DEFAULT_GENDER,
 ) -> vol.Schema:
     return vol.Schema(
         {
@@ -93,7 +95,7 @@ def _settings_schema(
                 )
             ),
             vol.Required(
-                CONF_WEIGHT_KG, default=DEFAULT_WEIGHT_KG
+                CONF_WEIGHT_KG, default=default_weight
             ): selector.NumberSelector(
                 selector.NumberSelectorConfig(
                     min=30.0,
@@ -104,7 +106,7 @@ def _settings_schema(
                 )
             ),
             vol.Required(
-                CONF_GENDER, default=DEFAULT_GENDER
+                CONF_GENDER, default=default_gender
             ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
@@ -186,6 +188,8 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         current_sleep_safe = float(self._get(CONF_SLEEP_SAFE_MG, DEFAULT_SLEEP_SAFE_MG))
         current_enable_absorption = bool(self._get(CONF_ENABLE_ABSORPTION, DEFAULT_ENABLE_ABSORPTION))
         current_absorption_time = float(self._get(CONF_ABSORPTION_TIME_MIN, DEFAULT_ABSORPTION_TIME_MIN))
+        current_weight = float(self._get(CONF_WEIGHT_KG, DEFAULT_WEIGHT_KG))
+        current_gender = str(self._get(CONF_GENDER, DEFAULT_GENDER))
 
         schema = _settings_schema(
             current_water_goal,
@@ -193,6 +197,8 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             current_sleep_safe,
             current_enable_absorption,
             current_absorption_time,
+            current_weight,
+            current_gender,
         ).schema
 
         return self.async_show_form(

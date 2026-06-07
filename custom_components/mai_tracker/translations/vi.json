@@ -49,7 +49,7 @@
           "tts_message": "Nội dung phát thanh nhắc uống nước"
         },
         "data_description": {
-          "tts_message": "Bạn có thể sử dụng biến {ml} trong câu để M.A.I Tracker tự động đọc số ml nước cần uống thêm."
+          "tts_message": "Bạn có thể sử dụng biến [ml] trong câu để M.A.I Tracker tự động đọc số ml nước cần uống thêm."
         }
       },
       "medicine": {

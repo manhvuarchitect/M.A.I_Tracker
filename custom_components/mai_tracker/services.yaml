@@ -1,35 +1,32 @@
-log_consumption:
-  name: Log Consumption
+log_drink:
+  name: Log Drink (Ghi nhận đồ uống)
   description: >
-    Record a caffeine intake for a person. Target the device or
+    Record a drink for a person. Target the device or
     one of its sensors.
   target:
     entity:
       integration: mai_tracker
   fields:
-    mg:
-      name: Amount (mg)
-      description: Caffeine amount in mg.
+    loai:
+      name: Loại đồ uống
+      description: Loại đồ uống (nuoc_loc, cafe, tra, nuoc_ngot, sua, bia, ruou).
+      required: true
+      selector:
+        text:
+    luong_ml:
+      name: Lượng (ml)
+      description: Lượng đồ uống tính bằng ml.
       required: true
       selector:
         number:
           min: 1
           max: 2000
-          step: 1
-          unit_of_measurement: mg
-    label:
-      name: Label
-      description: >
-        Optional display name for this event (e.g. "Espresso", "Cold brew").
-        Defaults to "custom".
-      required: false
-      selector:
-        text:
+          step: 50
+          unit_of_measurement: ml
     timestamp:
       name: Timestamp
       description: >
         Optional ISO 8601 datetime. Defaults to now.
-        Example: "2024-06-01T08:30:00+02:00"
       required: false
       selector:
         text:

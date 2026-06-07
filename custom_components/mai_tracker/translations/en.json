@@ -49,7 +49,7 @@
           "tts_message": "TTS Message content"
         },
         "data_description": {
-          "tts_message": "Use {ml} placeholder for the required water amount."
+          "tts_message": "You can use the [ml] variable in the string to automatically read out the extra water goal."
         }
       },
       "medicine": {

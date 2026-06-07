@@ -83,6 +83,16 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
             elif call.service == SERVICE_REMOVE_LAST:
                 await coordinator.async_remove_last()
+                
+                # Check notification
+                entry_options = hass.config_entries.async_get_entry(entry_id).options
+                notify_target = entry_options.get("notify_target")
+                if notify_target:
+                    message = f"Tài khoản {coordinator.person_name} vừa hoàn tác (xoá) đồ uống gần nhất."
+                    target_service = notify_target.replace("notify.", "")
+                    hass.async_create_task(
+                        hass.services.async_call("notify", target_service, {"message": message, "title": "Hoàn tác đồ uống ↩️"}, blocking=False)
+                    )
 
             elif call.service == SERVICE_REMOVE_BY_ID:
                 await coordinator.async_remove_by_id(call.data[ATTR_EVENT_ID])

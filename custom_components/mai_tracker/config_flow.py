@@ -295,6 +295,9 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         for i in range(1, 11):
             cur_name = str(self._get(f"medicine_{i}_name", ""))
             cur_time = str(self._get(f"medicine_{i}_time", ""))
+            if not cur_time:
+                cur_time = "08:00:00"  # Default time to prevent frontend "Invalid time" error
+            
             cur_notify = str(self._get(f"medicine_{i}_notify", ""))
             cur_tts = str(self._get(f"medicine_{i}_tts", ""))
 

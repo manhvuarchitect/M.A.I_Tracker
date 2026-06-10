@@ -5,11 +5,19 @@
         "title": "Cài đặt M.A.I Tracker",
         "data": {
           "person_name": "Tên người dùng (Prefix)",
-          "water_goal": "Mục tiêu nước (ml)",
-          "half_life_hours": "Thời gian bán phân hủy Cafein",
-          "sleep_safe_mg": "Ngưỡng Cafein an toàn để ngủ",
-          "enable_absorption": "Mô phỏng hấp thụ",
-          "absorption_time_min": "Thời gian hấp thụ (Phút)"
+          "clone_from": "Thừa kế cấu hình từ User (Chọn để sao chép)"
+        }
+      },
+      "basic_settings": {
+        "title": "Thông số Thể trạng & Mục tiêu",
+        "data": {
+          "water_goal": "Mục tiêu uống nước mỗi ngày (ml)",
+          "half_life_hours": "Thời gian bán phân hủy Cafein (Giờ)",
+          "sleep_safe_mg": "Ngưỡng Cafein an toàn để ngủ (mg)",
+          "enable_absorption": "Bật mô phỏng quá trình hấp thụ dần",
+          "absorption_time_min": "Thời gian Cafein ngấm vào máu (Phút)",
+          "weight_kg": "Cân nặng (kg)",
+          "gender": "Giới tính"
         }
       }
     },

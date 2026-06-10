@@ -5,11 +5,19 @@
         "title": "M.A.I Tracker Setup",
         "data": {
           "person_name": "User Name (Prefix)",
+          "clone_from": "Clone settings from User (Optional)"
+        }
+      },
+      "basic_settings": {
+        "title": "Basic Settings & Goals",
+        "data": {
           "water_goal": "Daily Water Goal (ml)",
-          "half_life_hours": "Caffeine half-life",
-          "sleep_safe_mg": "Sleep-safe threshold",
+          "half_life_hours": "Caffeine half-life (Hours)",
+          "sleep_safe_mg": "Sleep-safe threshold (mg)",
           "enable_absorption": "Model gradual absorption",
-          "absorption_time_min": "Absorption time"
+          "absorption_time_min": "Absorption time (Minutes)",
+          "weight_kg": "Weight (kg)",
+          "gender": "Gender"
         }
       }
     },

@@ -1,6 +1,6 @@
 # M.A.I Tracker (Home Assistant Custom Component)
 
-**Current Version: 2.0.0**
+**Current Version: v2.0.17**
 
 A powerful Home Assistant integration to track daily fluid intake, manage caffeine half-life, monitor sleep-safe caffeine levels, and calculate heat index. This is a rebuilt and optimized version based on `caffeine_tracker`.
 

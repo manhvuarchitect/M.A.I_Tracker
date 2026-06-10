@@ -200,7 +200,16 @@
       "sleep_safe_at": { "name": "Giờ đi ngủ an toàn" },
       "peak": { "name": "Mức Cafein đỉnh điểm" },
       "water_today": { "name": "Tổng Nước Hôm Nay" },
-      "heat_index": { "name": "Mức độ oi bức" }
+      "heat_index": { "name": "Mức độ oi bức" },
+      "caffeine_percent": { "name": "Tỉ lệ giới hạn Cafein" },
+      "bac_level": { "name": "Nồng độ cồn (BAC)" },
+      "drive_safe_at": { "name": "Giờ lái xe an toàn" },
+      "last_medicine": { "name": "Liều thuốc gần nhất" },
+      "caffeine_crash_risk": { "name": "Nguy cơ sụp đổ năng lượng" },
+      "caffeine_history": { "name": "Lịch sử nạp Cafein" },
+      "aggregated_heart_rate": { "name": "Nhịp tim trung bình" },
+      "aggregated_steps": { "name": "Tổng số bước chân" },
+      "dynamic_water_goal": { "name": "Mục tiêu nước hôm nay" }
     }
   }
 }

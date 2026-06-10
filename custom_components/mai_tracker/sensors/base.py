@@ -15,6 +15,7 @@ class _CaffeineBase(CoordinatorEntity[CaffeineCoordinator], SensorEntity):
         if suffix:
             person = coordinator.person_name.lower().replace(" ", "_")
             self.entity_id = f"sensor.mait_{person}_{suffix}"
+            self._attr_translation_key = suffix
 
     @property
     def device_info(self) -> DeviceInfo:

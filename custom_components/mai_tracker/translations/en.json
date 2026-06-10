@@ -200,7 +200,16 @@
       "sleep_safe_at": { "name": "Sleep Safe At" },
       "peak": { "name": "Estimated Peak Level" },
       "water_today": { "name": "Water Consumed Today" },
-      "heat_index": { "name": "Heat Index" }
+      "heat_index": { "name": "Heat Index" },
+      "caffeine_percent": { "name": "Caffeine Limit Percent" },
+      "bac_level": { "name": "BAC Level" },
+      "drive_safe_at": { "name": "Drive Safe At" },
+      "last_medicine": { "name": "Last Medicine" },
+      "caffeine_crash_risk": { "name": "Crash Risk" },
+      "caffeine_history": { "name": "Caffeine History" },
+      "aggregated_heart_rate": { "name": "Aggregated Heart Rate" },
+      "aggregated_steps": { "name": "Aggregated Steps" },
+      "dynamic_water_goal": { "name": "Dynamic Water Goal" }
     }
   }
 }

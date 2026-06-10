@@ -11,7 +11,6 @@ class LastMedicineSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="last_medicine")
         self._attr_unique_id = f"{entry.entry_id}_last_medicine"
-        self._attr_name = "Last Medicine"
 
     @property
     def native_value(self) -> str | None:
@@ -39,7 +38,6 @@ class AggregatedHeartRateSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="aggregated_heart_rate")
         self._attr_unique_id = f"{entry.entry_id}_aggregated_heart_rate"
-        self._attr_name = "Aggregated Heart Rate"
 
     @property
     def native_value(self) -> float | None:
@@ -53,7 +51,6 @@ class AggregatedStepsSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="aggregated_steps")
         self._attr_unique_id = f"{entry.entry_id}_aggregated_steps"
-        self._attr_name = "Aggregated Steps"
 
     @property
     def native_value(self) -> int | None:

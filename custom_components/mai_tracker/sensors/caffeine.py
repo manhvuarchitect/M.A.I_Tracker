@@ -17,7 +17,7 @@ class CaffeineCurrentSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="current")
         self._attr_unique_id = f"{entry.entry_id}_current"
-        self._attr_name = "Caffeine Active Level"
+        self._attr_translation_key = "current"
 
     @property
     def native_value(self) -> float | None:
@@ -47,7 +47,6 @@ class CaffeineConsumedTodaySensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="consumed_today")
         self._attr_unique_id = f"{entry.entry_id}_consumed_today"
-        self._attr_name = "Caffeine Consumed Today"
 
     @property
     def native_value(self) -> float | None:
@@ -62,7 +61,6 @@ class CaffeinePercentSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="caffeine_percent")
         self._attr_unique_id = f"{entry.entry_id}_caffeine_percent"
-        self._attr_name = "Caffeine Limit Percent"
 
     @property
     def native_value(self) -> float | None:
@@ -76,7 +74,6 @@ class CaffeineConsumedTodayCountSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="consumed_today_count")
         self._attr_unique_id = f"{entry.entry_id}_consumed_today_count"
-        self._attr_name = "Consumptions Today"
 
     @property
     def native_value(self) -> int | None:
@@ -89,7 +86,6 @@ class CaffeineSleepSafeAtSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="sleep_safe_at")
         self._attr_unique_id = f"{entry.entry_id}_sleep_safe_at"
-        self._attr_name = "Sleep Safe At"
 
     @property
     def native_value(self) -> datetime | None:
@@ -105,7 +101,6 @@ class CaffeinePeakSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="peak")
         self._attr_unique_id = f"{entry.entry_id}_peak"
-        self._attr_name = "Peak Level"
 
     @property
     def native_value(self) -> float | None:
@@ -118,7 +113,6 @@ class CaffeineCrashRiskSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="caffeine_crash_risk")
         self._attr_unique_id = f"{entry.entry_id}_caffeine_crash_risk"
-        self._attr_name = "Crash Risk"
 
     @property
     def native_value(self) -> str | None:
@@ -141,7 +135,6 @@ class CaffeineHistorySensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="caffeine_history")
         self._attr_unique_id = f"{entry.entry_id}_caffeine_history"
-        self._attr_name = "Caffeine History"
 
     @property
     def native_value(self) -> str | None:

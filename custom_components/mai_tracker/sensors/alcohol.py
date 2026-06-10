@@ -13,7 +13,6 @@ class BACLevelSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="bac_level")
         self._attr_unique_id = f"{entry.entry_id}_bac_level"
-        self._attr_name = "BAC Level"
 
     @property
     def native_value(self) -> float | None:
@@ -26,7 +25,6 @@ class DriveSafeAtSensor(_CaffeineBase):
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry, suffix="drive_safe_at")
         self._attr_unique_id = f"{entry.entry_id}_drive_safe_at"
-        self._attr_name = "Drive Safe At"
 
     @property
     def native_value(self) -> datetime | None:

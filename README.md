@@ -7,10 +7,13 @@ A powerful Home Assistant integration to track daily fluid intake, manage caffei
 ---
 
 ## 🚀 Features in v2.0.0
+- **Profile Cloning (Sao chép cấu hình)**: Easily duplicate complex settings (medicines, environment, notification devices) from an existing user when creating a new one!
+- **Medicine Tracking**: Schedule up to 10 medicines with reminder times, actionable mobile notifications, and TTS alerts. Includes interaction warnings (e.g. taking iron/antibiotics near caffeine).
+- **Dynamic Water Goal**: Automatically increases your daily water goal on hot/humid days based on the Heat Index.
+- **BAC Tracking**: Uses the Widmark formula to track Blood Alcohol Concentration (BAC) and calculate drive-safe time.
 - **Advanced Caffeine Tracking**: Uses exponential decay model to track active caffeine in your body.
 - **Water Tracking**: Converts drinks (coffee, tea, etc.) into equivalent water intake and tracks against a daily goal.
 - **Heat Index Sensor**: Calculates "Feels Like" temperature based on temperature and humidity sensors.
-- **Smart Notifications**: Automatically notifies your phone when a drink is logged.
 - **Midnight Reset**: Automatically resets your daily water count at midnight while keeping caffeine timeline intact.
 
 ---

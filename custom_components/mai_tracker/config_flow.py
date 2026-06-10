@@ -125,34 +125,109 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    def __init__(self) -> None:
+        """Initialize the config flow."""
+        self._new_name: str = ""
+        self._clone_id: str = "none"
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         errors: dict[str, str] = {}
+        existing_entries = self._async_current_entries()
 
         if user_input is not None:
             existing_names = {
                 entry.data[CONF_PERSON_NAME].lower()
-                for entry in self._async_current_entries()
+                for entry in existing_entries
             }
-            if user_input[CONF_PERSON_NAME].lower() in existing_names:
+            new_name = user_input[CONF_PERSON_NAME].strip()
+            
+            if new_name.lower() in existing_names:
                 errors["base"] = "name_taken"
             else:
-                return self.async_create_entry(
-                    title=user_input[CONF_PERSON_NAME],
-                    data=user_input,
+                self._new_name = new_name
+                self._clone_id = user_input.get("clone_from", "none")
+                return await self.async_step_basic_settings()
+
+        clone_options = [{"value": "none", "label": "Không sao chép (Tạo mới)"}]
+        for entry in existing_entries:
+            name = entry.data.get(CONF_PERSON_NAME, entry.title)
+            clone_options.append({"value": entry.entry_id, "label": f"Sao chép từ: {name}"})
+
+        schema = {
+            vol.Required(CONF_PERSON_NAME): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+            ),
+        }
+        
+        if len(clone_options) > 1:
+            schema[vol.Optional("clone_from", default="none")] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=clone_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
                 )
+            )
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_PERSON_NAME): selector.TextSelector(
-                        selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
-                    ),
-                }
-            ).extend(_settings_schema(default_water_goal=2000).schema),
+            data_schema=vol.Schema(schema),
             errors=errors,
+        )
+
+    async def async_step_basic_settings(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if user_input is not None:
+            new_data = {CONF_PERSON_NAME: self._new_name}
+            new_data.update(user_input)
+            
+            new_options = {}
+            if self._clone_id != "none":
+                for entry in self._async_current_entries():
+                    if entry.entry_id == self._clone_id:
+                        # Copy all other data and options
+                        for k, v in entry.data.items():
+                            if k not in new_data:
+                                new_data[k] = v
+                        for k, v in entry.options.items():
+                            new_options[k] = v
+                        break
+
+            return self.async_create_entry(
+                title=self._new_name,
+                data=new_data,
+                options=new_options,
+            )
+
+        # Pre-fill values if cloning
+        def_water = 2000
+        def_hl = DEFAULT_HALF_LIFE_HOURS
+        def_safe = DEFAULT_SLEEP_SAFE_MG
+        def_abs = DEFAULT_ENABLE_ABSORPTION
+        def_abs_time = DEFAULT_ABSORPTION_TIME_MIN
+        def_weight = DEFAULT_WEIGHT_KG
+        def_gender = DEFAULT_GENDER
+
+        if self._clone_id != "none":
+            for entry in self._async_current_entries():
+                if entry.entry_id == self._clone_id:
+                    def_water = entry.data.get(CONF_WATER_GOAL, entry.options.get(CONF_WATER_GOAL, def_water))
+                    def_hl = entry.data.get(CONF_HALF_LIFE_HOURS, entry.options.get(CONF_HALF_LIFE_HOURS, def_hl))
+                    def_safe = entry.data.get(CONF_SLEEP_SAFE_MG, entry.options.get(CONF_SLEEP_SAFE_MG, def_safe))
+                    def_abs = entry.data.get(CONF_ENABLE_ABSORPTION, entry.options.get(CONF_ENABLE_ABSORPTION, def_abs))
+                    def_abs_time = entry.data.get(CONF_ABSORPTION_TIME_MIN, entry.options.get(CONF_ABSORPTION_TIME_MIN, def_abs_time))
+                    def_weight = entry.data.get(CONF_WEIGHT_KG, entry.options.get(CONF_WEIGHT_KG, def_weight))
+                    def_gender = entry.data.get(CONF_GENDER, entry.options.get(CONF_GENDER, def_gender))
+                    break
+
+        schema = _settings_schema(
+            def_water, def_hl, def_safe, def_abs, def_abs_time, def_weight, def_gender
+        ).schema
+
+        return self.async_show_form(
+            step_id="basic_settings",
+            data_schema=vol.Schema(schema),
         )
 
     @staticmethod

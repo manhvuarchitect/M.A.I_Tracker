@@ -328,13 +328,13 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         schema = {
             vol.Optional("heart_rate_sensors", default=[]): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True, domain="sensor", device_class="heart_rate")
+                selector.EntitySelectorConfig(multiple=True, domain="sensor")
             ),
             vol.Optional("step_sensors", default=[]): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=True, domain="sensor")
             ),
             vol.Optional("weight_sensor"): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=False, domain="sensor", device_class="weight")
+                selector.EntitySelectorConfig(multiple=False, domain="sensor")
             ),
         }
 
@@ -531,18 +531,18 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
 
         schema = {
             vol.Optional("heart_rate_sensors", default=cur_hr): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True, domain="sensor", device_class="heart_rate")
+                selector.EntitySelectorConfig(multiple=True, domain="sensor")
             ),
             vol.Optional("step_sensors", default=cur_steps): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=True, domain="sensor")
             ),
             vol.Optional("weight_sensor"): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=False, domain="sensor", device_class="weight")
+                selector.EntitySelectorConfig(multiple=False, domain="sensor")
             ),
         }
         if cur_weight:
             schema[vol.Optional("weight_sensor", default=cur_weight)] = selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=False, domain="sensor", device_class="weight")
+                selector.EntitySelectorConfig(multiple=False, domain="sensor")
             )
 
         return self.async_show_form(

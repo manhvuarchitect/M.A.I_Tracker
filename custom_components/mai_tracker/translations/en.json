@@ -2,22 +2,98 @@
   "config": {
     "step": {
       "user": {
-        "title": "M.A.I Tracker Setup",
+        "title": "M.A.I Tracker - Create Profile (Step 1/6)",
+        "description": "Enter the user name and choose cloning options.",
         "data": {
           "person_name": "User Name (Prefix)",
           "clone_from": "Clone settings from User (Optional)"
         }
       },
       "basic_settings": {
-        "title": "Basic Settings & Goals",
+        "title": "Basic Settings & Goals (Step 2/6)",
+        "description": "Enter your basic body metrics and water/caffeine targets.",
         "data": {
           "water_goal": "Daily Water Goal (ml)",
-          "half_life_hours": "Caffeine half-life (Hours)",
+          "half_life_hours": "Caffeine Half-life (Hours)",
           "sleep_safe_mg": "Sleep-safe threshold (mg)",
           "enable_absorption": "Model gradual absorption",
           "absorption_time_min": "Absorption time (Minutes)",
-          "weight_kg": "Weight (kg)",
+          "weight_kg": "Default weight (kg)",
           "gender": "Gender"
+        }
+      },
+      "environment": {
+        "title": "Environment Sensors (Step 3/6)",
+        "description": "Select temperature and humidity sensors for automatic water goal adjustments during hot weather.",
+        "data": {
+          "temp_sensor": "Temperature Sensor",
+          "humidity_sensor": "Humidity Sensor"
+        }
+      },
+      "notifications": {
+        "title": "Notifications & TTS (Step 4/6)",
+        "description": "Set up phone notifications and voice broadcast reminder targets.",
+        "data": {
+          "notify_target": "Notification Target 1",
+          "notify_target_2": "Notification Target 2 (Backup)",
+          "notify_target_3": "Notification Target 3 (Backup)",
+          "tts_target": "TTS Target (Media Player)",
+          "tts_message": "TTS reminder message"
+        }
+      },
+      "medicine": {
+        "title": "Medicine Schedule (Step 5/6)",
+        "description": "Set up to 10 medicine reminder schedules. Leave the Medicine Name empty to disable a slot.",
+        "data": {
+          "medicine_1_name": "-------- [1] MEDICINE NAME --------",
+          "medicine_1_time": "Time",
+          "medicine_1_notify": "Notify Device",
+          "medicine_1_tts": "TTS Speaker",
+          "medicine_2_name": "-------- [2] MEDICINE NAME --------",
+          "medicine_2_time": "Time",
+          "medicine_2_notify": "Notify Device",
+          "medicine_2_tts": "TTS Speaker",
+          "medicine_3_name": "-------- [3] MEDICINE NAME --------",
+          "medicine_3_time": "Time",
+          "medicine_3_notify": "Notify Device",
+          "medicine_3_tts": "TTS Speaker",
+          "medicine_4_name": "-------- [4] MEDICINE NAME --------",
+          "medicine_4_time": "Time",
+          "medicine_4_notify": "Notify Device",
+          "medicine_4_tts": "TTS Speaker",
+          "medicine_5_name": "-------- [5] MEDICINE NAME --------",
+          "medicine_5_time": "Time",
+          "medicine_5_notify": "Notify Device",
+          "medicine_5_tts": "TTS Speaker",
+          "medicine_6_name": "-------- [6] MEDICINE NAME --------",
+          "medicine_6_time": "Time",
+          "medicine_6_notify": "Notify Device",
+          "medicine_6_tts": "TTS Speaker",
+          "medicine_7_name": "-------- [7] MEDICINE NAME --------",
+          "medicine_7_time": "Time",
+          "medicine_7_notify": "Notify Device",
+          "medicine_7_tts": "TTS Speaker",
+          "medicine_8_name": "-------- [8] MEDICINE NAME --------",
+          "medicine_8_time": "Time",
+          "medicine_8_notify": "Notify Device",
+          "medicine_8_tts": "TTS Speaker",
+          "medicine_9_name": "-------- [9] MEDICINE NAME --------",
+          "medicine_9_time": "Time",
+          "medicine_9_notify": "Notify Device",
+          "medicine_9_tts": "TTS Speaker",
+          "medicine_10_name": "-------- [10] MEDICINE NAME --------",
+          "medicine_10_time": "Time",
+          "medicine_10_notify": "Notify Device",
+          "medicine_10_tts": "TTS Speaker"
+        }
+      },
+      "bio_sensors": {
+        "title": "Bio Sensors (Step 6/6)",
+        "description": "Select smart trackers/wearables to automatically track steps, heart rate, and weight.",
+        "data": {
+          "heart_rate_sensors": "Heart Rate Sensors (Multiple)",
+          "step_sensors": "Step Sensors (Multiple)",
+          "weight_sensor": "Smart Scale Sensor (Optional)"
         }
       }
     },
@@ -28,43 +104,40 @@
   "options": {
     "step": {
       "init": {
-        "title": "Basic Settings (Step 1/4)",
-        "description": "Configure your basic body and caffeine/water targets.",
+        "title": "Basic Settings & Goals (Step 1/5)",
+        "description": "Configure your basic body metrics and water/caffeine targets.",
         "data": {
           "water_goal": "Daily Water Goal (ml)",
-          "half_life_hours": "Caffeine half-life",
-          "sleep_safe_mg": "Sleep-safe threshold",
+          "half_life_hours": "Caffeine Half-life (Hours)",
+          "sleep_safe_mg": "Sleep-safe threshold (mg)",
           "enable_absorption": "Model gradual absorption",
-          "absorption_time_min": "Absorption time",
-          "weight_kg": "Weight (kg)",
+          "absorption_time_min": "Absorption time (Minutes)",
+          "weight_kg": "Default weight (kg)",
           "gender": "Gender"
         }
       },
       "environment": {
-        "title": "Environment Sensors (Step 2/4)",
-        "description": "Select sensors for automatic heat index adjustments.",
+        "title": "Environment Sensors (Step 2/5)",
+        "description": "Select temperature and humidity sensors for automatic water goal adjustments during hot weather.",
         "data": {
           "temp_sensor": "Temperature Sensor",
           "humidity_sensor": "Humidity Sensor"
         }
       },
       "notifications": {
-        "title": "Notifications & TTS (Step 3/4)",
-        "description": "Configure medical alerts and voice reminders.",
+        "title": "Notifications & TTS (Step 3/5)",
+        "description": "Set up phone notifications and voice broadcast reminder targets.",
         "data": {
           "notify_target": "Notification Target 1",
           "notify_target_2": "Notification Target 2 (Backup)",
           "notify_target_3": "Notification Target 3 (Backup)",
-          "tts_target": "TTS Target (Speaker)",
-          "tts_message": "TTS Message content"
-        },
-        "data_description": {
-          "tts_message": "You can use the [ml] variable in the string to automatically read out the extra water goal."
+          "tts_target": "TTS Target (Media Player)",
+          "tts_message": "TTS reminder message"
         }
       },
       "medicine": {
-        "title": "Medicine Schedule (Step 4/4)",
-        "description": "Configure up to 10 medicine schedules. Leave the Medicine Name empty to disable a slot.",
+        "title": "Medicine Schedule (Step 4/5)",
+        "description": "Set up to 10 medicine reminder schedules. Leave the Medicine Name empty to disable a slot.",
         "data": {
           "medicine_1_name": "-------- [1] MEDICINE NAME --------",
           "medicine_1_time": "Time",
@@ -110,11 +183,11 @@
       },
       "bio_sensors": {
         "title": "Bio Sensors (Step 5/5)",
-        "description": "Select your smart devices to let M.A.I Tracker aggregate steps and heart rate.",
+        "description": "Select smart trackers/wearables to automatically track steps, heart rate, and weight.",
         "data": {
           "heart_rate_sensors": "Heart Rate Sensors (Multiple)",
-          "step_sensors": "Step Sensors (Multiple, type 'step' to search)",
-          "weight_sensor": "Smart Scale (Auto updates weight)"
+          "step_sensors": "Step Sensors (Multiple)",
+          "weight_sensor": "Smart Scale Sensor (Optional)"
         }
       }
     }

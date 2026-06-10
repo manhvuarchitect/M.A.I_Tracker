@@ -2,54 +2,36 @@
   "config": {
     "step": {
       "user": {
-        "title": "Cài đặt M.A.I Tracker",
+        "title": "M.A.I Tracker - Tạo hồ sơ (Bước 1/6)",
+        "description": "Nhập tên và tuỳ chọn thừa kế cấu hình.",
         "data": {
           "person_name": "Tên người dùng (Prefix)",
           "clone_from": "Thừa kế cấu hình từ User (Chọn để sao chép)"
         }
       },
       "basic_settings": {
-        "title": "Thông số Thể trạng & Mục tiêu",
+        "title": "Thông số Thể trạng & Mục tiêu (Bước 2/6)",
+        "description": "Nhập các thông số cơ thể và mục tiêu Cafein/Nước cơ bản của bạn.",
         "data": {
           "water_goal": "Mục tiêu uống nước mỗi ngày (ml)",
           "half_life_hours": "Thời gian bán phân hủy Cafein (Giờ)",
           "sleep_safe_mg": "Ngưỡng Cafein an toàn để ngủ (mg)",
           "enable_absorption": "Bật mô phỏng quá trình hấp thụ dần",
           "absorption_time_min": "Thời gian Cafein ngấm vào máu (Phút)",
-          "weight_kg": "Cân nặng (kg)",
-          "gender": "Giới tính"
-        }
-      }
-    },
-    "error": {
-      "name_taken": "Tên này đã được sử dụng."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Cấu hình Cơ bản (Bước 1/4)",
-        "description": "Thiết lập các thông số cơ thể và mục tiêu Cafein/Nước cơ bản của bạn.",
-        "data": {
-          "water_goal": "Mục tiêu nước (ml)",
-          "half_life_hours": "Thời gian bán phân hủy Cafein",
-          "sleep_safe_mg": "Ngưỡng Cafein an toàn để ngủ",
-          "enable_absorption": "Mô phỏng hấp thụ (Gradual Absorption)",
-          "absorption_time_min": "Thời gian hấp thụ (Phút)",
-          "weight_kg": "Cân nặng (kg)",
+          "weight_kg": "Cân nặng mặc định (kg)",
           "gender": "Giới tính"
         }
       },
       "environment": {
-        "title": "Cảm biến Môi trường (Bước 2/4)",
-        "description": "Lựa chọn các cảm biến để M.A.I Tracker tự động điều chỉnh lượng nước khi trời nóng.",
+        "title": "Cảm biến Môi trường (Bước 3/6)",
+        "description": "Lựa chọn các cảm biến để M.A.I Tracker tự động điều chỉnh lượng nước uống tăng thêm khi trời nóng.",
         "data": {
           "temp_sensor": "Cảm biến nhiệt độ",
           "humidity_sensor": "Cảm biến độ ẩm"
         }
       },
       "notifications": {
-        "title": "Thông báo & Phát thanh (Bước 3/4)",
+        "title": "Thông báo & Phát thanh (Bước 4/6)",
         "description": "Thiết lập các cảnh báo y tế và nhắc nhở uống nước bằng giọng nói (TTS).",
         "data": {
           "notify_target": "Thiết bị nhận thông báo 1 (Điện thoại, v.v.)",
@@ -57,14 +39,105 @@
           "notify_target_3": "Thiết bị nhận thông báo 3 (Dự phòng)",
           "tts_target": "Loa phát thanh (TTS Target)",
           "tts_message": "Nội dung phát thanh nhắc uống nước"
-        },
-        "data_description": {
-          "tts_message": "Bạn có thể sử dụng biến [ml] trong câu để M.A.I Tracker tự động đọc số ml nước cần uống thêm."
         }
       },
       "medicine": {
-        "title": "Lịch Uống Thuốc (Bước 4/4)",
-        "description": "Khai báo tối đa 10 khung giờ uống thuốc. Để trống Tên Thuốc nếu không sử dụng đến khe cắm đó.",
+        "title": "Lịch Uống Thuốc (Bước 5/6)",
+        "description": "Khai báo tối đa 10 khung giờ uống thuốc nhắc qua Loa phát thanh hoặc Điện thoại. Để trống Tên Thuốc nếu không dùng.",
+        "data": {
+          "medicine_1_name": "-------- [1] TÊN THUỐC --------",
+          "medicine_1_time": "Giờ uống",
+          "medicine_1_notify": "Điện thoại nhận thông báo",
+          "medicine_1_tts": "Loa phát thanh (TTS)",
+          "medicine_2_name": "-------- [2] TÊN THUỐC --------",
+          "medicine_2_time": "Giờ uống",
+          "medicine_2_notify": "Điện thoại nhận thông báo",
+          "medicine_2_tts": "Loa phát thanh (TTS)",
+          "medicine_3_name": "-------- [3] TÊN THUỐC --------",
+          "medicine_3_time": "Giờ uống",
+          "medicine_3_notify": "Điện thoại nhận thông báo",
+          "medicine_3_tts": "Loa phát thanh (TTS)",
+          "medicine_4_name": "-------- [4] TÊN THUỐC --------",
+          "medicine_4_time": "Giờ uống",
+          "medicine_4_notify": "Điện thoại nhận thông báo",
+          "medicine_4_tts": "Loa phát thanh (TTS)",
+          "medicine_5_name": "-------- [5] TÊN THUỐC --------",
+          "medicine_5_time": "Giờ uống",
+          "medicine_5_notify": "Điện thoại nhận thông báo",
+          "medicine_5_tts": "Loa phát thanh (TTS)",
+          "medicine_6_name": "-------- [6] TÊN THUỐC --------",
+          "medicine_6_time": "Giờ uống",
+          "medicine_6_notify": "Điện thoại nhận thông báo",
+          "medicine_6_tts": "Loa phát thanh (TTS)",
+          "medicine_7_name": "-------- [7] TÊN THUỐC --------",
+          "medicine_7_time": "Giờ uống",
+          "medicine_7_notify": "Điện thoại nhận thông báo",
+          "medicine_7_tts": "Loa phát thanh (TTS)",
+          "medicine_8_name": "-------- [8] TÊN THUỐC --------",
+          "medicine_8_time": "Giờ uống",
+          "medicine_8_notify": "Điện thoại nhận thông báo",
+          "medicine_8_tts": "Loa phát thanh (TTS)",
+          "medicine_9_name": "-------- [9] TÊN THUỐC --------",
+          "medicine_9_time": "Giờ uống",
+          "medicine_9_notify": "Điện thoại nhận thông báo",
+          "medicine_9_tts": "Loa phát thanh (TTS)",
+          "medicine_10_name": "-------- [10] TÊN THUỐC --------",
+          "medicine_10_time": "Giờ uống",
+          "medicine_10_notify": "Điện thoại nhận thông báo",
+          "medicine_10_tts": "Loa phát thanh (TTS)"
+        }
+      },
+      "bio_sensors": {
+        "title": "Cảm biến Sinh học (Bước 6/6)",
+        "description": "Lựa chọn thiết bị đo sinh học (WearOS, Điện thoại, Cân thông minh) để M.A.I Tracker tự tính toán bước chân, nhịp tim và đồng bộ cân nặng tự động.",
+        "data": {
+          "heart_rate_sensors": "Cảm biến Nhịp tim (Chọn nhiều)",
+          "step_sensors": "Cảm biến Bước chân (Chọn nhiều, tự gõ chữ 'step' để tìm)",
+          "weight_sensor": "Cân thông minh (Chọn cảm biến cân nặng nếu có)"
+        }
+      }
+    },
+    "error": {
+      "name_taken": "Tên người dùng này đã tồn tại."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Thông số Thể trạng & Mục tiêu (Bước 1/5)",
+        "description": "Cấu hình lại các thông số cơ thể và mục tiêu Cafein/Nước của bạn.",
+        "data": {
+          "water_goal": "Mục tiêu nước (ml)",
+          "half_life_hours": "Thời gian bán phân hủy Cafein",
+          "sleep_safe_mg": "Ngưỡng Cafein an toàn để ngủ",
+          "enable_absorption": "Mô phỏng hấp thụ (Gradual Absorption)",
+          "absorption_time_min": "Thời gian hấp thụ (Phút)",
+          "weight_kg": "Cân nặng mặc định (kg)",
+          "gender": "Giới tính"
+        }
+      },
+      "environment": {
+        "title": "Cảm biến Môi trường (Bước 2/5)",
+        "description": "Lựa chọn các cảm biến để M.A.I Tracker tự động điều chỉnh lượng nước khi trời nóng.",
+        "data": {
+          "temp_sensor": "Cảm biến nhiệt độ",
+          "humidity_sensor": "Cảm biến độ ẩm"
+        }
+      },
+      "notifications": {
+        "title": "Thông báo & Phát thanh (Bước 3/5)",
+        "description": "Thiết lập các cảnh báo y tế và nhắc nhở uống nước bằng giọng nói (TTS).",
+        "data": {
+          "notify_target": "Thiết bị nhận thông báo 1 (Điện thoại, v.v.)",
+          "notify_target_2": "Thiết bị nhận thông báo 2 (Dự phòng)",
+          "notify_target_3": "Thiết bị nhận thông báo 3 (Dự phòng)",
+          "tts_target": "Loa phát thanh (TTS Target)",
+          "tts_message": "Nội dung phát thanh nhắc uống nước"
+        }
+      },
+      "medicine": {
+        "title": "Lịch Uống Thuốc (Bước 4/5)",
+        "description": "Khai báo tối đa 10 khung giờ uống thuốc nhắc qua Loa phát thanh hoặc Điện thoại.",
         "data": {
           "medicine_1_name": "-------- [1] TÊN THUỐC --------",
           "medicine_1_time": "Giờ uống",
@@ -110,11 +183,11 @@
       },
       "bio_sensors": {
         "title": "Cảm biến Sinh học (Bước 5/5)",
-        "description": "Lựa chọn thiết bị đo sinh học (WearOS, Điện thoại, Cân thông minh) để M.A.I Tracker tự tính toán bước chân và nhịp tim.",
+        "description": "Lựa chọn thiết bị đo sinh học (WearOS, Điện thoại, Cân thông minh) để M.A.I Tracker tự tính toán bước chân, nhịp tim và đồng bộ cân nặng tự động.",
         "data": {
           "heart_rate_sensors": "Cảm biến Nhịp tim (Chọn nhiều)",
           "step_sensors": "Cảm biến Bước chân (Chọn nhiều, tự gõ chữ 'step' để tìm)",
-          "weight_sensor": "Cân thông minh (Tự động cập nhật Cân nặng)"
+          "weight_sensor": "Cân thông minh (Chọn cảm biến cân nặng nếu có)"
         }
       }
     }

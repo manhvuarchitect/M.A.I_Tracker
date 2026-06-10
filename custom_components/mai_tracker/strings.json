@@ -2,55 +2,205 @@
   "config": {
     "step": {
       "user": {
-        "title": "M.A.I Tracker Setup",
+        "title": "M.A.I Tracker - Tạo hồ sơ (Bước 1/6)",
+        "description": "Nhập tên và tuỳ chọn thừa kế cấu hình.",
         "data": {
-          "person_name": "User Name (Prefix)",
-          "clone_from": "Clone settings from User (Optional)"
+          "person_name": "Tên người dùng (Prefix)",
+          "clone_from": "Thừa kế cấu hình từ User (Chọn để sao chép)"
         }
       },
       "basic_settings": {
-        "title": "Basic Settings & Goals",
+        "title": "Thông số Thể trạng & Mục tiêu (Bước 2/6)",
+        "description": "Nhập các thông số cơ thể và mục tiêu Cafein/Nước cơ bản của bạn.",
         "data": {
-          "water_goal": "Daily Water Goal (ml)",
-          "half_life_hours": "Caffeine half-life (Hours)",
-          "sleep_safe_mg": "Sleep-safe threshold (mg)",
-          "enable_absorption": "Model gradual absorption",
-          "absorption_time_min": "Absorption time (Minutes)",
-          "weight_kg": "Weight (kg)",
-          "gender": "Gender"
+          "water_goal": "Mục tiêu uống nước mỗi ngày (ml)",
+          "half_life_hours": "Thời gian bán phân hủy Cafein (Giờ)",
+          "sleep_safe_mg": "Ngưỡng Cafein an toàn để ngủ (mg)",
+          "enable_absorption": "Bật mô phỏng quá trình hấp thụ dần",
+          "absorption_time_min": "Thời gian Cafein ngấm vào máu (Phút)",
+          "weight_kg": "Cân nặng mặc định (kg)",
+          "gender": "Giới tính"
+        }
+      },
+      "environment": {
+        "title": "Cảm biến Môi trường (Bước 3/6)",
+        "description": "Lựa chọn các cảm biến để M.A.I Tracker tự động điều chỉnh lượng nước uống tăng thêm khi trời nóng.",
+        "data": {
+          "temp_sensor": "Cảm biến nhiệt độ",
+          "humidity_sensor": "Cảm biến độ ẩm"
+        }
+      },
+      "notifications": {
+        "title": "Thông báo & Phát thanh (Bước 4/6)",
+        "description": "Thiết lập các cảnh báo y tế và nhắc nhở uống nước bằng giọng nói (TTS).",
+        "data": {
+          "notify_target": "Thiết bị nhận thông báo 1 (Điện thoại, v.v.)",
+          "notify_target_2": "Thiết bị nhận thông báo 2 (Dự phòng)",
+          "notify_target_3": "Thiết bị nhận thông báo 3 (Dự phòng)",
+          "tts_target": "Loa phát thanh (TTS Target)",
+          "tts_message": "Nội dung phát thanh nhắc uống nước"
+        }
+      },
+      "medicine": {
+        "title": "Lịch Uống Thuốc (Bước 5/6)",
+        "description": "Khai báo tối đa 10 khung giờ uống thuốc nhắc qua Loa phát thanh hoặc Điện thoại. Để trống Tên Thuốc nếu không dùng.",
+        "data": {
+          "medicine_1_name": "-------- [1] TÊN THUỐC --------",
+          "medicine_1_time": "Giờ uống",
+          "medicine_1_notify": "Điện thoại nhận thông báo",
+          "medicine_1_tts": "Loa phát thanh (TTS)",
+          "medicine_2_name": "-------- [2] TÊN THUỐC --------",
+          "medicine_2_time": "Giờ uống",
+          "medicine_2_notify": "Điện thoại nhận thông báo",
+          "medicine_2_tts": "Loa phát thanh (TTS)",
+          "medicine_3_name": "-------- [3] TÊN THUỐC --------",
+          "medicine_3_time": "Giờ uống",
+          "medicine_3_notify": "Điện thoại nhận thông báo",
+          "medicine_3_tts": "Loa phát thanh (TTS)",
+          "medicine_4_name": "-------- [4] TÊN THUỐC --------",
+          "medicine_4_time": "Giờ uống",
+          "medicine_4_notify": "Điện thoại nhận thông báo",
+          "medicine_4_tts": "Loa phát thanh (TTS)",
+          "medicine_5_name": "-------- [5] TÊN THUỐC --------",
+          "medicine_5_time": "Giờ uống",
+          "medicine_5_notify": "Điện thoại nhận thông báo",
+          "medicine_5_tts": "Loa phát thanh (TTS)",
+          "medicine_6_name": "-------- [6] TÊN THUỐC --------",
+          "medicine_6_time": "Giờ uống",
+          "medicine_6_notify": "Điện thoại nhận thông báo",
+          "medicine_6_tts": "Loa phát thanh (TTS)",
+          "medicine_7_name": "-------- [7] TÊN THUỐC --------",
+          "medicine_7_time": "Giờ uống",
+          "medicine_7_notify": "Điện thoại nhận thông báo",
+          "medicine_7_tts": "Loa phát thanh (TTS)",
+          "medicine_8_name": "-------- [8] TÊN THUỐC --------",
+          "medicine_8_time": "Giờ uống",
+          "medicine_8_notify": "Điện thoại nhận thông báo",
+          "medicine_8_tts": "Loa phát thanh (TTS)",
+          "medicine_9_name": "-------- [9] TÊN THUỐC --------",
+          "medicine_9_time": "Giờ uống",
+          "medicine_9_notify": "Điện thoại nhận thông báo",
+          "medicine_9_tts": "Loa phát thanh (TTS)",
+          "medicine_10_name": "-------- [10] TÊN THUỐC --------",
+          "medicine_10_time": "Giờ uống",
+          "medicine_10_notify": "Điện thoại nhận thông báo",
+          "medicine_10_tts": "Loa phát thanh (TTS)"
+        }
+      },
+      "bio_sensors": {
+        "title": "Cảm biến Sinh học (Bước 6/6)",
+        "description": "Lựa chọn thiết bị đo sinh học (WearOS, Điện thoại, Cân thông minh) để M.A.I Tracker tự tính toán bước chân, nhịp tim và đồng bộ cân nặng tự động.",
+        "data": {
+          "heart_rate_sensors": "Cảm biến Nhịp tim (Chọn nhiều)",
+          "step_sensors": "Cảm biến Bước chân (Chọn nhiều, tự gõ chữ 'step' để tìm)",
+          "weight_sensor": "Cân thông minh (Chọn cảm biến cân nặng nếu có)"
         }
       }
     },
     "error": {
-      "name_taken": "A profile with this name already exists."
+      "name_taken": "Tên người dùng này đã tồn tại."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Update Settings",
+        "title": "Thông số Thể trạng & Mục tiêu (Bước 1/5)",
+        "description": "Cấu hình lại các thông số cơ thể và mục tiêu Cafein/Nước của bạn.",
         "data": {
-          "water_goal": "Daily Water Goal (ml)",
-          "half_life_hours": "Caffeine half-life",
-          "sleep_safe_mg": "Sleep-safe threshold",
-          "enable_absorption": "Model gradual absorption",
-          "absorption_time_min": "Absorption time constant",
-          "notify_target": "Notify Target",
-          "temp_sensor": "Temperature Sensor",
-          "humidity_sensor": "Humidity Sensor"
+          "water_goal": "Mục tiêu nước (ml)",
+          "half_life_hours": "Thời gian bán phân hủy Cafein",
+          "sleep_safe_mg": "Ngưỡng Cafein an toàn để ngủ",
+          "enable_absorption": "Mô phỏng hấp thụ (Gradual Absorption)",
+          "absorption_time_min": "Thời gian hấp thụ (Phút)",
+          "weight_kg": "Cân nặng mặc định (kg)",
+          "gender": "Giới tính"
+        }
+      },
+      "environment": {
+        "title": "Cảm biến Môi trường (Bước 2/5)",
+        "description": "Lựa chọn các cảm biến để M.A.I Tracker tự động điều chỉnh lượng nước khi trời nóng.",
+        "data": {
+          "temp_sensor": "Cảm biến nhiệt độ",
+          "humidity_sensor": "Cảm biến độ ẩm"
+        }
+      },
+      "notifications": {
+        "title": "Thông báo & Phát thanh (Bước 3/5)",
+        "description": "Thiết lập các cảnh báo y tế và nhắc nhở uống nước bằng giọng nói (TTS).",
+        "data": {
+          "notify_target": "Thiết bị nhận thông báo 1 (Điện thoại, v.v.)",
+          "notify_target_2": "Thiết bị nhận thông báo 2 (Dự phòng)",
+          "notify_target_3": "Thiết bị nhận thông báo 3 (Dự phòng)",
+          "tts_target": "Loa phát thanh (TTS Target)",
+          "tts_message": "Nội dung phát thanh nhắc uống nước"
+        }
+      },
+      "medicine": {
+        "title": "Lịch Uống Thuốc (Bước 4/5)",
+        "description": "Khai báo tối đa 10 khung giờ uống thuốc nhắc qua Loa phát thanh hoặc Điện thoại.",
+        "data": {
+          "medicine_1_name": "-------- [1] TÊN THUỐC --------",
+          "medicine_1_time": "Giờ uống",
+          "medicine_1_notify": "Điện thoại nhận thông báo",
+          "medicine_1_tts": "Loa phát thanh (TTS)",
+          "medicine_2_name": "-------- [2] TÊN THUỐC --------",
+          "medicine_2_time": "Giờ uống",
+          "medicine_2_notify": "Điện thoại nhận thông báo",
+          "medicine_2_tts": "Loa phát thanh (TTS)",
+          "medicine_3_name": "-------- [3] TÊN THUỐC --------",
+          "medicine_3_time": "Giờ uống",
+          "medicine_3_notify": "Điện thoại nhận thông báo",
+          "medicine_3_tts": "Loa phát thanh (TTS)",
+          "medicine_4_name": "-------- [4] TÊN THUỐC --------",
+          "medicine_4_time": "Giờ uống",
+          "medicine_4_notify": "Điện thoại nhận thông báo",
+          "medicine_4_tts": "Loa phát thanh (TTS)",
+          "medicine_5_name": "-------- [5] TÊN THUỐC --------",
+          "medicine_5_time": "Giờ uống",
+          "medicine_5_notify": "Điện thoại nhận thông báo",
+          "medicine_5_tts": "Loa phát thanh (TTS)",
+          "medicine_6_name": "-------- [6] TÊN THUỐC --------",
+          "medicine_6_time": "Giờ uống",
+          "medicine_6_notify": "Điện thoại nhận thông báo",
+          "medicine_6_tts": "Loa phát thanh (TTS)",
+          "medicine_7_name": "-------- [7] TÊN THUỐC --------",
+          "medicine_7_time": "Giờ uống",
+          "medicine_7_notify": "Điện thoại nhận thông báo",
+          "medicine_7_tts": "Loa phát thanh (TTS)",
+          "medicine_8_name": "-------- [8] TÊN THUỐC --------",
+          "medicine_8_time": "Giờ uống",
+          "medicine_8_notify": "Điện thoại nhận thông báo",
+          "medicine_8_tts": "Loa phát thanh (TTS)",
+          "medicine_9_name": "-------- [9] TÊN THUỐC --------",
+          "medicine_9_time": "Giờ uống",
+          "medicine_9_notify": "Điện thoại nhận thông báo",
+          "medicine_9_tts": "Loa phát thanh (TTS)",
+          "medicine_10_name": "-------- [10] TÊN THUỐC --------",
+          "medicine_10_time": "Giờ uống",
+          "medicine_10_notify": "Điện thoại nhận thông báo",
+          "medicine_10_tts": "Loa phát thanh (TTS)"
+        }
+      },
+      "bio_sensors": {
+        "title": "Cảm biến Sinh học (Bước 5/5)",
+        "description": "Lựa chọn thiết bị đo sinh học (WearOS, Điện thoại, Cân thông minh) để M.A.I Tracker tự tính toán bước chân, nhịp tim và đồng bộ cân nặng tự động.",
+        "data": {
+          "heart_rate_sensors": "Cảm biến Nhịp tim (Chọn nhiều)",
+          "step_sensors": "Cảm biến Bước chân (Chọn nhiều, tự gõ chữ 'step' để tìm)",
+          "weight_sensor": "Cân thông minh (Chọn cảm biến cân nặng nếu có)"
         }
       }
     }
   },
   "entity": {
     "sensor": {
-      "current": { "name": "Caffeine Active Level" },
-      "consumed_today": { "name": "Caffeine Consumed Today" },
-      "consumed_today_count": { "name": "Consumptions Today" },
-      "sleep_safe_at": { "name": "Sleep Safe At" },
-      "peak": { "name": "Estimated Peak Level" },
-      "water_today": { "name": "Water Consumed Today" },
-      "heat_index": { "name": "Heat Index" }
+      "current": { "name": "Caffeine Đang Hoạt Động" },
+      "consumed_today": { "name": "Caffeine Hôm Nay" },
+      "consumed_today_count": { "name": "Số lần uống Cafein" },
+      "sleep_safe_at": { "name": "Giờ đi ngủ an toàn" },
+      "peak": { "name": "Mức Cafein đỉnh điểm" },
+      "water_today": { "name": "Tổng Nước Hôm Nay" },
+      "heat_index": { "name": "Mức độ oi bức" }
     }
   }
 }

@@ -333,7 +333,7 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional("step_sensors", default=[]): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=True, domain="sensor")
             ),
-            vol.Optional("weight_sensor", default=""): selector.EntitySelector(
+            vol.Optional("weight_sensor"): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=False, domain="sensor", device_class="weight")
             ),
         }
@@ -536,10 +536,14 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             vol.Optional("step_sensors", default=cur_steps): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=True, domain="sensor")
             ),
-            vol.Optional("weight_sensor", default=cur_weight): selector.EntitySelector(
+            vol.Optional("weight_sensor"): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=False, domain="sensor", device_class="weight")
             ),
         }
+        if cur_weight:
+            schema[vol.Optional("weight_sensor", default=cur_weight)] = selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=False, domain="sensor", device_class="weight")
+            )
 
         return self.async_show_form(
             step_id="bio_sensors",

@@ -7,7 +7,7 @@ from ..const import DOMAIN
 from ..coordinator import CaffeineCoordinator
 
 class _CaffeineBase(CoordinatorEntity[CaffeineCoordinator], SensorEntity):
-    "_attr_has_entity_name = True
+    _attr_has_entity_name = True
 
     def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry, suffix: str = None) -> None:
         super().__init__(coordinator)

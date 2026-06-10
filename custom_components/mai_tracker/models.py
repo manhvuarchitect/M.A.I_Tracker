@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 @dataclass
@@ -21,7 +21,7 @@ class CaffeineEvent:
     def from_dict(cls, data: dict[str, Any]) -> 'CaffeineEvent':
         ts = datetime.fromisoformat(data['timestamp'])
         if ts.tzinfo is None:
-            ts = ts.replace(tzinfo=UTC)
+            ts = ts.replace(tzinfo=timezone.utc)
         return cls(
             id=data['id'],
             timestamp=ts,
@@ -49,11 +49,14 @@ class MedicineEvent:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'MedicineEvent':
         ts = datetime.fromisoformat(data['timestamp'])
-        if ts.tzinfo is None: ts = ts.replace(tzinfo=UTC)
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        
         rm = None
         if data.get('reminder_time'):
             rm = datetime.fromisoformat(data['reminder_time'])
-            if rm.tzinfo is None: rm = rm.replace(tzinfo=UTC)
+            if rm.tzinfo is None:
+                rm = rm.replace(tzinfo=timezone.utc)
         return cls(
             id=data['id'],
             name=data['name'],

@@ -107,6 +107,15 @@
           "medicine_10_notify": "Điện thoại nhận thông báo",
           "medicine_10_tts": "Loa phát thanh (TTS)"
         }
+      },
+      "bio_sensors": {
+        "title": "Cảm biến Sinh học (Bước 5/5)",
+        "description": "Lựa chọn thiết bị đo sinh học (WearOS, Điện thoại, Cân thông minh) để M.A.I Tracker tự tính toán bước chân và nhịp tim.",
+        "data": {
+          "heart_rate_sensors": "Cảm biến Nhịp tim (Chọn nhiều)",
+          "step_sensors": "Cảm biến Bước chân (Chọn nhiều, tự gõ chữ 'step' để tìm)",
+          "weight_sensor": "Cân thông minh (Tự động cập nhật Cân nặng)"
+        }
       }
     }
   },

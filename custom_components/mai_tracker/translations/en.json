@@ -107,6 +107,15 @@
           "medicine_10_notify": "Notify Device",
           "medicine_10_tts": "TTS Speaker"
         }
+      },
+      "bio_sensors": {
+        "title": "Bio Sensors (Step 5/5)",
+        "description": "Select your smart devices to let M.A.I Tracker aggregate steps and heart rate.",
+        "data": {
+          "heart_rate_sensors": "Heart Rate Sensors (Multiple)",
+          "step_sensors": "Step Sensors (Multiple, type 'step' to search)",
+          "weight_sensor": "Smart Scale (Auto updates weight)"
+        }
       }
     }
   },

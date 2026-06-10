@@ -363,13 +363,7 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             self._options.update(user_input)
             
-            # Khởi tạo một dict chứa TẤT CẢ các options để tránh mất các field cũ
-            final_options = dict(self.config_entry.options)
-            final_options.update(self._options)
-            # Remove old string schedule if it exists
-            if CONF_MEDICINE_SCHEDULE in final_options:
-                del final_options[CONF_MEDICINE_SCHEDULE]
-            return self.async_create_entry(title="", data=final_options)
+            return await self.async_step_bio_sensors()
 
         notify_dict = {"": "Không sử dụng"}
         for svc in self.hass.services.async_services().get("notify", {}).keys():
@@ -399,5 +393,42 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="medicine",
+            data_schema=vol.Schema(schema),
+        )
+
+    async def async_step_bio_sensors(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if user_input is not None:
+            self._options.update(user_input)
+            
+            final_options = dict(self.config_entry.options)
+            final_options.update(self._options)
+            if CONF_MEDICINE_SCHEDULE in final_options:
+                del final_options[CONF_MEDICINE_SCHEDULE]
+            return self.async_create_entry(title="", data=final_options)
+
+        cur_hr = self._get("heart_rate_sensors", [])
+        if isinstance(cur_hr, str): cur_hr = [cur_hr] if cur_hr else []
+        
+        cur_steps = self._get("step_sensors", [])
+        if isinstance(cur_steps, str): cur_steps = [cur_steps] if cur_steps else []
+        
+        cur_weight = str(self._get("weight_sensor", ""))
+
+        schema = {
+            vol.Optional("heart_rate_sensors", default=cur_hr): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=True, domain="sensor", device_class="heart_rate")
+            ),
+            vol.Optional("step_sensors", default=cur_steps): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=True, domain="sensor")
+            ),
+            vol.Optional("weight_sensor", default=cur_weight): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=False, domain="sensor", device_class="weight")
+            ),
+        }
+
+        return self.async_show_form(
+            step_id="bio_sensors",
             data_schema=vol.Schema(schema),
         )

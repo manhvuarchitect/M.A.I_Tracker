@@ -47,6 +47,12 @@ async def async_setup_entry(
     ]
     if coordinator.enable_absorption:
         entities.append(CaffeinePeakSensor(coordinator, entry))
+        
+    if entry.options.get("heart_rate_sensors"):
+        entities.append(AggregatedHeartRateSensor(coordinator, entry))
+    if entry.options.get("step_sensors"):
+        entities.append(AggregatedStepsSensor(coordinator, entry))
+
     
 
     temp_sensor = entry.options.get("temp_sensor", "")
@@ -319,6 +325,36 @@ class CaffeineHistorySensor(_CaffeineBase):
     def extra_state_attributes(self) -> dict[str, Any]:
         if not self.coordinator.data: return {}
         return {"history": self.coordinator.data.caffeine_history}
+
+class AggregatedHeartRateSensor(_CaffeineBase):
+    """Aggregated Heart Rate."""
+    _attr_icon = "mdi:heart-pulse"
+    _attr_native_unit_of_measurement = "bpm"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, suffix="aggregated_heart_rate")
+        self._attr_unique_id = f"{entry.entry_id}_aggregated_heart_rate"
+        self._attr_name = "Aggregated Heart Rate"
+
+    @property
+    def native_value(self) -> float | None:
+        return self.coordinator.data.aggregated_heart_rate if self.coordinator.data else None
+
+class AggregatedStepsSensor(_CaffeineBase):
+    """Aggregated Daily Steps."""
+    _attr_icon = "mdi:shoe-print"
+    _attr_native_unit_of_measurement = "steps"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, suffix="aggregated_steps")
+        self._attr_unique_id = f"{entry.entry_id}_aggregated_steps"
+        self._attr_name = "Aggregated Steps"
+
+    @property
+    def native_value(self) -> int | None:
+        return self.coordinator.data.aggregated_steps if self.coordinator.data else None
 
 
 from homeassistant.helpers.event import async_track_state_change_event

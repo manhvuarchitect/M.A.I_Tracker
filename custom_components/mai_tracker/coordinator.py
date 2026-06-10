@@ -107,6 +107,9 @@ class CaffeineData:
     caffeine_history: list[dict[str, Any]] = field(default_factory=list)
     current_bac: float = 0.0
     drive_safe_at: datetime | None = None
+    aggregated_heart_rate: float | None = None
+    aggregated_steps: int = 0
+
 
 
 # ---------------------------------------------------------------------------
@@ -266,6 +269,11 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self.water_total: float = 0.0
         self.drinks_total: dict[str, float] = {}
         self._fired_medicines: set[str] = set()
+        
+        # Bio Sensors
+        self.aggregated_heart_rate: float | None = None
+        self.aggregated_steps: int = 0
+        self._last_step_values: dict[str, float] = {}
 
     async def async_load(self) -> None:
         """Load persisted events from storage."""
@@ -294,6 +302,12 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                         self._caffeine_history.pop(0)
                 self.water_total = 0.0
                 self.drinks_total = {}
+                self.aggregated_steps = 0
+                self._last_step_values = {}
+                
+            # Load stored steps if available
+            self.aggregated_steps = int(stored.get("aggregated_steps", self.aggregated_steps))
+            self._last_step_values = stored.get("last_step_values", self._last_step_values)
                 
         self._prune_old_events()
         _LOGGER.debug("Loaded %d events for %s", len(self._events), self.person_name)
@@ -312,7 +326,9 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             "water_total": self.water_total,
             "drinks_total": self.drinks_total,
             "date": today,
-            "last_consumed_today_mg": today_mg
+            "last_consumed_today_mg": today_mg,
+            "aggregated_steps": self.aggregated_steps,
+            "last_step_values": self._last_step_values
         })
 
     def _prune_old_events(self) -> None:
@@ -346,6 +362,8 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                     self._caffeine_history.pop(0)
             self.water_total = 0.0
             self.drinks_total = {}
+            self.aggregated_steps = 0
+            self._last_step_values = {}
             await self._async_save()
 
         # Compute BAC
@@ -354,6 +372,66 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             self.weight_kg = float(entry.options.get("weight_kg", entry.data.get("weight_kg", 65.0)))
             self.gender = entry.options.get("gender", entry.data.get("gender", "male"))
             
+            # Bio Sensors Aggregation
+            hr_sensors = entry.options.get("heart_rate_sensors", [])
+            if isinstance(hr_sensors, str): hr_sensors = [hr_sensors] if hr_sensors else []
+            step_sensors = entry.options.get("step_sensors", [])
+            if isinstance(step_sensors, str): step_sensors = [step_sensors] if step_sensors else []
+            weight_sensor = entry.options.get("weight_sensor", "")
+            
+            # 1. Weight Sensor Auto-update
+            if weight_sensor:
+                w_state = self.hass.states.get(weight_sensor)
+                if w_state and w_state.state not in ("unknown", "unavailable"):
+                    try:
+                        w_val = float(w_state.state)
+                        if 30.0 <= w_val <= 200.0:
+                            self.weight_kg = w_val
+                    except ValueError:
+                        pass
+
+            # 2. Heart Rate Fallback Aggregation
+            best_hr = None
+            best_time = None
+            for sensor_id in hr_sensors:
+                state_obj = self.hass.states.get(sensor_id)
+                if state_obj and state_obj.state not in ("unknown", "unavailable"):
+                    try:
+                        hr_val = float(state_obj.state)
+                        if 30 <= hr_val <= 220:
+                            if not best_time or state_obj.last_updated > best_time:
+                                best_time = state_obj.last_updated
+                                best_hr = hr_val
+                    except ValueError:
+                        pass
+            self.aggregated_heart_rate = round(best_hr, 1) if best_hr is not None else None
+
+            # 3. Step Delta Summation
+            max_delta = 0.0
+            for sensor_id in step_sensors:
+                state_obj = self.hass.states.get(sensor_id)
+                if state_obj and state_obj.state not in ("unknown", "unavailable"):
+                    try:
+                        current_val = float(state_obj.state)
+                        last_val = self._last_step_values.get(sensor_id, current_val)
+                        delta = current_val - last_val
+                        if delta > 0:
+                            if delta > max_delta:
+                                max_delta = delta
+                        elif delta < -1000:
+                            # Sensor reset (e.g. at midnight for a daily step tracker)
+                            pass 
+                        self._last_step_values[sensor_id] = current_val
+                    except ValueError:
+                        pass
+            
+            if max_delta > 0:
+                self.aggregated_steps += int(max_delta)
+                # Auto-hydrate: add 50ml per 1000 steps
+                water_to_add = (int(max_delta) / 1000.0) * 50.0
+                self.water_total += water_to_add
+                _LOGGER.debug("Added %d steps, compensated %.1f ml water", int(max_delta), water_to_add)
+
             # Medicine Scheduler Logic
             local_now = dt_util.as_local(now)
             current_time_str = local_now.strftime("%H:%M:%S")
@@ -435,6 +513,8 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             caffeine_history=list(self._caffeine_history),
             current_bac=round(bac, 4),
             drive_safe_at=drive_safe,
+            aggregated_heart_rate=self.aggregated_heart_rate,
+            aggregated_steps=self.aggregated_steps,
         )
 
     # ------------------------------------------------------------------
@@ -576,6 +656,8 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self._alcohol_events = [e for e in self._alcohol_events if e.timestamp < midnight]
         self.water_total = 0.0
         self.drinks_total = {}
+        self.aggregated_steps = 0
+        self._last_step_values = {}
         await self._async_save()
         await self.async_refresh()
         _LOGGER.info("Cleared today's events and water for %s", self.person_name)

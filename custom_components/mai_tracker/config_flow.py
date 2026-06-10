@@ -129,6 +129,7 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Initialize the config flow."""
         self._new_name: str = ""
         self._clone_id: str = "none"
+        self._data: dict[str, Any] = {}
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -179,26 +180,27 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         if user_input is not None:
-            new_data = {CONF_PERSON_NAME: self._new_name}
-            new_data.update(user_input)
+            self._data = {CONF_PERSON_NAME: self._new_name}
+            self._data.update(user_input)
             
-            new_options = {}
             if self._clone_id != "none":
                 for entry in self._async_current_entries():
                     if entry.entry_id == self._clone_id:
                         # Copy all other data and options
                         for k, v in entry.data.items():
-                            if k not in new_data:
-                                new_data[k] = v
+                            if k not in self._data:
+                                self._data[k] = v
                         for k, v in entry.options.items():
-                            new_options[k] = v
+                            self._data[k] = v
                         break
-
-            return self.async_create_entry(
-                title=self._new_name,
-                data=new_data,
-                options=new_options,
-            )
+                # If cloning, we can skip directly to creation since we have all data
+                return self.async_create_entry(
+                    title=self._new_name,
+                    data=self._data,
+                )
+            
+            # Go to next steps for a fresh user
+            return await self.async_step_environment()
 
         # Pre-fill values if cloning
         def_water = 2000
@@ -227,6 +229,117 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="basic_settings",
+            data_schema=vol.Schema(schema),
+        )
+
+    async def async_step_environment(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_notifications()
+
+        temp_dict = {"": "Không sử dụng"}
+        hum_dict = {"": "Không sử dụng"}
+        
+        for state in self.hass.states.async_all("sensor"):
+            dc = state.attributes.get("device_class")
+            if dc == "temperature":
+                temp_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
+            elif dc == "humidity":
+                hum_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
+
+        schema = {
+            vol.Optional(CONF_TEMP_SENSOR, default=""): vol.In(temp_dict),
+            vol.Optional(CONF_HUMIDITY_SENSOR, default=""): vol.In(hum_dict),
+        }
+
+        return self.async_show_form(
+            step_id="environment",
+            data_schema=vol.Schema(schema),
+        )
+
+    async def async_step_notifications(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_medicine()
+
+        notify_dict = {"": "Không sử dụng"}
+        for svc in self.hass.services.async_services().get("notify", {}).keys():
+            notify_dict[f"notify.{svc}"] = f"notify.{svc}"
+
+        tts_dict = {"": "Không sử dụng"}
+        for state in self.hass.states.async_all("media_player"):
+            tts_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
+
+        schema = {
+            vol.Optional(CONF_NOTIFY_TARGET, default=""): vol.In(notify_dict),
+            vol.Optional("notify_target_2", default=""): vol.In(notify_dict),
+            vol.Optional("notify_target_3", default=""): vol.In(notify_dict),
+            vol.Optional(CONF_TTS_TARGET, default=""): vol.In(tts_dict),
+            vol.Optional(CONF_TTS_MESSAGE, default=DEFAULT_TTS_MESSAGE): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+        }
+
+        return self.async_show_form(
+            step_id="notifications",
+            data_schema=vol.Schema(schema),
+        )
+
+    async def async_step_medicine(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_bio_sensors()
+
+        notify_dict = {"": "Không sử dụng"}
+        for svc in self.hass.services.async_services().get("notify", {}).keys():
+            notify_dict[f"notify.{svc}"] = f"notify.{svc}"
+
+        tts_dict = {"": "Không sử dụng"}
+        for state in self.hass.states.async_all("media_player"):
+            tts_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
+
+        schema = {}
+        for i in range(1, 11):
+            schema[vol.Optional(f"medicine_{i}_name", default="")] = selector.TextSelector()
+            schema[vol.Optional(f"medicine_{i}_time", default="08:00:00")] = selector.TimeSelector()
+            schema[vol.Optional(f"medicine_{i}_notify", default="")] = vol.In(notify_dict)
+            schema[vol.Optional(f"medicine_{i}_tts", default="")] = vol.In(tts_dict)
+
+        return self.async_show_form(
+            step_id="medicine",
+            data_schema=vol.Schema(schema),
+        )
+
+    async def async_step_bio_sensors(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if user_input is not None:
+            self._data.update(user_input)
+            return self.async_create_entry(
+                title=self._new_name,
+                data=self._data,
+            )
+
+        schema = {
+            vol.Optional("heart_rate_sensors", default=[]): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=True, domain="sensor", device_class="heart_rate")
+            ),
+            vol.Optional("step_sensors", default=[]): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=True, domain="sensor")
+            ),
+            vol.Optional("weight_sensor", default=""): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=False, domain="sensor", device_class="weight")
+            ),
+        }
+
+        return self.async_show_form(
+            step_id="bio_sensors",
             data_schema=vol.Schema(schema),
         )
 

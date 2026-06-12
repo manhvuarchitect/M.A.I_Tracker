@@ -38,7 +38,10 @@
           "notify_target_2": "Notification Target 2 (Backup)",
           "notify_target_3": "Notification Target 3 (Backup)",
           "tts_target": "TTS Target (Media Player)",
-          "tts_message": "TTS reminder message"
+          "tts_message": "TTS reminder message",
+          "water_reminder_interval": "Water Reminder Interval (Minutes, 0 to disable)",
+          "water_reminder_tts": "TTS water reminder template ({hours} hours)",
+          "water_reminder_notify": "Notify water reminder template ({hours} hours)"
         }
       },
       "medicine": {
@@ -132,7 +135,10 @@
           "notify_target_2": "Notification Target 2 (Backup)",
           "notify_target_3": "Notification Target 3 (Backup)",
           "tts_target": "TTS Target (Media Player)",
-          "tts_message": "TTS reminder message"
+          "tts_message": "TTS reminder message",
+          "water_reminder_interval": "Water Reminder Interval (Minutes, 0 to disable)",
+          "water_reminder_tts": "TTS water reminder template ({hours} hours)",
+          "water_reminder_notify": "Notify water reminder template ({hours} hours)"
         }
       },
       "medicine": {

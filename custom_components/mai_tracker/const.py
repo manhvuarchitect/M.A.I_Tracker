@@ -37,10 +37,16 @@ CONF_WEIGHT_KG = "weight_kg"
 CONF_GENDER = "gender"
 CONF_TTS_TARGET = "tts_target"
 CONF_TTS_MESSAGE = "tts_message"
+CONF_WATER_REMINDER_INTERVAL = "water_reminder_interval"
+CONF_WATER_REMINDER_TTS = "water_reminder_tts"
+CONF_WATER_REMINDER_NOTIFY = "water_reminder_notify"
 
 DEFAULT_WEIGHT_KG = 65.0
 DEFAULT_GENDER = "male"
 DEFAULT_TTS_MESSAGE = "Nhiệt độ hôm nay rất oi bức. Mai Tracker đã tự động tăng mục tiêu nước của bạn thêm {ml} ml. Hãy nhớ uống nhiều nước nhé!"
+DEFAULT_WATER_REMINDER_INTERVAL = 120 # Minutes (2 hours)
+DEFAULT_WATER_REMINDER_TTS = "Sếp ơi, đã {hours} tiếng trôi qua sếp chưa uống thêm nước. Sếp hãy uống một cốc nước lọc nhé!"
+DEFAULT_WATER_REMINDER_NOTIFY = "Đã {hours} tiếng sếp chưa uống thêm nước. Uống nước đi sếp ơi!"
 
 DRINK_TYPES = {
     "nuoc_loc": {"name": "Nước lọc", "water_ratio": 1.0, "caffeine_per_100ml": 0, "alcohol_abv": 0.0},

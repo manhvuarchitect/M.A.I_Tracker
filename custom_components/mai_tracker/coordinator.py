@@ -81,6 +81,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self.aggregated_heart_rate: float | None = None
         self.aggregated_steps: int = 0
         self._last_step_values: dict[str, float] = {}
+        self.last_drink_time: datetime | None = None
 
     async def async_load(self) -> None:
         """Load persisted events from storage."""
@@ -115,6 +116,10 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             # Load stored steps if available
             self.aggregated_steps = int(stored.get("aggregated_steps", self.aggregated_steps))
             self._last_step_values = stored.get("last_step_values", self._last_step_values)
+            if stored.get("last_drink_time"):
+                self.last_drink_time = datetime.fromisoformat(stored["last_drink_time"])
+                if self.last_drink_time.tzinfo is None:
+                    self.last_drink_time = self.last_drink_time.replace(tzinfo=UTC)
                 
         self._prune_old_events()
         _LOGGER.debug("Loaded %d events for %s", len(self._events), self.person_name)
@@ -135,7 +140,8 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             "date": today,
             "last_consumed_today_mg": today_mg,
             "aggregated_steps": self.aggregated_steps,
-            "last_step_values": self._last_step_values
+            "last_step_values": self._last_step_values,
+            "last_drink_time": self.last_drink_time.isoformat() if self.last_drink_time else None
         })
 
     def _prune_old_events(self) -> None:
@@ -171,6 +177,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             self.drinks_total = {}
             self.aggregated_steps = 0
             self._last_step_values = {}
+            self.last_drink_time = None
             await self._async_save()
 
         # Compute BAC
@@ -289,6 +296,52 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                                 }, blocking=False)
                             )
 
+            # Water Reminder Logic
+            # Only remind between 07:00 and 21:00 local time
+            if 7 <= local_now.hour < 21:
+                reminder_interval = float(entry.options.get("water_reminder_interval", entry.data.get("water_reminder_interval", 120.0)))
+                if reminder_interval > 0:
+                    last_time = self.last_drink_time or midnight # fallback to midnight if no drink yet today
+                    elapsed_minutes = (now - last_time).total_seconds() / 60.0
+                    
+                    # We check if we crossed a multiple of reminder_interval in the last minute (to avoid spamming every scan)
+                    # For example, if elapsed_minutes is between reminder_interval and reminder_interval + 1.2 minutes
+                    if reminder_interval <= elapsed_minutes < reminder_interval + 1.2:
+                        hours_elapsed = round(elapsed_minutes / 60.0, 1)
+                        if hours_elapsed.is_integer():
+                            hours_str = str(int(hours_elapsed))
+                        else:
+                            hours_str = str(hours_elapsed)
+                            
+                        # Get targets
+                        notify_target = entry.options.get("notify_target", "")
+                        notify_target_2 = entry.options.get("notify_target_2", "")
+                        notify_target_3 = entry.options.get("notify_target_3", "")
+                        tts_target = entry.options.get("tts_target", "")
+                        
+                        # Send TTS
+                        if tts_target:
+                            tts_msg_tpl = entry.options.get("water_reminder_tts", "Sếp ơi, đã {hours} tiếng trôi qua sếp chưa uống thêm nước. Sếp hãy uống một cốc nước lọc nhé!")
+                            self.hass.async_create_task(
+                                self.hass.services.async_call("tts", "cloud_say", {
+                                    "entity_id": tts_target,
+                                    "message": tts_msg_tpl.replace("{hours}", hours_str)
+                                }, blocking=False)
+                            )
+                            
+                        # Send Notify
+                        notify_msg_tpl = entry.options.get("water_reminder_notify", "Đã {hours} tiếng sếp chưa uống thêm nước. Uống nước đi sếp ơi!")
+                        message = notify_msg_tpl.replace("{hours}", hours_str)
+                        for nt in [notify_target, notify_target_2, notify_target_3]:
+                            if nt:
+                                target_service = nt.replace("notify.", "")
+                                self.hass.async_create_task(
+                                    self.hass.services.async_call("notify", target_service, {
+                                        "message": message,
+                                        "title": "Nhắc nhở uống nước 💧"
+                                    }, blocking=False)
+                                )
+
         bac = compute_current_bac(self._alcohol_events, self.weight_kg, self.gender, now)
         drive_safe = compute_drive_safe_at(bac, now)
 
@@ -322,6 +375,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             drive_safe_at=drive_safe,
             aggregated_heart_rate=self.aggregated_heart_rate,
             aggregated_steps=self.aggregated_steps,
+            last_drink_time=self.last_drink_time,
         )
 
     # ------------------------------------------------------------------
@@ -356,6 +410,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         water_delta = luong_ml * cfg["water_ratio"]
         self.water_total += water_delta
         self.drinks_total[loai] = self.drinks_total.get(loai, 0.0) + luong_ml
+        self.last_drink_time = now
         
         caffeine_delta = (luong_ml / 100.0) * cfg["caffeine_per_100ml"]
         
@@ -465,6 +520,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self.drinks_total = {}
         self.aggregated_steps = 0
         self._last_step_values = {}
+        self.last_drink_time = None
         await self._async_save()
         await self.async_refresh()
         _LOGGER.info("Cleared today's events and water for %s", self.person_name)

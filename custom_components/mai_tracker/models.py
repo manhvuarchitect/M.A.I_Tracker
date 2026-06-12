@@ -82,4 +82,5 @@ class CaffeineData:
     drive_safe_at: datetime | None = None
     aggregated_heart_rate: float | None = None
     aggregated_steps: int = 0
+    last_drink_time: datetime | None = None
 

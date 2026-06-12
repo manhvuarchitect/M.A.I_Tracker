@@ -35,6 +35,12 @@ from .const import (
     DEFAULT_GENDER,
     DEFAULT_TTS_MESSAGE,
     CONF_MEDICINE_SCHEDULE,
+    CONF_WATER_REMINDER_INTERVAL,
+    CONF_WATER_REMINDER_TTS,
+    CONF_WATER_REMINDER_NOTIFY,
+    DEFAULT_WATER_REMINDER_INTERVAL,
+    DEFAULT_WATER_REMINDER_TTS,
+    DEFAULT_WATER_REMINDER_NOTIFY,
 )
 
 
@@ -282,6 +288,19 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_TTS_MESSAGE, default=DEFAULT_TTS_MESSAGE): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)
             ),
+            vol.Required(CONF_WATER_REMINDER_INTERVAL, default=120): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0, max=480, step=15,
+                    mode=selector.NumberSelectorMode.BOX,
+                    unit_of_measurement="phút"
+                )
+            ),
+            vol.Optional(CONF_WATER_REMINDER_TTS, default=DEFAULT_WATER_REMINDER_TTS): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Optional(CONF_WATER_REMINDER_NOTIFY, default=DEFAULT_WATER_REMINDER_NOTIFY): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
         }
 
         return self.async_show_form(
@@ -455,12 +474,29 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         
         cur_msg = str(self._get(CONF_TTS_MESSAGE, DEFAULT_TTS_MESSAGE))
 
+        cur_water_interval = int(self._get(CONF_WATER_REMINDER_INTERVAL, DEFAULT_WATER_REMINDER_INTERVAL))
+        cur_water_tts = str(self._get(CONF_WATER_REMINDER_TTS, DEFAULT_WATER_REMINDER_TTS))
+        cur_water_notify = str(self._get(CONF_WATER_REMINDER_NOTIFY, DEFAULT_WATER_REMINDER_NOTIFY))
+
         schema = {
             vol.Optional(CONF_NOTIFY_TARGET, default=cur_notify): vol.In(notify_dict),
             vol.Optional("notify_target_2", default=cur_notify_2): vol.In(notify_dict),
             vol.Optional("notify_target_3", default=cur_notify_3): vol.In(notify_dict),
             vol.Optional(CONF_TTS_TARGET, default=cur_tts): vol.In(tts_dict),
             vol.Optional(CONF_TTS_MESSAGE, default=cur_msg): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Required(CONF_WATER_REMINDER_INTERVAL, default=cur_water_interval): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0, max=480, step=15,
+                    mode=selector.NumberSelectorMode.BOX,
+                    unit_of_measurement="phút"
+                )
+            ),
+            vol.Optional(CONF_WATER_REMINDER_TTS, default=cur_water_tts): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Optional(CONF_WATER_REMINDER_NOTIFY, default=cur_water_notify): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)
             ),
         }

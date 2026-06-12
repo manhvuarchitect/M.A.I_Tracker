@@ -34,14 +34,12 @@
         "title": "Thông báo & Phát thanh (Bước 4/6)",
         "description": "Thiết lập các cảnh báo y tế và nhắc nhở uống nước bằng giọng nói (TTS).",
         "data": {
-          "notify_target": "Thiết bị nhận thông báo 1 (Điện thoại, v.v.)",
-          "notify_target_2": "Thiết bị nhận thông báo 2 (Dự phòng)",
-          "notify_target_3": "Thiết bị nhận thông báo 3 (Dự phòng)",
+          "notify_target": "Thiết bị nhận thông báo (Chọn nhiều)",
           "tts_target": "Loa phát thanh (TTS Target)",
           "tts_message": "Nội dung phát thanh nhắc uống nước",
           "water_reminder_interval": "Chu kỳ nhắc nhở uống nước (Phút, 0 để tắt)",
-          "water_reminder_tts": "Mẫu phát thanh nhắc uống nước ({hours} giờ)",
-          "water_reminder_notify": "Mẫu thông báo nhắc uống nước ({hours} giờ)"
+          "water_reminder_tts": "Mẫu phát thanh nhắc uống nước (dùng '{hours}')",
+          "water_reminder_notify": "Mẫu thông báo nhắc uống nước (dùng '{hours}')"
         }
       },
       "medicine": {
@@ -131,14 +129,12 @@
         "title": "Thông báo & Phát thanh (Bước 3/5)",
         "description": "Thiết lập các cảnh báo y tế và nhắc nhở uống nước bằng giọng nói (TTS).",
         "data": {
-          "notify_target": "Thiết bị nhận thông báo 1 (Điện thoại, v.v.)",
-          "notify_target_2": "Thiết bị nhận thông báo 2 (Dự phòng)",
-          "notify_target_3": "Thiết bị nhận thông báo 3 (Dự phòng)",
+          "notify_target": "Thiết bị nhận thông báo (Chọn nhiều)",
           "tts_target": "Loa phát thanh (TTS Target)",
           "tts_message": "Nội dung phát thanh nhắc uống nước",
           "water_reminder_interval": "Chu kỳ nhắc nhở uống nước (Phút, 0 để tắt)",
-          "water_reminder_tts": "Mẫu phát thanh nhắc uống nước ({hours} giờ)",
-          "water_reminder_notify": "Mẫu thông báo nhắc uống nước ({hours} giờ)"
+          "water_reminder_tts": "Mẫu phát thanh nhắc uống nước (dùng '{hours}')",
+          "water_reminder_notify": "Mẫu thông báo nhắc uống nước (dùng '{hours}')"
         }
       },
       "medicine": {

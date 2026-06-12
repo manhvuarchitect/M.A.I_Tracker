@@ -314,9 +314,19 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                             hours_str = str(hours_elapsed)
                             
                         # Get targets
-                        notify_target = entry.options.get("notify_target", "")
+                        raw_targets = entry.options.get("notify_target", [])
+                        if isinstance(raw_targets, str):
+                            notify_targets = [raw_targets] if raw_targets else []
+                        else:
+                            notify_targets = list(raw_targets)
+
                         notify_target_2 = entry.options.get("notify_target_2", "")
                         notify_target_3 = entry.options.get("notify_target_3", "")
+                        if notify_target_2 and notify_target_2 not in notify_targets:
+                            notify_targets.append(notify_target_2)
+                        if notify_target_3 and notify_target_3 not in notify_targets:
+                            notify_targets.append(notify_target_3)
+
                         tts_target = entry.options.get("tts_target", "")
                         
                         # Send TTS
@@ -332,7 +342,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                         # Send Notify
                         notify_msg_tpl = entry.options.get("water_reminder_notify", "Đã {hours} tiếng sếp chưa uống thêm nước. Uống nước đi sếp ơi!")
                         message = notify_msg_tpl.replace("{hours}", hours_str)
-                        for nt in [notify_target, notify_target_2, notify_target_3]:
+                        for nt in notify_targets:
                             if nt:
                                 target_service = nt.replace("notify.", "")
                                 self.hass.async_create_task(

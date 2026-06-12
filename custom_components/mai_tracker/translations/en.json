@@ -34,14 +34,12 @@
         "title": "Notifications & TTS (Step 4/6)",
         "description": "Set up phone notifications and voice broadcast reminder targets.",
         "data": {
-          "notify_target": "Notification Target 1",
-          "notify_target_2": "Notification Target 2 (Backup)",
-          "notify_target_3": "Notification Target 3 (Backup)",
+          "notify_target": "Notification Target (Select multiple)",
           "tts_target": "TTS Target (Media Player)",
           "tts_message": "TTS reminder message",
           "water_reminder_interval": "Water Reminder Interval (Minutes, 0 to disable)",
-          "water_reminder_tts": "TTS water reminder template ({hours} hours)",
-          "water_reminder_notify": "Notify water reminder template ({hours} hours)"
+          "water_reminder_tts": "TTS water reminder template (use '{hours}')",
+          "water_reminder_notify": "Notify water reminder template (use '{hours}')"
         }
       },
       "medicine": {
@@ -131,14 +129,12 @@
         "title": "Notifications & TTS (Step 3/5)",
         "description": "Set up phone notifications and voice broadcast reminder targets.",
         "data": {
-          "notify_target": "Notification Target 1",
-          "notify_target_2": "Notification Target 2 (Backup)",
-          "notify_target_3": "Notification Target 3 (Backup)",
+          "notify_target": "Notification Target (Select multiple)",
           "tts_target": "TTS Target (Media Player)",
           "tts_message": "TTS reminder message",
           "water_reminder_interval": "Water Reminder Interval (Minutes, 0 to disable)",
-          "water_reminder_tts": "TTS water reminder template ({hours} hours)",
-          "water_reminder_notify": "Notify water reminder template ({hours} hours)"
+          "water_reminder_tts": "TTS water reminder template (use '{hours}')",
+          "water_reminder_notify": "Notify water reminder template (use '{hours}')"
         }
       },
       "medicine": {

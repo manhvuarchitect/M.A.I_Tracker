@@ -374,10 +374,23 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         schema = {}
         for i in range(1, 11):
+            notify_options = [{"value": k, "label": v} for k, v in notify_dict.items()]
+            tts_options = [{"value": k, "label": v} for k, v in tts_dict.items()]
+
             schema[vol.Optional(f"medicine_{i}_name", default="")] = selector.TextSelector()
             schema[vol.Optional(f"medicine_{i}_time", default="08:00:00")] = selector.TimeSelector()
-            schema[vol.Optional(f"medicine_{i}_notify", default="")] = vol.In(notify_dict)
-            schema[vol.Optional(f"medicine_{i}_tts", default="")] = vol.In(tts_dict)
+            schema[vol.Optional(f"medicine_{i}_notify", default="")] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=notify_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+            schema[vol.Optional(f"medicine_{i}_tts", default="")] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=tts_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
 
         return self.async_show_form(
             step_id="medicine",
@@ -638,13 +651,23 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             cur_notify = str(self._get(f"medicine_{i}_notify", ""))
             cur_tts = str(self._get(f"medicine_{i}_tts", ""))
 
-            if cur_notify and cur_notify not in notify_dict: notify_dict[cur_notify] = cur_notify
-            if cur_tts and cur_tts not in tts_dict: tts_dict[cur_tts] = cur_tts
+            notify_options = [{"value": k, "label": v} for k, v in notify_dict.items()]
+            tts_options = [{"value": k, "label": v} for k, v in tts_dict.items()]
 
             schema[vol.Optional(f"medicine_{i}_name", default=cur_name)] = selector.TextSelector()
             schema[vol.Optional(f"medicine_{i}_time", default=cur_time)] = selector.TimeSelector()
-            schema[vol.Optional(f"medicine_{i}_notify", default=cur_notify)] = vol.In(notify_dict)
-            schema[vol.Optional(f"medicine_{i}_tts", default=cur_tts)] = vol.In(tts_dict)
+            schema[vol.Optional(f"medicine_{i}_notify", default=cur_notify)] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=notify_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+            schema[vol.Optional(f"medicine_{i}_tts", default=cur_tts)] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=tts_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
 
         return self.async_show_form(
             step_id="medicine",

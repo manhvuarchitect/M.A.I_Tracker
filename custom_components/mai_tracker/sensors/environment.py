@@ -20,7 +20,6 @@ class HeatIndexSensor(SensorEntity):
         self._temp_entity_id = temp_entity_id
         self._hum_entity_id = hum_entity_id
         self._attr_unique_id = f"{entry.entry_id}_heat_index"
-        self._attr_name = "Mức độ oi bức"
         self._attr_translation_key = "heat_index"
         self._attr_native_value = None
         self._person_name = person_name
@@ -76,7 +75,6 @@ class DynamicWaterGoalSensor(SensorEntity):
         self._coordinator = coordinator
         self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_dynamic_water_goal"
-        self._attr_name = "Mục tiêu nước hôm nay"
         self._attr_translation_key = "dynamic_water_goal"
         self._attr_native_value = None
         self._person_name = coordinator.person_name

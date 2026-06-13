@@ -42,6 +42,10 @@ from .const import (
     DEFAULT_WATER_REMINDER_TTS,
     DEFAULT_WATER_REMINDER_NOTIFY,
     CONF_LINKED_USER,
+    CONF_DRINK_LOG_NOTIFY,
+    CONF_DRINK_LOG_NOTIFY_REMOVE,
+    DEFAULT_DRINK_LOG_NOTIFY,
+    DEFAULT_DRINK_LOG_NOTIFY_REMOVE,
 )
 from .helpers import async_get_user_options
 
@@ -322,6 +326,12 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_WATER_REMINDER_NOTIFY, default=DEFAULT_WATER_REMINDER_NOTIFY): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)
             ),
+            vol.Optional(CONF_DRINK_LOG_NOTIFY, default=DEFAULT_DRINK_LOG_NOTIFY): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Optional(CONF_DRINK_LOG_NOTIFY_REMOVE, default=DEFAULT_DRINK_LOG_NOTIFY_REMOVE): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
         }
 
         return self.async_show_form(
@@ -518,6 +528,9 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         cur_water_tts = str(self._get(CONF_WATER_REMINDER_TTS, DEFAULT_WATER_REMINDER_TTS))
         cur_water_notify = str(self._get(CONF_WATER_REMINDER_NOTIFY, DEFAULT_WATER_REMINDER_NOTIFY))
 
+        cur_drink_log_notify = str(self._get(CONF_DRINK_LOG_NOTIFY, DEFAULT_DRINK_LOG_NOTIFY))
+        cur_drink_log_notify_remove = str(self._get(CONF_DRINK_LOG_NOTIFY_REMOVE, DEFAULT_DRINK_LOG_NOTIFY_REMOVE))
+
         schema = {
             vol.Optional(CONF_NOTIFY_TARGET, default=cur_notify): selector.SelectSelector(
                 selector.SelectSelectorConfig(
@@ -541,6 +554,12 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
                 selector.TextSelectorConfig(multiline=True)
             ),
             vol.Optional(CONF_WATER_REMINDER_NOTIFY, default=cur_water_notify): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Optional(CONF_DRINK_LOG_NOTIFY, default=cur_drink_log_notify): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Optional(CONF_DRINK_LOG_NOTIFY_REMOVE, default=cur_drink_log_notify_remove): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)
             ),
         }

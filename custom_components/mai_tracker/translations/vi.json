@@ -40,7 +40,9 @@
           "tts_message": "Nội dung phát thanh nhắc uống nước",
           "water_reminder_interval": "Chu kỳ nhắc nhở uống nước (Phút, 0 để tắt)",
           "water_reminder_tts": "Mẫu phát thanh nhắc uống nước (dùng '{hours}')",
-          "water_reminder_notify": "Mẫu thông báo nhắc uống nước (dùng '{hours}')"
+          "water_reminder_notify": "Mẫu thông báo nhắc uống nước (dùng '{hours}')",
+          "drink_log_notify": "Mẫu thông báo khi uống nước (dùng '{person_name}', '{amount}', '{drink_name}')",
+          "drink_log_notify_remove": "Mẫu thông báo khi hoàn tác (dùng '{person_name}')"
         }
       },
       "medicine": {
@@ -136,7 +138,9 @@
           "tts_message": "Nội dung phát thanh nhắc uống nước",
           "water_reminder_interval": "Chu kỳ nhắc nhở uống nước (Phút, 0 để tắt)",
           "water_reminder_tts": "Mẫu phát thanh nhắc uống nước (dùng '{hours}')",
-          "water_reminder_notify": "Mẫu thông báo nhắc uống nước (dùng '{hours}')"
+          "water_reminder_notify": "Mẫu thông báo nhắc uống nước (dùng '{hours}')",
+          "drink_log_notify": "Mẫu thông báo khi uống nước (dùng '{person_name}', '{amount}', '{drink_name}')",
+          "drink_log_notify_remove": "Mẫu thông báo khi hoàn tác (dùng '{person_name}')"
         }
       },
       "medicine": {

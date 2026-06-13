@@ -40,7 +40,9 @@
           "tts_message": "TTS reminder message",
           "water_reminder_interval": "Water Reminder Interval (Minutes, 0 to disable)",
           "water_reminder_tts": "TTS water reminder template (use '{hours}')",
-          "water_reminder_notify": "Notify water reminder template (use '{hours}')"
+          "water_reminder_notify": "Notify water reminder template (use '{hours}')",
+          "drink_log_notify": "Drink logged notification template (use '{person_name}', '{amount}', '{drink_name}')",
+          "drink_log_notify_remove": "Undo logged notification template (use '{person_name}')"
         }
       },
       "medicine": {
@@ -136,7 +138,9 @@
           "tts_message": "TTS reminder message",
           "water_reminder_interval": "Water Reminder Interval (Minutes, 0 to disable)",
           "water_reminder_tts": "TTS water reminder template (use '{hours}')",
-          "water_reminder_notify": "Notify water reminder template (use '{hours}')"
+          "water_reminder_notify": "Notify water reminder template (use '{hours}')",
+          "drink_log_notify": "Drink logged notification template (use '{person_name}', '{amount}', '{drink_name}')",
+          "drink_log_notify_remove": "Undo logged notification template (use '{person_name}')"
         }
       },
       "medicine": {

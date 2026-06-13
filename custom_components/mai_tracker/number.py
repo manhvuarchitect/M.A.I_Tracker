@@ -128,7 +128,7 @@ class DrinkTypeNumber(CoordinatorEntity[CaffeineCoordinator], NumberEntity):
         person = coordinator.person_name.lower().replace(" ", "_")
         self.entity_id = f"number.mait_{person}_drink_{drink_key}"
         self._attr_unique_id = f"{entry.entry_id}_drink_{drink_key}_number"
-        self._attr_name = DRINK_TYPES[drink_key]["name"]
+        self._attr_translation_key = f"drink_{drink_key}"
         
         if "cafe" in drink_key:
             self._attr_icon = "mdi:coffee"

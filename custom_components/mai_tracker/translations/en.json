@@ -224,6 +224,16 @@
       "aggregated_heart_rate": { "name": "Aggregated Heart Rate" },
       "aggregated_steps": { "name": "Aggregated Steps" },
       "dynamic_water_goal": { "name": "Dynamic Water Goal" }
+    },
+    "number": {
+      "water_today": { "name": "Water Goal (Interactive)" },
+      "drink_nuoc_loc": { "name": "Water" },
+      "drink_cafe": { "name": "Coffee" },
+      "drink_tra": { "name": "Tea" },
+      "drink_nuoc_ngot": { "name": "Soft Drink" },
+      "drink_sua": { "name": "Milk" },
+      "drink_bia": { "name": "Beer" },
+      "drink_ruou": { "name": "Liquor" }
     }
   }
 }

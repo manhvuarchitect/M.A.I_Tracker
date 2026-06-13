@@ -224,6 +224,16 @@
       "aggregated_heart_rate": { "name": "Nhịp tim trung bình" },
       "aggregated_steps": { "name": "Tổng số bước chân" },
       "dynamic_water_goal": { "name": "Mục tiêu nước hôm nay" }
+    },
+    "number": {
+      "water_today": { "name": "Nước lọc (Mục tiêu)" },
+      "drink_nuoc_loc": { "name": "Nước lọc" },
+      "drink_cafe": { "name": "Cà phê" },
+      "drink_tra": { "name": "Trà" },
+      "drink_nuoc_ngot": { "name": "Nước ngọt" },
+      "drink_sua": { "name": "Sữa" },
+      "drink_bia": { "name": "Bia" },
+      "drink_ruou": { "name": "Rượu" }
     }
   }
 }

@@ -35,13 +35,16 @@
         "title": "Notifications & TTS (Step 4/6)",
         "description": "Set up phone notifications and voice broadcast reminder targets.",
         "data": {
-          "notify_target": "Notification Target (Select multiple)",
+          "notify_target": "Personal Notification Device (Addressing 'Bạn')",
+          "notify_target_management": "Monitoring Notification Device (Addressing '{person_name}')",
           "tts_target": "TTS Target (Media Player)",
           "tts_message": "TTS reminder message",
           "water_reminder_interval": "Water Reminder Interval (Minutes, 0 to disable)",
           "water_reminder_tts": "TTS water reminder template (use '{hours}')",
-          "water_reminder_notify": "Notify water reminder template (use '{hours}')",
-          "drink_log_notify": "Drink logged notification template (use '{person_name}', '{amount}', '{drink_name}')",
+          "water_reminder_notify": "Personal water reminder template (use '{hours}')",
+          "water_reminder_notify_management": "Monitoring water reminder template (use '{hours}', '{person_name}')",
+          "drink_log_notify_personal": "Personal drink logged template (use '{amount}', '{drink_name}')",
+          "drink_log_notify_management": "Monitoring drink logged template (use '{person_name}', '{amount}', '{drink_name}')",
           "drink_log_notify_remove": "Undo logged notification template (use '{person_name}')"
         }
       },
@@ -133,13 +136,16 @@
         "title": "Notifications & TTS (Step 3/5)",
         "description": "Set up phone notifications and voice broadcast reminder targets.",
         "data": {
-          "notify_target": "Notification Target (Select multiple)",
+          "notify_target": "Personal Notification Device (Addressing 'Bạn')",
+          "notify_target_management": "Monitoring Notification Device (Addressing '{person_name}')",
           "tts_target": "TTS Target (Media Player)",
           "tts_message": "TTS reminder message",
           "water_reminder_interval": "Water Reminder Interval (Minutes, 0 to disable)",
           "water_reminder_tts": "TTS water reminder template (use '{hours}')",
-          "water_reminder_notify": "Notify water reminder template (use '{hours}')",
-          "drink_log_notify": "Drink logged notification template (use '{person_name}', '{amount}', '{drink_name}')",
+          "water_reminder_notify": "Personal water reminder template (use '{hours}')",
+          "water_reminder_notify_management": "Monitoring water reminder template (use '{hours}', '{person_name}')",
+          "drink_log_notify_personal": "Personal drink logged template (use '{amount}', '{drink_name}')",
+          "drink_log_notify_management": "Monitoring drink logged template (use '{person_name}', '{amount}', '{drink_name}')",
           "drink_log_notify_remove": "Undo logged notification template (use '{person_name}')"
         }
       },

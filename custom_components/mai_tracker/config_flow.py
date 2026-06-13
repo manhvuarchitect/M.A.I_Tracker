@@ -42,10 +42,15 @@ from .const import (
     DEFAULT_WATER_REMINDER_TTS,
     DEFAULT_WATER_REMINDER_NOTIFY,
     CONF_LINKED_USER,
-    CONF_DRINK_LOG_NOTIFY,
     CONF_DRINK_LOG_NOTIFY_REMOVE,
-    DEFAULT_DRINK_LOG_NOTIFY,
     DEFAULT_DRINK_LOG_NOTIFY_REMOVE,
+    CONF_NOTIFY_TARGET_MANAGEMENT,
+    CONF_DRINK_LOG_NOTIFY_PERSONAL,
+    CONF_DRINK_LOG_NOTIFY_MANAGEMENT,
+    CONF_WATER_REMINDER_NOTIFY_MANAGEMENT,
+    DEFAULT_DRINK_LOG_NOTIFY_PERSONAL,
+    DEFAULT_DRINK_LOG_NOTIFY_MANAGEMENT,
+    DEFAULT_WATER_REMINDER_NOTIFY_MANAGEMENT,
 )
 from .helpers import async_get_user_options
 
@@ -309,6 +314,13 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     mode=selector.SelectSelectorMode.DROPDOWN,
                 )
             ),
+            vol.Optional(CONF_NOTIFY_TARGET_MANAGEMENT, default=[]): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=notify_options,
+                    multiple=True,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
             vol.Optional(CONF_TTS_TARGET, default=""): vol.In(tts_dict),
             vol.Optional(CONF_TTS_MESSAGE, default=DEFAULT_TTS_MESSAGE): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)
@@ -326,7 +338,13 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_WATER_REMINDER_NOTIFY, default=DEFAULT_WATER_REMINDER_NOTIFY): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)
             ),
-            vol.Optional(CONF_DRINK_LOG_NOTIFY, default=DEFAULT_DRINK_LOG_NOTIFY): selector.TextSelector(
+            vol.Optional(CONF_WATER_REMINDER_NOTIFY_MANAGEMENT, default=DEFAULT_WATER_REMINDER_NOTIFY_MANAGEMENT): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Optional(CONF_DRINK_LOG_NOTIFY_PERSONAL, default=DEFAULT_DRINK_LOG_NOTIFY_PERSONAL): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Optional(CONF_DRINK_LOG_NOTIFY_MANAGEMENT, default=DEFAULT_DRINK_LOG_NOTIFY_MANAGEMENT): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)
             ),
             vol.Optional(CONF_DRINK_LOG_NOTIFY_REMOVE, default=DEFAULT_DRINK_LOG_NOTIFY_REMOVE): selector.TextSelector(
@@ -397,14 +415,15 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> MaiTrackerOptionsFlow:
-        return MaiTrackerOptionsFlow()
+        return MaiTrackerOptionsFlow(config_entry)
 
 
 class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
     """Handle options (re-configuration) for an existing entry."""
 
-    def __init__(self) -> None:
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
+        super().__init__(config_entry)
         self._options: dict[str, Any] = {}
         self._first_time = True
 
@@ -528,11 +547,26 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         cur_water_tts = str(self._get(CONF_WATER_REMINDER_TTS, DEFAULT_WATER_REMINDER_TTS))
         cur_water_notify = str(self._get(CONF_WATER_REMINDER_NOTIFY, DEFAULT_WATER_REMINDER_NOTIFY))
 
-        cur_drink_log_notify = str(self._get(CONF_DRINK_LOG_NOTIFY, DEFAULT_DRINK_LOG_NOTIFY))
+        raw_notify_mgmt = self._get(CONF_NOTIFY_TARGET_MANAGEMENT, [])
+        if isinstance(raw_notify_mgmt, str):
+            cur_notify_mgmt = [raw_notify_mgmt] if raw_notify_mgmt else []
+        else:
+            cur_notify_mgmt = list(raw_notify_mgmt)
+
+        cur_water_notify_mgmt = str(self._get(CONF_WATER_REMINDER_NOTIFY_MANAGEMENT, DEFAULT_WATER_REMINDER_NOTIFY_MANAGEMENT))
+        cur_drink_log_notify_personal = str(self._get(CONF_DRINK_LOG_NOTIFY_PERSONAL, DEFAULT_DRINK_LOG_NOTIFY_PERSONAL))
+        cur_drink_log_notify_mgmt = str(self._get(CONF_DRINK_LOG_NOTIFY_MANAGEMENT, DEFAULT_DRINK_LOG_NOTIFY_MANAGEMENT))
         cur_drink_log_notify_remove = str(self._get(CONF_DRINK_LOG_NOTIFY_REMOVE, DEFAULT_DRINK_LOG_NOTIFY_REMOVE))
 
         schema = {
             vol.Optional(CONF_NOTIFY_TARGET, default=cur_notify): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=notify_options,
+                    multiple=True,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Optional(CONF_NOTIFY_TARGET_MANAGEMENT, default=cur_notify_mgmt): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=notify_options,
                     multiple=True,
@@ -556,7 +590,13 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             vol.Optional(CONF_WATER_REMINDER_NOTIFY, default=cur_water_notify): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)
             ),
-            vol.Optional(CONF_DRINK_LOG_NOTIFY, default=cur_drink_log_notify): selector.TextSelector(
+            vol.Optional(CONF_WATER_REMINDER_NOTIFY_MANAGEMENT, default=cur_water_notify_mgmt): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Optional(CONF_DRINK_LOG_NOTIFY_PERSONAL, default=cur_drink_log_notify_personal): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
+            vol.Optional(CONF_DRINK_LOG_NOTIFY_MANAGEMENT, default=cur_drink_log_notify_mgmt): selector.TextSelector(
                 selector.TextSelectorConfig(multiline=True)
             ),
             vol.Optional(CONF_DRINK_LOG_NOTIFY_REMOVE, default=cur_drink_log_notify_remove): selector.TextSelector(

@@ -327,6 +327,12 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                         if notify_target_3 and notify_target_3 not in notify_targets:
                             notify_targets.append(notify_target_3)
 
+                        raw_mgmt = entry.options.get("notify_target_management", [])
+                        if isinstance(raw_mgmt, str):
+                            notify_targets_mgmt = [raw_mgmt] if raw_mgmt else []
+                        else:
+                            notify_targets_mgmt = list(raw_mgmt)
+
                         tts_target = entry.options.get("tts_target", "")
                         
                         # Send TTS
@@ -339,15 +345,42 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                                 }, blocking=False)
                             )
                             
-                        # Send Notify
-                        notify_msg_tpl = entry.options.get("water_reminder_notify", "Đã {hours} tiếng sếp chưa uống thêm nước. Uống nước đi sếp ơi!")
+                        # Send Notify to Personal Targets (with Actionable Buttons)
+                        notify_msg_tpl = entry.options.get("water_reminder_notify", "Đã {hours} tiếng bạn chưa uống thêm nước. Uống nước đi nhé!")
                         message = notify_msg_tpl.replace("{hours}", hours_str)
                         for nt in notify_targets:
                             if nt:
                                 target_service = nt.replace("notify.", "")
+                                action_250 = f"MAIT_WATER_LOG_{self.entry_id}_250"
+                                action_350 = f"MAIT_WATER_LOG_{self.entry_id}_350"
                                 self.hass.async_create_task(
                                     self.hass.services.async_call("notify", target_service, {
                                         "message": message,
+                                        "title": "Nhắc nhở uống nước 💧",
+                                        "data": {
+                                            "actions": [
+                                                {
+                                                    "action": action_250,
+                                                    "title": "Đã uống 250ml"
+                                                },
+                                                {
+                                                    "action": action_350,
+                                                    "title": "Đã uống 350ml"
+                                                }
+                                            ]
+                                        }
+                                    }, blocking=False)
+                                )
+
+                        # Send Notify to Management Targets
+                        notify_msg_tpl_mgmt = entry.options.get("water_reminder_notify_management", "Đã {hours} tiếng {person_name} chưa uống thêm nước.")
+                        message_mgmt = notify_msg_tpl_mgmt.replace("{hours}", hours_str).replace("{person_name}", self.person_name)
+                        for nt in notify_targets_mgmt:
+                            if nt:
+                                target_service = nt.replace("notify.", "")
+                                self.hass.async_create_task(
+                                    self.hass.services.async_call("notify", target_service, {
+                                        "message": message_mgmt,
                                         "title": "Nhắc nhở uống nước 💧"
                                     }, blocking=False)
                                 )

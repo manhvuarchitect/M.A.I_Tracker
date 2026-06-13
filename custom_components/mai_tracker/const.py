@@ -43,13 +43,20 @@ CONF_WATER_REMINDER_TTS = "water_reminder_tts"
 CONF_WATER_REMINDER_NOTIFY = "water_reminder_notify"
 CONF_DRINK_LOG_NOTIFY = "drink_log_notify"
 CONF_DRINK_LOG_NOTIFY_REMOVE = "drink_log_notify_remove"
+CONF_NOTIFY_TARGET_MANAGEMENT = "notify_target_management"
+CONF_DRINK_LOG_NOTIFY_PERSONAL = "drink_log_notify_personal"
+CONF_DRINK_LOG_NOTIFY_MANAGEMENT = "drink_log_notify_management"
+CONF_WATER_REMINDER_NOTIFY_MANAGEMENT = "water_reminder_notify_management"
 
 DEFAULT_WEIGHT_KG = 65.0
 DEFAULT_GENDER = "male"
 DEFAULT_TTS_MESSAGE = "Nhiệt độ hôm nay rất oi bức. Mai Tracker đã tự động tăng mục tiêu nước của bạn thêm {ml} ml. Hãy nhớ uống nhiều nước nhé!"
 DEFAULT_WATER_REMINDER_INTERVAL = 120 # Minutes (2 hours)
 DEFAULT_WATER_REMINDER_TTS = "Sếp ơi, đã {hours} tiếng trôi qua sếp chưa uống thêm nước. Sếp hãy uống một cốc nước lọc nhé!"
-DEFAULT_WATER_REMINDER_NOTIFY = "Đã {hours} tiếng sếp chưa uống thêm nước. Uống nước đi sếp ơi!"
+DEFAULT_WATER_REMINDER_NOTIFY = "Đã {hours} tiếng bạn chưa uống thêm nước. Uống nước đi nhé!"
+DEFAULT_WATER_REMINDER_NOTIFY_MANAGEMENT = "Đã {hours} tiếng {person_name} chưa uống thêm nước."
+DEFAULT_DRINK_LOG_NOTIFY_PERSONAL = "Bạn vừa uống thêm {amount}ml {drink_name}."
+DEFAULT_DRINK_LOG_NOTIFY_MANAGEMENT = "{person_name} vừa uống thêm {amount}ml {drink_name}."
 DEFAULT_DRINK_LOG_NOTIFY = "{person_name} vừa uống {amount}ml {drink_name}."
 DEFAULT_DRINK_LOG_NOTIFY_REMOVE = "{person_name} vừa hoàn tác (xoá) đồ uống gần nhất."
 

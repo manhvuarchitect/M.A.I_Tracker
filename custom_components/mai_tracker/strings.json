@@ -35,13 +35,16 @@
         "title": "Thông báo & Phát thanh (Bước 4/6)",
         "description": "Thiết lập các cảnh báo y tế và nhắc nhở uống nước bằng giọng nói (TTS).",
         "data": {
-          "notify_target": "Thiết bị nhận thông báo (Chọn nhiều)",
+          "notify_target": "Thiết bị nhận thông báo Cá nhân (Xưng hô 'Bạn')",
+          "notify_target_management": "Thiết bị nhận thông báo Giám sát (Xưng hô '{person_name}')",
           "tts_target": "Loa phát thanh (TTS Target)",
           "tts_message": "Nội dung phát thanh nhắc uống nước",
           "water_reminder_interval": "Chu kỳ nhắc nhở uống nước (Phút, 0 để tắt)",
           "water_reminder_tts": "Mẫu phát thanh nhắc uống nước (dùng '{hours}')",
-          "water_reminder_notify": "Mẫu thông báo nhắc uống nước (dùng '{hours}')",
-          "drink_log_notify": "Mẫu thông báo khi uống nước (dùng '{person_name}', '{amount}', '{drink_name}')",
+          "water_reminder_notify": "Mẫu nhắc uống nước Cá nhân (dùng '{hours}')",
+          "water_reminder_notify_management": "Mẫu nhắc uống nước Giám sát (dùng '{hours}', '{person_name}')",
+          "drink_log_notify_personal": "Mẫu thông báo uống nước Cá nhân (dùng '{amount}', '{drink_name}')",
+          "drink_log_notify_management": "Mẫu thông báo uống nước Giám sát (dùng '{person_name}', '{amount}', '{drink_name}')",
           "drink_log_notify_remove": "Mẫu thông báo khi hoàn tác (dùng '{person_name}')"
         }
       },
@@ -133,13 +136,16 @@
         "title": "Thông báo & Phát thanh (Bước 3/5)",
         "description": "Thiết lập các cảnh báo y tế và nhắc nhở uống nước bằng giọng nói (TTS).",
         "data": {
-          "notify_target": "Thiết bị nhận thông báo (Chọn nhiều)",
+          "notify_target": "Thiết bị nhận thông báo Cá nhân (Xưng hô 'Bạn')",
+          "notify_target_management": "Thiết bị nhận thông báo Giám sát (Xưng hô '{person_name}')",
           "tts_target": "Loa phát thanh (TTS Target)",
           "tts_message": "Nội dung phát thanh nhắc uống nước",
           "water_reminder_interval": "Chu kỳ nhắc nhở uống nước (Phút, 0 để tắt)",
           "water_reminder_tts": "Mẫu phát thanh nhắc uống nước (dùng '{hours}')",
-          "water_reminder_notify": "Mẫu thông báo nhắc uống nước (dùng '{hours}')",
-          "drink_log_notify": "Mẫu thông báo khi uống nước (dùng '{person_name}', '{amount}', '{drink_name}')",
+          "water_reminder_notify": "Mẫu nhắc uống nước Cá nhân (dùng '{hours}')",
+          "water_reminder_notify_management": "Mẫu nhắc uống nước Giám sát (dùng '{hours}', '{person_name}')",
+          "drink_log_notify_personal": "Mẫu thông báo uống nước Cá nhân (dùng '{amount}', '{drink_name}')",
+          "drink_log_notify_management": "Mẫu thông báo uống nước Giám sát (dùng '{person_name}', '{amount}', '{drink_name}')",
           "drink_log_notify_remove": "Mẫu thông báo khi hoàn tác (dùng '{person_name}')"
         }
       },

@@ -31,10 +31,13 @@ from .const import (
     SERVICE_LOG_CONSUMPTION,
     SERVICE_REMOVE_BY_ID,
     SERVICE_REMOVE_LAST,
-    CONF_DRINK_LOG_NOTIFY,
     CONF_DRINK_LOG_NOTIFY_REMOVE,
-    DEFAULT_DRINK_LOG_NOTIFY,
     DEFAULT_DRINK_LOG_NOTIFY_REMOVE,
+    CONF_NOTIFY_TARGET_MANAGEMENT,
+    CONF_DRINK_LOG_NOTIFY_PERSONAL,
+    CONF_DRINK_LOG_NOTIFY_MANAGEMENT,
+    DEFAULT_DRINK_LOG_NOTIFY_PERSONAL,
+    DEFAULT_DRINK_LOG_NOTIFY_MANAGEMENT,
 )
 from .coordinator import CaffeineCoordinator
 from .helpers import resolve_entry_id_by_user_id
@@ -83,6 +86,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 # Check notification
                 entry_obj = hass.config_entries.async_get_entry(entry_id)
                 entry_options = entry_obj.options if entry_obj else {}
+                
+                # Get personal targets
                 raw_targets = entry_options.get("notify_target", [])
                 if isinstance(raw_targets, str):
                     targets = [raw_targets] if raw_targets else []
@@ -92,18 +97,38 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                     val = entry_options.get(key)
                     if val and val not in targets:
                         targets.append(val)
+
+                # Get management targets
+                raw_mgmt = entry_options.get(CONF_NOTIFY_TARGET_MANAGEMENT, [])
+                if isinstance(raw_mgmt, str):
+                    targets_mgmt = [raw_mgmt] if raw_mgmt else []
+                else:
+                    targets_mgmt = list(raw_mgmt)
                     
+                from .const import DRINK_TYPES
+                drink_name = DRINK_TYPES.get(loai, {}).get("name", loai)
+                amount_str = str(int(luong_ml) if luong_ml.is_integer() else luong_ml)
+
+                # Send to personal targets
                 if targets:
-                    from .const import DRINK_TYPES
-                    drink_name = DRINK_TYPES.get(loai, {}).get("name", loai)
-                    msg_tpl = entry_options.get(CONF_DRINK_LOG_NOTIFY, DEFAULT_DRINK_LOG_NOTIFY)
-                    amount_str = str(int(luong_ml) if luong_ml.is_integer() else luong_ml)
-                    message = msg_tpl.replace("{person_name}", coordinator.person_name).replace("{amount}", amount_str).replace("{drink_name}", drink_name)
+                    msg_personal = entry_options.get(CONF_DRINK_LOG_NOTIFY_PERSONAL, DEFAULT_DRINK_LOG_NOTIFY_PERSONAL)
+                    message_p = msg_personal.replace("{person_name}", coordinator.person_name).replace("{amount}", amount_str).replace("{drink_name}", drink_name)
                     for notify_target in targets:
                         if notify_target:
                             target_service = notify_target.replace("notify.", "")
                             hass.async_create_task(
-                                hass.services.async_call("notify", target_service, {"message": message, "title": "Ghi nhận đồ uống 💧"}, blocking=False)
+                                hass.services.async_call("notify", target_service, {"message": message_p, "title": "Ghi nhận đồ uống 💧"}, blocking=False)
+                            )
+
+                # Send to management targets
+                if targets_mgmt:
+                    msg_mgmt = entry_options.get(CONF_DRINK_LOG_NOTIFY_MANAGEMENT, DEFAULT_DRINK_LOG_NOTIFY_MANAGEMENT)
+                    message_m = msg_mgmt.replace("{person_name}", coordinator.person_name).replace("{amount}", amount_str).replace("{drink_name}", drink_name)
+                    for notify_target in targets_mgmt:
+                        if notify_target:
+                            target_service = notify_target.replace("notify.", "")
+                            hass.async_create_task(
+                                hass.services.async_call("notify", target_service, {"message": message_m, "title": "Ghi nhận đồ uống 💧"}, blocking=False)
                             )
 
             elif call.service == SERVICE_REMOVE_LAST:
@@ -112,6 +137,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                 # Check notification
                 entry_obj = hass.config_entries.async_get_entry(entry_id)
                 entry_options = entry_obj.options if entry_obj else {}
+                
+                # Get personal targets
                 raw_targets = entry_options.get("notify_target", [])
                 if isinstance(raw_targets, str):
                     targets = [raw_targets] if raw_targets else []
@@ -121,15 +148,33 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
                     val = entry_options.get(key)
                     if val and val not in targets:
                         targets.append(val)
+
+                # Get management targets
+                raw_mgmt = entry_options.get(CONF_NOTIFY_TARGET_MANAGEMENT, [])
+                if isinstance(raw_mgmt, str):
+                    targets_mgmt = [raw_mgmt] if raw_mgmt else []
+                else:
+                    targets_mgmt = list(raw_mgmt)
                     
+                # Send to personal targets
                 if targets:
-                    msg_tpl = entry_options.get(CONF_DRINK_LOG_NOTIFY_REMOVE, DEFAULT_DRINK_LOG_NOTIFY_REMOVE)
-                    message = msg_tpl.replace("{person_name}", coordinator.person_name)
+                    msg_personal_remove = "Bạn vừa hoàn tác (xoá) đồ uống gần nhất."
                     for notify_target in targets:
                         if notify_target:
                             target_service = notify_target.replace("notify.", "")
                             hass.async_create_task(
-                                hass.services.async_call("notify", target_service, {"message": message, "title": "Hoàn tác đồ uống ↩️"}, blocking=False)
+                                    hass.services.async_call("notify", target_service, {"message": msg_personal_remove, "title": "Hoàn tác đồ uống ↩️"}, blocking=False)
+                            )
+
+                # Send to management targets
+                if targets_mgmt:
+                    msg_mgmt_remove = entry_options.get(CONF_DRINK_LOG_NOTIFY_REMOVE, DEFAULT_DRINK_LOG_NOTIFY_REMOVE)
+                    message_m = msg_mgmt_remove.replace("{person_name}", coordinator.person_name)
+                    for notify_target in targets_mgmt:
+                        if notify_target:
+                            target_service = notify_target.replace("notify.", "")
+                            hass.async_create_task(
+                                hass.services.async_call("notify", target_service, {"message": message_m, "title": "Hoàn tác đồ uống ↩️"}, blocking=False)
                             )
 
             elif call.service == SERVICE_REMOVE_BY_ID:
@@ -253,11 +298,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Listen to mobile app actionable notifications
     async def handle_mobile_action(event):
         action = event.data.get("action", "")
-        prefix = f"MAIT_MED_LOG_{entry.entry_id}_"
-        if action.startswith(prefix):
-            med_name = action[len(prefix):]
+        med_prefix = f"MAIT_MED_LOG_{entry.entry_id}_"
+        water_prefix = f"MAIT_WATER_LOG_{entry.entry_id}_"
+        
+        if action.startswith(med_prefix):
+            med_name = action[len(med_prefix):]
             await coordinator.async_log_medicine(name=med_name, med_type="general")
             _LOGGER.info("Medicine %s logged from notification for %s", med_name, coordinator.person_name)
+        elif action.startswith(water_prefix):
+            amount_str = action[len(water_prefix):]
+            try:
+                amount = float(amount_str)
+                await coordinator.async_log_drink(loai="nuoc_loc", luong_ml=amount)
+                _LOGGER.info("Water %s ml logged from notification for %s", amount, coordinator.person_name)
+            except ValueError:
+                pass
 
     entry.async_on_unload(
         hass.bus.async_listen("mobile_app_notification_action", handle_mobile_action)

@@ -33,6 +33,7 @@ from .const import (
     SERVICE_REMOVE_LAST,
 )
 from .coordinator import CaffeineCoordinator
+from .helpers import resolve_entry_id_by_user_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,9 +47,15 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     async def handle_service(call: ServiceCall) -> None:
         """Handle the service call."""
-        # This helper extracts unique config entry IDs from the target (entities or devices).
-        # By iterating over entry IDs, we ensure the action fires exactly once per profile.
         entry_ids = await service.async_extract_config_entry_ids(hass, call)  # type: ignore[call-arg]
+
+        if not entry_ids:
+            user_id = call.context.user_id
+            resolved_entry_id = resolve_entry_id_by_user_id(hass, user_id)
+            if resolved_entry_id:
+                entry_ids = {resolved_entry_id}
+            else:
+                entry_ids = set(hass.data.get(DOMAIN, {}).keys())
 
         for entry_id in entry_ids:
             if entry_id not in hass.data.get(DOMAIN, {}):

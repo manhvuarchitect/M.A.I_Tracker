@@ -6,7 +6,8 @@
         "description": "Nhập tên và tuỳ chọn thừa kế cấu hình.",
         "data": {
           "person_name": "Tên người dùng (Prefix)",
-          "clone_from": "Thừa kế cấu hình từ User (Chọn để sao chép)"
+          "clone_from": "Thừa kế cấu hình từ User (Chọn để sao chép)",
+          "linked_user": "Tài khoản liên kết (User)"
         }
       },
       "basic_settings": {
@@ -114,7 +115,8 @@
           "enable_absorption": "Mô phỏng hấp thụ (Gradual Absorption)",
           "absorption_time_min": "Thời gian hấp thụ (Phút)",
           "weight_kg": "Cân nặng mặc định (kg)",
-          "gender": "Giới tính"
+          "gender": "Giới tính",
+          "linked_user": "Tài khoản liên kết (User)"
         }
       },
       "environment": {

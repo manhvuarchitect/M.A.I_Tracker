@@ -41,7 +41,9 @@ from .const import (
     DEFAULT_WATER_REMINDER_INTERVAL,
     DEFAULT_WATER_REMINDER_TTS,
     DEFAULT_WATER_REMINDER_NOTIFY,
+    CONF_LINKED_USER,
 )
+from .helpers import async_get_user_options
 
 
 def _settings_schema(
@@ -155,6 +157,7 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 self._new_name = new_name
                 self._clone_id = user_input.get("clone_from", "none")
+                self._linked_user = user_input.get(CONF_LINKED_USER, "")
                 return await self.async_step_basic_settings()
 
         clone_options = [{"value": "none", "label": "Không sao chép (Tạo mới)"}]
@@ -162,9 +165,18 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             name = entry.data.get(CONF_PERSON_NAME, entry.title)
             clone_options.append({"value": entry.entry_id, "label": f"Sao chép từ: {name}"})
 
+        user_options = await async_get_user_options(self.hass)
+        user_options.insert(0, {"value": "", "label": "Không liên kết"})
+
         schema = {
             vol.Required(CONF_PERSON_NAME): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+            ),
+            vol.Optional(CONF_LINKED_USER, default=""): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=user_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
             ),
         }
         
@@ -186,7 +198,10 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         if user_input is not None:
-            self._data = {CONF_PERSON_NAME: self._new_name}
+            self._data = {
+                CONF_PERSON_NAME: self._new_name,
+                CONF_LINKED_USER: getattr(self, "_linked_user", ""),
+            }
             self._data.update(user_input)
             
             if self._clone_id != "none":
@@ -404,7 +419,11 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         current_weight = float(self._get(CONF_WEIGHT_KG, DEFAULT_WEIGHT_KG))
         current_gender = str(self._get(CONF_GENDER, DEFAULT_GENDER))
 
-        schema = _settings_schema(
+        user_options = await async_get_user_options(self.hass)
+        user_options.insert(0, {"value": "", "label": "Không liên kết"})
+        cur_linked_user = str(self._get(CONF_LINKED_USER, ""))
+
+        base_schema = _settings_schema(
             current_water_goal,
             current_half_life,
             current_sleep_safe,
@@ -413,6 +432,18 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             current_weight,
             current_gender,
         ).schema
+
+        schema_dict = dict(base_schema)
+        schema_dict[
+            vol.Optional(CONF_LINKED_USER, default=cur_linked_user)
+        ] = selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=user_options,
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        )
+
+        schema = vol.Schema(schema_dict)
 
         return self.async_show_form(
             step_id="init",

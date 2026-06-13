@@ -25,6 +25,7 @@ CONF_PERSON_NAME = "person_name" # we use this as prefix
 CONF_PREFIX = CONF_PERSON_NAME
 CONF_HALF_LIFE_HOURS = "half_life_hours"
 CONF_SLEEP_SAFE_MG = "sleep_safe_mg"
+CONF_LINKED_USER = "linked_user"
 
 # Water & Heat Index
 CONF_WATER_GOAL = "water_goal"

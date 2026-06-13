@@ -6,7 +6,8 @@
         "description": "Enter the user name and choose cloning options.",
         "data": {
           "person_name": "User Name (Prefix)",
-          "clone_from": "Clone settings from User (Optional)"
+          "clone_from": "Clone settings from User (Optional)",
+          "linked_user": "Linked User Account"
         }
       },
       "basic_settings": {
@@ -114,7 +115,8 @@
           "enable_absorption": "Model gradual absorption",
           "absorption_time_min": "Absorption time (Minutes)",
           "weight_kg": "Default weight (kg)",
-          "gender": "Gender"
+          "gender": "Gender",
+          "linked_user": "Linked User Account"
         }
       },
       "environment": {

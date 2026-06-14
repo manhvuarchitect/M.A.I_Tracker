@@ -701,12 +701,13 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             vol.Optional("step_sensors", default=cur_steps): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=True, domain="sensor")
             ),
-            vol.Optional("weight_sensor"): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=False, domain="sensor")
-            ),
         }
         if cur_weight:
             schema[vol.Optional("weight_sensor", default=cur_weight)] = selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=False, domain="sensor")
+            )
+        else:
+            schema[vol.Optional("weight_sensor")] = selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=False, domain="sensor")
             )
 

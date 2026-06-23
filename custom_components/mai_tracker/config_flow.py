@@ -437,7 +437,10 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
         super().__init__()
-        self.config_entry = config_entry
+        try:
+            self.config_entry = config_entry
+        except AttributeError:
+            self._config_entry = config_entry
         self._options: dict[str, Any] = {}
         self._first_time = True
 

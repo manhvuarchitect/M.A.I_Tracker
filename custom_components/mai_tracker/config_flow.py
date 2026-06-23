@@ -445,8 +445,10 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         # Trong Home Assistant, config_entry của OptionsFlow là self.config_entry
         entry = self.config_entry
         if self._first_time:
-            return entry.options.get(key, entry.data.get(key, default))
-        return self._options.get(key, entry.options.get(key, entry.data.get(key, default)))
+            val = entry.options.get(key, entry.data.get(key, default))
+        else:
+            val = self._options.get(key, entry.options.get(key, entry.data.get(key, default)))
+        return val if val is not None else default
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None

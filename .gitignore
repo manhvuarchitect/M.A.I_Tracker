@@ -112,3 +112,6 @@ venv.bak/
 *.db
 *.log
 .storage/
+
+# M.A.I Tracker secure deploy backup
+.private_backup/

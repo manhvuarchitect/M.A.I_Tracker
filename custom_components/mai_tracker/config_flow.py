@@ -738,7 +738,7 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
                 selector.EntitySelectorConfig(multiple=False, domain="sensor")
             )
         else:
-            schema[vol.Optional("weight_sensor", default="")] = selector.EntitySelector(
+            schema[vol.Optional("weight_sensor")] = selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=False, domain="sensor")
             )
 

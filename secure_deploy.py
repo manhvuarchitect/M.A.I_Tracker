@@ -3,14 +3,17 @@ import shutil
 import subprocess
 import sys
 
-# 3 file cốt lõi cần bảo mật
+# Lấy đường dẫn tuyệt đối của thư mục chứa script
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 3 file cốt lõi cần bảo mật (sử dụng đường dẫn tuyệt đối)
 FILES_TO_PROTECT = [
-    "custom_components/mai_tracker/coordinator.py",
-    "custom_components/mai_tracker/utils/caffeine_calc.py",
-    "custom_components/mai_tracker/utils/alcohol_calc.py",
+    os.path.join(SCRIPT_DIR, "custom_components/mai_tracker/coordinator.py"),
+    os.path.join(SCRIPT_DIR, "custom_components/mai_tracker/utils/caffeine_calc.py"),
+    os.path.join(SCRIPT_DIR, "custom_components/mai_tracker/utils/alcohol_calc.py"),
 ]
 
-BACKUP_DIR = ".private_backup"
+BACKUP_DIR = os.path.join(SCRIPT_DIR, ".private_backup")
 
 def print_banner():
     print("=" * 60)

@@ -77,11 +77,12 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self.drinks_total: dict[str, float] = {}
         self._fired_medicines: set[str] = set()
         
-        # Bio Sensors
         self.aggregated_heart_rate: float | None = None
         self.aggregated_steps: int = 0
         self._last_step_values: dict[str, float] = {}
         self.last_drink_time: datetime | None = None
+        # Medicine actionable reminders: dict mapping unique_key to { "name": med_name, "user_1": notify_1, "user_2": notify_2, "fired_at": datetime, "level": 1, "task": CancelableCallback }
+        self.active_med_reminders: dict[str, dict[str, Any]] = {}
 
     async def async_load(self) -> None:
         """Load persisted events from storage."""
@@ -265,6 +266,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                         self._fired_medicines.add(fire_key)
                         
                         notify_target = entry.options.get(f"medicine_{i}_notify", "")
+                        notify_secondary = entry.options.get(f"medicine_{i}_notify_secondary", "")
                         tts_target = entry.options.get(f"medicine_{i}_tts", "")
                         
                         # Send TTS
@@ -277,24 +279,95 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                                 }, blocking=False)
                             )
                             
-                        # Send Actionable Notification
+                        # Send Actionable Notification Lớp 1 tới User 1
                         if notify_target:
                             target_service = notify_target.replace("notify.", "")
-                            action_id = f"MAIT_MED_LOG_{self.entry_id}_{med_name}"
+                            # Unique key identifies this reminder session
+                            reminder_key = f"{self.entry_id}_{med_name}_{today_date_str}_{med_time.replace(':', '_')}"
+                            
+                            # Store in active reminders
+                            self.active_med_reminders[reminder_key] = {
+                                "name": med_name,
+                                "user_1": notify_target,
+                                "user_2": notify_secondary,
+                                "fired_at": now,
+                                "level": 1,
+                                "key": reminder_key,
+                                "i": i
+                            }
+                            
+                            action_confirm = f"MAIT_MED_CONFIRM_{reminder_key}"
+                            action_snooze = f"MAIT_MED_SNOOZE_{reminder_key}"
+                            
                             self.hass.async_create_task(
                                 self.hass.services.async_call("notify", target_service, {
-                                    "message": f"Đến giờ uống thuốc {med_name} rồi sếp!",
+                                    "message": f"Đến giờ uống thuốc {med_name} rồi sếp! Vui lòng xác nhận.",
                                     "title": "Nhắc nhở Uống Thuốc 💊",
                                     "data": {
                                         "actions": [
                                             {
-                                                "action": action_id,
-                                                "title": f"Đã uống {med_name}"
+                                                "action": action_confirm,
+                                                "title": "Đã uống"
+                                            },
+                                            {
+                                                "action": action_snooze,
+                                                "title": "Nhắc lại sau 15 phút"
                                             }
                                         ]
                                     }
                                 }, blocking=False)
                             )
+
+            # Auto reminder Snooze & Escalation Logic (run on every scan interval)
+            keys_to_delete = []
+            for r_key, reminder in list(self.active_med_reminders.items()):
+                fired_at = reminder["fired_at"]
+                elapsed_seconds = (now - fired_at).total_seconds()
+                
+                # Level 1 -> Level 2: if 15 minutes elapsed and user didn't confirm
+                if reminder["level"] == 1 and elapsed_seconds >= 900:  # 15 minutes
+                    reminder["level"] = 2
+                    reminder["fired_at"] = now  # Reset time for Level 2
+                    user1_service = reminder["user_1"].replace("notify.", "")
+                    
+                    action_confirm = f"MAIT_MED_CONFIRM_{r_key}"
+                    action_not_taken = f"MAIT_MED_NOTTAKEN_{r_key}"
+                    
+                    self.hass.async_create_task(
+                        self.hass.services.async_call("notify", user1_service, {
+                            "message": f"Bạn vẫn chưa xác nhận uống thuốc {reminder['name']}. Vui lòng xác nhận tình trạng.",
+                            "title": "Cảnh báo Nhắc Thuốc (Lần 2) 💊",
+                            "data": {
+                                "actions": [
+                                    {
+                                        "action": action_confirm,
+                                        "title": "Đã uống"
+                                    },
+                                    {
+                                        "action": action_not_taken,
+                                        "title": "Chưa uống"
+                                    }
+                                ]
+                            }
+                        }, blocking=False)
+                    )
+                
+                # Level 2 Escalation: if 15 minutes elapsed since Level 2 (total 30 mins) with no response
+                elif reminder["level"] == 2 and elapsed_seconds >= 900:  # another 15 minutes
+                    keys_to_delete.append(r_key)
+                    # Escalate to User 2 if configured
+                    if reminder["user_2"]:
+                        user2_service = reminder["user_2"].replace("notify.", "")
+                        self.hass.async_create_task(
+                            self.hass.services.async_call("notify", user2_service, {
+                                "message": f"Cảnh báo: {self.person_name} đã quá giờ uống thuốc {reminder['name']} 30 phút nhưng hoàn toàn không phản hồi. Vui lòng liên hệ nhắc nhở!",
+                                "title": "Giám sát Nhắc Thuốc 🚨"
+                            }, blocking=False)
+                        )
+            
+            for r_key in keys_to_delete:
+                if r_key in self.active_med_reminders:
+                    del self.active_med_reminders[r_key]
 
             # Water Reminder Logic
             # Only remind between 07:00 and 21:00 local time

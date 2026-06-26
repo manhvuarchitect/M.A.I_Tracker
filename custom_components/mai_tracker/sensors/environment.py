@@ -15,10 +15,11 @@ class HeatIndexSensor(SensorEntity):
     _attr_should_poll = False
     _attr_has_entity_name = True
 
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, temp_entity_id: str, hum_entity_id: str, person_name: str) -> None:
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, temp_entity_id: str, hum_entity_id: str, weather_entity_id: str, person_name: str) -> None:
         self.hass = hass
         self._temp_entity_id = temp_entity_id
         self._hum_entity_id = hum_entity_id
+        self._weather_entity_id = weather_entity_id
         self._attr_unique_id = f"{entry.entry_id}_heat_index"
         self._attr_translation_key = "heat_index"
         self._attr_native_value = None
@@ -41,25 +42,52 @@ class HeatIndexSensor(SensorEntity):
         def async_state_changed_listener(event):
             self.async_schedule_update_ha_state(True)
             
-        self.async_on_remove(
-            async_track_state_change_event(
-                self.hass, [self._temp_entity_id, self._hum_entity_id], async_state_changed_listener
+        entities_to_track = []
+        if self._temp_entity_id:
+            entities_to_track.append(self._temp_entity_id)
+        if self._hum_entity_id:
+            entities_to_track.append(self._hum_entity_id)
+        if self._weather_entity_id:
+            entities_to_track.append(self._weather_entity_id)
+
+        if entities_to_track:
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass, entities_to_track, async_state_changed_listener
+                )
             )
-        )
         self.async_schedule_update_ha_state(True)
 
     async def async_update(self):
-        temp_state = self.hass.states.get(self._temp_entity_id)
-        hum_state = self.hass.states.get(self._hum_entity_id)
+        t = None
+        h = None
+
+        if self._temp_entity_id and self._hum_entity_id:
+            temp_state = self.hass.states.get(self._temp_entity_id)
+            hum_state = self.hass.states.get(self._hum_entity_id)
+            if temp_state and hum_state and temp_state.state not in ['unavailable', 'unknown'] and hum_state.state not in ['unavailable', 'unknown']:
+                try:
+                    t = float(temp_state.state)
+                    h = float(hum_state.state)
+                except ValueError:
+                    pass
         
-        if temp_state and hum_state and temp_state.state not in ['unavailable', 'unknown'] and hum_state.state not in ['unavailable', 'unknown']:
-            try:
-                t = float(temp_state.state)
-                h = float(hum_state.state)
-                val = t + 0.5555 * ((6.11 * (10 ** ((7.5 * t) / (237.7 + t))) * (h / 100)) - 10)
-                self._attr_native_value = round(val, 1)
-            except ValueError:
-                self._attr_native_value = None
+        if (t is None or h is None) and self._weather_entity_id:
+            w_state = self.hass.states.get(self._weather_entity_id)
+            if w_state and w_state.state not in ['unavailable', 'unknown']:
+                try:
+                    t_val = w_state.attributes.get("temperature")
+                    h_val = w_state.attributes.get("humidity")
+                    if t_val is not None:
+                        t = float(t_val)
+                    if h_val is not None:
+                        h = float(h_val)
+                except (ValueError, TypeError):
+                    pass
+
+        if t is not None and h is not None:
+            val = t + 0.5555 * ((6.11 * (10 ** ((7.5 * t) / (237.7 + t))) * (h / 100)) - 10)
+            self._attr_native_value = round(val, 1)
         else:
             self._attr_native_value = None
 

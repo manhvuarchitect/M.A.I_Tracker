@@ -22,7 +22,7 @@ from .sensors.caffeine import (
     CaffeineHistorySensor,
 )
 from .sensors.alcohol import BACLevelSensor, DriveSafeAtSensor
-from .sensors.bio import LastMedicineSensor, AggregatedHeartRateSensor, AggregatedStepsSensor
+from .sensors.bio import LastMedicineSensor, AggregatedHeartRateSensor, AggregatedStepsSensor, WeightSensor
 from .sensors.environment import HeatIndexSensor, DynamicWaterGoalSensor
 from .sensors.base import _CaffeineBase
 
@@ -44,19 +44,25 @@ async def async_setup_entry(
         LastMedicineSensor(coordinator, entry),
         CaffeineCrashRiskSensor(coordinator, entry),
         CaffeineHistorySensor(coordinator, entry),
+        WeightSensor(coordinator, entry),
     ]
     if coordinator.enable_absorption:
         entities.append(CaffeinePeakSensor(coordinator, entry))
         
-    if entry.options.get("heart_rate_sensors"):
+    hr_sensors = entry.options.get("heart_rate_sensors", entry.data.get("heart_rate_sensors", []))
+    if hr_sensors:
         entities.append(AggregatedHeartRateSensor(coordinator, entry))
-    if entry.options.get("step_sensors"):
+        
+    step_sensors = entry.options.get("step_sensors", entry.data.get("step_sensors", []))
+    if step_sensors:
         entities.append(AggregatedStepsSensor(coordinator, entry))
 
-    temp_sensor = entry.options.get("temp_sensor", "")
-    humidity_sensor = entry.options.get("humidity_sensor", "")
-    if temp_sensor and humidity_sensor:
-        entities.append(HeatIndexSensor(coordinator.hass, entry, temp_sensor, humidity_sensor, coordinator.person_name))
+    temp_sensor = entry.options.get("temp_sensor", entry.data.get("temp_sensor", ""))
+    humidity_sensor = entry.options.get("humidity_sensor", entry.data.get("humidity_sensor", ""))
+    weather_entity = entry.options.get("weather_entity", entry.data.get("weather_entity", ""))
+    
+    if (temp_sensor and humidity_sensor) or weather_entity:
+        entities.append(HeatIndexSensor(coordinator.hass, entry, temp_sensor, humidity_sensor, weather_entity, coordinator.person_name))
         entities.append(DynamicWaterGoalSensor(coordinator.hass, entry, coordinator))
 
     async_add_entities(entities)

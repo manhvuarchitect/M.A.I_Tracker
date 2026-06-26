@@ -55,3 +55,17 @@ class AggregatedStepsSensor(_CaffeineBase):
     @property
     def native_value(self) -> int | None:
         return self.coordinator.data.aggregated_steps if self.coordinator.data else None
+
+class WeightSensor(_CaffeineBase):
+    _attr_icon = "mdi:weight-kilogram"
+    _attr_native_unit_of_measurement = "kg"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: CaffeineCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry, suffix="weight")
+        self._attr_unique_id = f"{entry.entry_id}_weight"
+
+    @property
+    def native_value(self) -> float | None:
+        return self.coordinator.weight_kg
+

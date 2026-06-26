@@ -28,7 +28,8 @@
         "description": "Select temperature and humidity sensors for automatic water goal adjustments during hot weather.",
         "data": {
           "temp_sensor": "Temperature Sensor",
-          "humidity_sensor": "Humidity Sensor"
+          "humidity_sensor": "Humidity Sensor",
+          "weather_entity": "Weather Entity"
         }
       },
       "notifications": {
@@ -91,7 +92,17 @@
           "medicine_10_name": "-------- [10] MEDICINE NAME --------",
           "medicine_10_time": "Time",
           "medicine_10_notify": "Notify Device",
-          "medicine_10_tts": "TTS Speaker"
+          "medicine_10_tts": "TTS Speaker",
+          "medicine_1_notify_secondary": "Secondary Notify Device [1]",
+          "medicine_2_notify_secondary": "Secondary Notify Device [2]",
+          "medicine_3_notify_secondary": "Secondary Notify Device [3]",
+          "medicine_4_notify_secondary": "Secondary Notify Device [4]",
+          "medicine_5_notify_secondary": "Secondary Notify Device [5]",
+          "medicine_6_notify_secondary": "Secondary Notify Device [6]",
+          "medicine_7_notify_secondary": "Secondary Notify Device [7]",
+          "medicine_8_notify_secondary": "Secondary Notify Device [8]",
+          "medicine_9_notify_secondary": "Secondary Notify Device [9]",
+          "medicine_10_notify_secondary": "Secondary Notify Device [10]"
         }
       },
       "bio_sensors": {
@@ -129,7 +140,8 @@
         "description": "Select temperature and humidity sensors for automatic water goal adjustments during hot weather.",
         "data": {
           "temp_sensor": "Temperature Sensor",
-          "humidity_sensor": "Humidity Sensor"
+          "humidity_sensor": "Humidity Sensor",
+          "weather_entity": "Weather Entity"
         }
       },
       "notifications": {
@@ -192,7 +204,17 @@
           "medicine_10_name": "-------- [10] MEDICINE NAME --------",
           "medicine_10_time": "Time",
           "medicine_10_notify": "Notify Device",
-          "medicine_10_tts": "TTS Speaker"
+          "medicine_10_tts": "TTS Speaker",
+          "medicine_1_notify_secondary": "Secondary Notify Device [1]",
+          "medicine_2_notify_secondary": "Secondary Notify Device [2]",
+          "medicine_3_notify_secondary": "Secondary Notify Device [3]",
+          "medicine_4_notify_secondary": "Secondary Notify Device [4]",
+          "medicine_5_notify_secondary": "Secondary Notify Device [5]",
+          "medicine_6_notify_secondary": "Secondary Notify Device [6]",
+          "medicine_7_notify_secondary": "Secondary Notify Device [7]",
+          "medicine_8_notify_secondary": "Secondary Notify Device [8]",
+          "medicine_9_notify_secondary": "Secondary Notify Device [9]",
+          "medicine_10_notify_secondary": "Secondary Notify Device [10]"
         }
       },
       "bio_sensors": {
@@ -208,32 +230,86 @@
   },
   "entity": {
     "sensor": {
-      "current": { "name": "Caffeine Active Level" },
-      "consumed_today": { "name": "Caffeine Consumed Today" },
-      "consumed_today_count": { "name": "Consumptions Today" },
-      "sleep_safe_at": { "name": "Sleep Safe At" },
-      "peak": { "name": "Estimated Peak Level" },
-      "water_today": { "name": "Water Consumed Today" },
-      "heat_index": { "name": "Heat Index" },
-      "caffeine_percent": { "name": "Caffeine Limit Percent" },
-      "bac_level": { "name": "BAC Level" },
-      "drive_safe_at": { "name": "Drive Safe At" },
-      "last_medicine": { "name": "Last Medicine" },
-      "caffeine_crash_risk": { "name": "Crash Risk" },
-      "caffeine_history": { "name": "Caffeine History" },
-      "aggregated_heart_rate": { "name": "Aggregated Heart Rate" },
-      "aggregated_steps": { "name": "Aggregated Steps" },
-      "dynamic_water_goal": { "name": "Dynamic Water Goal" }
+      "current": {
+        "name": "Caffeine Active Level"
+      },
+      "consumed_today": {
+        "name": "Caffeine Consumed Today"
+      },
+      "consumed_today_count": {
+        "name": "Consumptions Today"
+      },
+      "sleep_safe_at": {
+        "name": "Sleep Safe At"
+      },
+      "peak": {
+        "name": "Estimated Peak Level"
+      },
+      "water_today": {
+        "name": "Water Consumed Today"
+      },
+      "heat_index": {
+        "name": "Heat Index"
+      },
+      "caffeine_percent": {
+        "name": "Caffeine Limit Percent"
+      },
+      "bac_level": {
+        "name": "BAC Level"
+      },
+      "drive_safe_at": {
+        "name": "Drive Safe At"
+      },
+      "last_medicine": {
+        "name": "Last Medicine"
+      },
+      "caffeine_crash_risk": {
+        "name": "Crash Risk"
+      },
+      "caffeine_history": {
+        "name": "Caffeine History"
+      },
+      "aggregated_heart_rate": {
+        "name": "Aggregated Heart Rate"
+      },
+      "aggregated_steps": {
+        "name": "Aggregated Steps"
+      },
+      "dynamic_water_goal": {
+        "name": "Dynamic Water Goal"
+      },
+      "weight": {
+        "name": "Weight"
+      },
+      "current_weight": {
+        "name": "Current Weight"
+      }
     },
     "number": {
-      "water_today": { "name": "Water Goal (Interactive)" },
-      "drink_nuoc_loc": { "name": "Water" },
-      "drink_cafe": { "name": "Coffee" },
-      "drink_tra": { "name": "Tea" },
-      "drink_nuoc_ngot": { "name": "Soft Drink" },
-      "drink_sua": { "name": "Milk" },
-      "drink_bia": { "name": "Beer" },
-      "drink_ruou": { "name": "Liquor" }
+      "water_today": {
+        "name": "Water Goal (Interactive)"
+      },
+      "drink_nuoc_loc": {
+        "name": "Water"
+      },
+      "drink_cafe": {
+        "name": "Coffee"
+      },
+      "drink_tra": {
+        "name": "Tea"
+      },
+      "drink_nuoc_ngot": {
+        "name": "Soft Drink"
+      },
+      "drink_sua": {
+        "name": "Milk"
+      },
+      "drink_bia": {
+        "name": "Beer"
+      },
+      "drink_ruou": {
+        "name": "Liquor"
+      }
     }
   }
 }

@@ -28,7 +28,8 @@
         "description": "Lựa chọn các cảm biến để M.A.I Tracker tự động điều chỉnh lượng nước uống tăng thêm khi trời nóng.",
         "data": {
           "temp_sensor": "Cảm biến nhiệt độ",
-          "humidity_sensor": "Cảm biến độ ẩm"
+          "humidity_sensor": "Cảm biến độ ẩm",
+          "weather_entity": "Thực thể thời tiết"
         }
       },
       "notifications": {
@@ -91,7 +92,17 @@
           "medicine_10_name": "-------- [10] TÊN THUỐC --------",
           "medicine_10_time": "Giờ uống",
           "medicine_10_notify": "Điện thoại nhận thông báo",
-          "medicine_10_tts": "Loa phát thanh (TTS)"
+          "medicine_10_tts": "Loa phát thanh (TTS)",
+          "medicine_1_notify_secondary": "Điện thoại nhận thông báo phụ [1]",
+          "medicine_2_notify_secondary": "Điện thoại nhận thông báo phụ [2]",
+          "medicine_3_notify_secondary": "Điện thoại nhận thông báo phụ [3]",
+          "medicine_4_notify_secondary": "Điện thoại nhận thông báo phụ [4]",
+          "medicine_5_notify_secondary": "Điện thoại nhận thông báo phụ [5]",
+          "medicine_6_notify_secondary": "Điện thoại nhận thông báo phụ [6]",
+          "medicine_7_notify_secondary": "Điện thoại nhận thông báo phụ [7]",
+          "medicine_8_notify_secondary": "Điện thoại nhận thông báo phụ [8]",
+          "medicine_9_notify_secondary": "Điện thoại nhận thông báo phụ [9]",
+          "medicine_10_notify_secondary": "Điện thoại nhận thông báo phụ [10]"
         }
       },
       "bio_sensors": {
@@ -129,7 +140,8 @@
         "description": "Lựa chọn các cảm biến để M.A.I Tracker tự động điều chỉnh lượng nước khi trời nóng.",
         "data": {
           "temp_sensor": "Cảm biến nhiệt độ",
-          "humidity_sensor": "Cảm biến độ ẩm"
+          "humidity_sensor": "Cảm biến độ ẩm",
+          "weather_entity": "Thực thể thời tiết"
         }
       },
       "notifications": {
@@ -192,7 +204,17 @@
           "medicine_10_name": "-------- [10] TÊN THUỐC --------",
           "medicine_10_time": "Giờ uống",
           "medicine_10_notify": "Điện thoại nhận thông báo",
-          "medicine_10_tts": "Loa phát thanh (TTS)"
+          "medicine_10_tts": "Loa phát thanh (TTS)",
+          "medicine_1_notify_secondary": "Điện thoại nhận thông báo phụ [1]",
+          "medicine_2_notify_secondary": "Điện thoại nhận thông báo phụ [2]",
+          "medicine_3_notify_secondary": "Điện thoại nhận thông báo phụ [3]",
+          "medicine_4_notify_secondary": "Điện thoại nhận thông báo phụ [4]",
+          "medicine_5_notify_secondary": "Điện thoại nhận thông báo phụ [5]",
+          "medicine_6_notify_secondary": "Điện thoại nhận thông báo phụ [6]",
+          "medicine_7_notify_secondary": "Điện thoại nhận thông báo phụ [7]",
+          "medicine_8_notify_secondary": "Điện thoại nhận thông báo phụ [8]",
+          "medicine_9_notify_secondary": "Điện thoại nhận thông báo phụ [9]",
+          "medicine_10_notify_secondary": "Điện thoại nhận thông báo phụ [10]"
         }
       },
       "bio_sensors": {
@@ -208,32 +230,86 @@
   },
   "entity": {
     "sensor": {
-      "current": { "name": "Caffeine Đang Hoạt Động" },
-      "consumed_today": { "name": "Caffeine Hôm Nay" },
-      "consumed_today_count": { "name": "Số lần uống Cafein" },
-      "sleep_safe_at": { "name": "Giờ đi ngủ an toàn" },
-      "peak": { "name": "Mức Cafein đỉnh điểm" },
-      "water_today": { "name": "Tổng Nước Hôm Nay" },
-      "heat_index": { "name": "Mức độ oi bức" },
-      "caffeine_percent": { "name": "Tỉ lệ giới hạn Cafein" },
-      "bac_level": { "name": "Nồng độ cồn (BAC)" },
-      "drive_safe_at": { "name": "Giờ lái xe an toàn" },
-      "last_medicine": { "name": "Liều thuốc gần nhất" },
-      "caffeine_crash_risk": { "name": "Nguy cơ sụp đổ năng lượng" },
-      "caffeine_history": { "name": "Lịch sử nạp Cafein" },
-      "aggregated_heart_rate": { "name": "Nhịp tim trung bình" },
-      "aggregated_steps": { "name": "Tổng số bước chân" },
-      "dynamic_water_goal": { "name": "Mục tiêu nước hôm nay" }
+      "current": {
+        "name": "Caffeine Đang Hoạt Động"
+      },
+      "consumed_today": {
+        "name": "Caffeine Hôm Nay"
+      },
+      "consumed_today_count": {
+        "name": "Số lần uống Cafein"
+      },
+      "sleep_safe_at": {
+        "name": "Giờ đi ngủ an toàn"
+      },
+      "peak": {
+        "name": "Mức Cafein đỉnh điểm"
+      },
+      "water_today": {
+        "name": "Tổng Nước Hôm Nay"
+      },
+      "heat_index": {
+        "name": "Mức độ oi bức"
+      },
+      "caffeine_percent": {
+        "name": "Tỉ lệ giới hạn Cafein"
+      },
+      "bac_level": {
+        "name": "Nồng độ cồn (BAC)"
+      },
+      "drive_safe_at": {
+        "name": "Giờ lái xe an toàn"
+      },
+      "last_medicine": {
+        "name": "Liều thuốc gần nhất"
+      },
+      "caffeine_crash_risk": {
+        "name": "Nguy cơ sụp đổ năng lượng"
+      },
+      "caffeine_history": {
+        "name": "Lịch sử nạp Cafein"
+      },
+      "aggregated_heart_rate": {
+        "name": "Nhịp tim trung bình"
+      },
+      "aggregated_steps": {
+        "name": "Tổng số bước chân"
+      },
+      "dynamic_water_goal": {
+        "name": "Mục tiêu nước hôm nay"
+      },
+      "weight": {
+        "name": "Cân nặng"
+      },
+      "current_weight": {
+        "name": "Cân nặng hiện tại"
+      }
     },
     "number": {
-      "water_today": { "name": "Nước lọc (Mục tiêu)" },
-      "drink_nuoc_loc": { "name": "Nước lọc" },
-      "drink_cafe": { "name": "Cà phê" },
-      "drink_tra": { "name": "Trà" },
-      "drink_nuoc_ngot": { "name": "Nước ngọt" },
-      "drink_sua": { "name": "Sữa" },
-      "drink_bia": { "name": "Bia" },
-      "drink_ruou": { "name": "Rượu" }
+      "water_today": {
+        "name": "Nước lọc (Mục tiêu)"
+      },
+      "drink_nuoc_loc": {
+        "name": "Nước lọc"
+      },
+      "drink_cafe": {
+        "name": "Cà phê"
+      },
+      "drink_tra": {
+        "name": "Trà"
+      },
+      "drink_nuoc_ngot": {
+        "name": "Nước ngọt"
+      },
+      "drink_sua": {
+        "name": "Sữa"
+      },
+      "drink_bia": {
+        "name": "Bia"
+      },
+      "drink_ruou": {
+        "name": "Rượu"
+      }
     }
   }
 }

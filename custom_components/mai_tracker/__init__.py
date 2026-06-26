@@ -301,7 +301,49 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         med_prefix = f"MAIT_MED_LOG_{entry.entry_id}_"
         water_prefix = f"MAIT_WATER_LOG_{entry.entry_id}_"
         
-        if action.startswith(med_prefix):
+        # New Actionable Medicine buttons
+        med_confirm_prefix = "MAIT_MED_CONFIRM_"
+        med_snooze_prefix = "MAIT_MED_SNOOZE_"
+        med_nottaken_prefix = "MAIT_MED_NOTTAKEN_"
+        
+        if action.startswith(med_confirm_prefix):
+            r_key = action[len(med_confirm_prefix):]
+            if r_key in coordinator.active_med_reminders:
+                reminder = coordinator.active_med_reminders.pop(r_key)
+                await coordinator.async_log_medicine(name=reminder["name"], med_type="general")
+                _LOGGER.info("Medicine %s confirmed and logged for %s", reminder["name"], coordinator.person_name)
+        
+        elif action.startswith(med_snooze_prefix):
+            r_key = action[len(med_snooze_prefix):]
+            if r_key in coordinator.active_med_reminders:
+                reminder = coordinator.active_med_reminders[r_key]
+                # Force transition to level 2 immediately (which schedules notify after 15 mins)
+                # We do this by keeping level = 1 but setting fired_at to 15 minutes ago, so next update scan shifts it to Level 2.
+                # Or we can just trigger it to Level 2 and set fired_at to now. Wait, the user wants:
+                # "nhắc lại sau 15 phút -> 15p sau gửi tiếp 1 thông báo..."
+                # So we reset Level 1's fired_at to exactly now, but we mark a flag or simply let the 15-minute logic do it.
+                # However, to be precise, pressing "Snooze" should clear current notification and fire exactly 15 mins later.
+                # Setting level=1 and fired_at=now will do exactly that! (Since Level 1 -> Level 2 triggers after 15 mins).
+                reminder["fired_at"] = dt_util.utcnow()
+                reminder["level"] = 1
+                _LOGGER.info("Medicine %s snoozed for 15 minutes for %s", reminder["name"], coordinator.person_name)
+                
+        elif action.startswith(med_nottaken_prefix):
+            r_key = action[len(med_nottaken_prefix):]
+            if r_key in coordinator.active_med_reminders:
+                reminder = coordinator.active_med_reminders.pop(r_key)
+                _LOGGER.info("Medicine %s reported NOT TAKEN by %s. Escalating to User 2.", reminder["name"], coordinator.person_name)
+                # Immediately escalate to User 2
+                if reminder["user_2"]:
+                    user2_service = reminder["user_2"].replace("notify.", "")
+                    hass.async_create_task(
+                        hass.services.async_call("notify", user2_service, {
+                            "message": f"Cảnh báo: {coordinator.person_name} đã nhấn 'Chưa uống' đối với thuốc {reminder['name']}. Vui lòng liên hệ nhắc nhở!",
+                            "title": "Giám sát Nhắc Thuốc 🚨"
+                        }, blocking=False)
+                    )
+        
+        elif action.startswith(med_prefix):
             med_name = action[len(med_prefix):]
             await coordinator.async_log_medicine(name=med_name, med_type="general")
             _LOGGER.info("Medicine %s logged from notification for %s", med_name, coordinator.person_name)

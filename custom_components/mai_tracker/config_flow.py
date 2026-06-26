@@ -279,9 +279,14 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             elif dc == "humidity":
                 hum_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
 
+        weather_dict = {"": "Không sử dụng"}
+        for state in self.hass.states.async_all("weather"):
+            weather_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
+
         schema = {
             vol.Optional(CONF_TEMP_SENSOR, default=""): vol.In(temp_dict),
             vol.Optional(CONF_HUMIDITY_SENSOR, default=""): vol.In(hum_dict),
+            vol.Optional(CONF_WEATHER_ENTITY, default=""): vol.In(weather_dict),
         }
 
         return self.async_show_form(
@@ -380,6 +385,12 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             schema[vol.Optional(f"medicine_{i}_name", default="")] = selector.TextSelector()
             schema[vol.Optional(f"medicine_{i}_time", default="08:00:00")] = selector.TimeSelector()
             schema[vol.Optional(f"medicine_{i}_notify", default="")] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=notify_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+            schema[vol.Optional(f"medicine_{i}_notify_secondary", default="")] = selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=notify_options,
                     mode=selector.SelectSelectorMode.DROPDOWN,
@@ -521,9 +532,17 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         cur_hum = str(self._get(CONF_HUMIDITY_SENSOR, ""))
         if cur_hum and cur_hum not in hum_dict: hum_dict[cur_hum] = cur_hum
 
+        weather_dict = {"": "Không sử dụng"}
+        for state in self.hass.states.async_all("weather"):
+            weather_dict[state.entity_id] = f"{state.name} ({state.entity_id})"
+
+        cur_weather = str(self._get(CONF_WEATHER_ENTITY, ""))
+        if cur_weather and cur_weather not in weather_dict: weather_dict[cur_weather] = cur_weather
+
         schema = {
             vol.Optional(CONF_TEMP_SENSOR, default=cur_temp): vol.In(temp_dict),
             vol.Optional(CONF_HUMIDITY_SENSOR, default=cur_hum): vol.In(hum_dict),
+            vol.Optional(CONF_WEATHER_ENTITY, default=cur_weather): vol.In(weather_dict),
         }
 
         return self.async_show_form(
@@ -652,6 +671,7 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
                 cur_time = "08:00:00"  # Default time to prevent frontend "Invalid time" error
             
             cur_notify = str(self._get(f"medicine_{i}_notify", ""))
+            cur_notify_secondary = str(self._get(f"medicine_{i}_notify_secondary", ""))
             cur_tts = str(self._get(f"medicine_{i}_tts", ""))
 
             notify_options = [{"value": k, "label": v} for k, v in notify_dict.items()]
@@ -660,6 +680,12 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             schema[vol.Optional(f"medicine_{i}_name", default=cur_name)] = selector.TextSelector()
             schema[vol.Optional(f"medicine_{i}_time", default=cur_time)] = selector.TimeSelector()
             schema[vol.Optional(f"medicine_{i}_notify", default=cur_notify)] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=notify_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+            schema[vol.Optional(f"medicine_{i}_notify_secondary", default=cur_notify_secondary)] = selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=notify_options,
                     mode=selector.SelectSelectorMode.DROPDOWN,
@@ -710,7 +736,7 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
                 selector.EntitySelectorConfig(multiple=False, domain="sensor")
             )
         else:
-            schema[vol.Optional("weight_sensor")] = selector.EntitySelector(
+            schema[vol.Optional("weight_sensor", default="")] = selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=False, domain="sensor")
             )
 

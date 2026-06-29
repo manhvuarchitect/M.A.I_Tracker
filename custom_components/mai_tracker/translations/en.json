@@ -111,7 +111,8 @@
         "data": {
           "heart_rate_sensors": "Heart Rate Sensors (Multiple)",
           "step_sensors": "Step Sensors (Multiple)",
-          "weight_sensor": "Smart Scale Sensor (Optional)"
+          "weight_sensor": "Smart Scale Sensor (Optional)",
+          "bio_sync_interval": "Phone Sensors Sync Interval"
         }
       }
     },
@@ -223,7 +224,8 @@
         "data": {
           "heart_rate_sensors": "Heart Rate Sensors (Multiple)",
           "step_sensors": "Step Sensors (Multiple)",
-          "weight_sensor": "Smart Scale Sensor (Optional)"
+          "weight_sensor": "Smart Scale Sensor (Optional)",
+          "bio_sync_interval": "Phone Sensors Sync Interval"
         }
       }
     }

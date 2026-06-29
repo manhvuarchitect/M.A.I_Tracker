@@ -83,6 +83,7 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self.last_drink_time: datetime | None = None
         # Medicine actionable reminders: dict mapping unique_key to { "name": med_name, "user_1": notify_1, "user_2": notify_2, "fired_at": datetime, "level": 1, "task": CancelableCallback }
         self.active_med_reminders: dict[str, dict[str, Any]] = {}
+        self.last_bio_sync: datetime | None = None
 
     async def async_load(self) -> None:
         """Load persisted events from storage."""
@@ -194,6 +195,39 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             if isinstance(step_sensors, str): step_sensors = [step_sensors] if step_sensors else []
             weight_sensor = entry.options.get("weight_sensor", "")
             
+            # Auto Sync Phone Companion Sensors (wake up phone)
+            sync_interval_mins = int(entry.options.get("bio_sync_interval", entry.data.get("bio_sync_interval", 60)))
+            local_now_check = dt_util.as_local(now)
+            if sync_interval_mins > 0 and 7 <= local_now_check.hour < 22:
+                # Check if it's time to sync
+                should_sync = False
+                if self.last_bio_sync is None:
+                    should_sync = True
+                else:
+                    elapsed_sync = (now - self.last_bio_sync).total_seconds() / 60.0
+                    if elapsed_sync >= sync_interval_mins:
+                        should_sync = True
+                
+                if should_sync:
+                    self.last_bio_sync = now
+                    entities_to_update = []
+                    entities_to_update.extend(hr_sensors)
+                    entities_to_update.extend(step_sensors)
+                    if weight_sensor:
+                        entities_to_update.append(weight_sensor)
+                        
+                    entities_to_update = [e for e in entities_to_update if e]
+                    if entities_to_update:
+                        _LOGGER.info("M.A.I Tracker: Auto-syncing phone companion sensors: %s", entities_to_update)
+                        self.hass.async_create_task(
+                            self.hass.services.async_call(
+                                "homeassistant",
+                                "update_entity",
+                                {"entity_id": entities_to_update},
+                                blocking=False
+                            )
+                        )
+
             # 1. Weight Sensor Auto-update
             if weight_sensor:
                 w_state = self.hass.states.get(weight_sensor)

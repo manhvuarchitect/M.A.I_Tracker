@@ -430,6 +430,18 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional("weight_sensor"): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=False, domain="sensor")
             ),
+            vol.Optional("bio_sync_interval", default="60"): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "0", "label": "Không đồng bộ tự động"},
+                        {"value": "5", "label": "Mỗi 5 phút"},
+                        {"value": "15", "label": "Mỗi 15 phút"},
+                        {"value": "30", "label": "Mỗi 30 phút"},
+                        {"value": "60", "label": "Mỗi 1 tiếng (Mặc định)"}
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
         }
 
         return self.async_show_form(
@@ -724,6 +736,7 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         if isinstance(cur_steps, str): cur_steps = [cur_steps] if cur_steps else []
         
         cur_weight = str(self._get("weight_sensor", ""))
+        cur_sync = str(self._get("bio_sync_interval", "60"))
 
         schema = {
             vol.Optional("heart_rate_sensors", default=cur_hr): selector.EntitySelector(
@@ -741,6 +754,19 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
             schema[vol.Optional("weight_sensor")] = selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=False, domain="sensor")
             )
+            
+        schema[vol.Optional("bio_sync_interval", default=cur_sync)] = selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=[
+                    {"value": "0", "label": "Không đồng bộ tự động"},
+                    {"value": "5", "label": "Mỗi 5 phút"},
+                    {"value": "15", "label": "Mỗi 15 phút"},
+                    {"value": "30", "label": "Mỗi 30 phút"},
+                    {"value": "60", "label": "Mỗi 1 tiếng (Mặc định)"}
+                ],
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        )
 
         return self.async_show_form(
             step_id="bio_sensors",

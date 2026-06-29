@@ -111,7 +111,8 @@
         "data": {
           "heart_rate_sensors": "Cảm biến Nhịp tim (Chọn nhiều)",
           "step_sensors": "Cảm biến Bước chân (Chọn nhiều, tự gõ chữ 'step' để tìm)",
-          "weight_sensor": "Cân thông minh (Chọn cảm biến cân nặng nếu có)"
+          "weight_sensor": "Cân thông minh (Chọn cảm biến cân nặng nếu có)",
+          "bio_sync_interval": "Chu kỳ đồng bộ cảm biến điện thoại"
         }
       }
     },
@@ -223,7 +224,8 @@
         "data": {
           "heart_rate_sensors": "Cảm biến Nhịp tim (Chọn nhiều)",
           "step_sensors": "Cảm biến Bước chân (Chọn nhiều, tự gõ chữ 'step' để tìm)",
-          "weight_sensor": "Cân thông minh (Chọn cảm biến cân nặng nếu có)"
+          "weight_sensor": "Cân thông minh (Chọn cảm biến cân nặng nếu có)",
+          "bio_sync_interval": "Chu kỳ đồng bộ cảm biến điện thoại"
         }
       }
     }

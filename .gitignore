@@ -5,6 +5,8 @@ __pycache__/
 
 # Admin tools & Key Generators
 tools/
+*.bat
+Tao_License_Key.bat
 
 # C extensions
 *.so

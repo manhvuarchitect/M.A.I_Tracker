@@ -53,6 +53,7 @@ from .const import (
     DEFAULT_WATER_REMINDER_NOTIFY_MANAGEMENT,
     CONF_WEATHER_ENTITY,
     CONF_WEIGHT_SENSOR,
+    CONF_LICENSE_KEY,
 )
 from .helpers import async_get_user_options
 
@@ -188,6 +189,9 @@ class MaiTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     options=user_options,
                     mode=selector.SelectSelectorMode.DROPDOWN,
                 )
+            ),
+            vol.Optional(CONF_LICENSE_KEY, default=""): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
             ),
         }
         
@@ -539,6 +543,7 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
         user_options = await async_get_user_options(self.hass)
         user_options.insert(0, {"value": "", "label": "Không liên kết"})
         cur_linked_user = str(self._get(CONF_LINKED_USER, ""))
+        cur_license_key = str(self._get(CONF_LICENSE_KEY, ""))
 
         schema = {
             vol.Required(CONF_PERSON_NAME, default=cur_name): selector.TextSelector(
@@ -549,6 +554,9 @@ class MaiTrackerOptionsFlow(config_entries.OptionsFlow):
                     options=user_options,
                     mode=selector.SelectSelectorMode.DROPDOWN,
                 )
+            ),
+            vol.Optional(CONF_LICENSE_KEY, default=cur_license_key): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
             ),
         }
 

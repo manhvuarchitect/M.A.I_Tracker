@@ -26,6 +26,8 @@ CONF_PREFIX = CONF_PERSON_NAME
 CONF_HALF_LIFE_HOURS = "half_life_hours"
 CONF_SLEEP_SAFE_MG = "sleep_safe_mg"
 CONF_LINKED_USER = "linked_user"
+CONF_LICENSE_KEY = "license_key"
+DEFAULT_LICENSE_KEY = ""
 
 # Water & Heat Index
 CONF_WATER_GOAL = "water_goal"

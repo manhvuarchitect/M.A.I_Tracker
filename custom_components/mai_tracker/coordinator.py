@@ -15,6 +15,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 import homeassistant.util.dt as dt_util
 
 from .const import (
+    CONF_LICENSE_KEY,
     DEFAULT_ABSORPTION_TIME_MIN,
     DEFAULT_HALF_LIFE_HOURS,
     DEFAULT_SLEEP_SAFE_MG,
@@ -23,6 +24,7 @@ from .const import (
     STORAGE_KEY_PREFIX,
     STORAGE_VERSION,
 )
+from .license import verify_license_key, get_instance_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,6 +87,10 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self.active_med_reminders: dict[str, dict[str, Any]] = {}
         self.last_bio_sync: datetime | None = None
         self.custom_tts_message: str = ""
+        self.is_pro: bool = False
+        self.license_tier: str = "FREE"
+        self.license_status: str = "Chưa kích hoạt (Free Tier)"
+        self.license_expiry: str | None = None
 
     async def async_load(self) -> None:
         """Load persisted events from storage."""
@@ -184,8 +190,17 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             await self._async_save()
 
         # Compute BAC
+        # Check License Status
         entry = self.hass.config_entries.async_get_entry(self.entry_id)
         if entry:
+            license_key = entry.options.get(CONF_LICENSE_KEY, entry.data.get(CONF_LICENSE_KEY, ""))
+            inst_id = get_instance_id(self.hass)
+            lic_res = verify_license_key(license_key, inst_id)
+            self.is_pro = lic_res["valid"]
+            self.license_tier = lic_res["tier"]
+            self.license_status = lic_res["status"]
+            self.license_expiry = lic_res["expiry"]
+
             self.weight_kg = float(entry.options.get("weight_kg", entry.data.get("weight_kg", 65.0)))
             self.gender = entry.options.get("gender", entry.data.get("gender", "male"))
             
@@ -670,6 +685,9 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
                 "efficiency": best_sleep_efficiency,
                 "state": best_sleep_state,
             } if best_sleep_wearable else {},
+            is_pro=self.is_pro,
+            license_tier=self.license_tier,
+            license_status=self.license_status,
         )
 
     # ------------------------------------------------------------------

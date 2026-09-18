@@ -93,4 +93,7 @@ class CaffeineData:
     sleep_state: str | None = None
     sleep_wearable_name: str | None = None
     sleep_attributes: dict[str, Any] = field(default_factory=dict)
+    is_pro: bool = False
+    license_tier: str = "FREE"
+    license_status: str = "Free Tier"
 

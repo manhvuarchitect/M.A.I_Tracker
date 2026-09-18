@@ -4,6 +4,22 @@ Tất cả các thay đổi, tính năng mới và bản sửa lỗi của integ
 
 ---
 
+## [2026.09.18.b2] - 2026-09-18
+
+### ✨ Tính năng mới: Khóa Tính Năng & Kích Hoạt Bản Quyền (License Key)
+- **Cơ chế Khóa Tính Năng (Feature Lock & Free/Pro Tiers)**:
+  - Bản Miễn Phí (Free Tier): Theo dõi lượng nước uống cơ bản.
+  - Bản Kích Hoạt (Pro Tier): Mở khóa toàn bộ các tính năng cao cấp (Dược động học Cafein, Nồng độ cồn BAC, 8 chỉ số giấc ngủ, 3 Thiết bị đeo, Nhắc thuốc leo thang, Phát loa TTS tùy biến, Thống kê LTS).
+- **Xác thực Bản quyền Offline (HMAC-SHA256)**:
+  - Tích hợp module xác thực chữ ký điện tử an toàn `license.py` hoạt động độc lập ngay trên Home Assistant không cần internet.
+  - Hỗ trợ khóa key theo mã thiết bị (Instance ID) hoặc key vạn năng (Universal Key) với hạn sử dụng (Tháng/Năm/Vĩnh viễn).
+- **Bộ công cụ tạo mã bản quyền cho Quản trị viên (`tools/generate_key.py`)**:
+  - Hỗ trợ tạo License Key linh hoạt theo từng khách hàng.
+- **Thực thể Trạng thái Bản quyền (`sensor.mait_{person}_license_status`)**:
+  - Báo cáo rõ ràng trạng thái kích hoạt, thời hạn và danh sách các tính năng được mở khóa.
+
+---
+
 ## [2026.09.18.b1] - 2026-09-18
 
 ### 🐛 Sửa lỗi & Tối ưu hóa TTS (Bug Fixes & Improvements)

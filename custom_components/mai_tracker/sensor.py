@@ -36,6 +36,7 @@ from .sensors.sleep import (
     SleepSummarySensor,
 )
 from .sensors.environment import HeatIndexSensor, DynamicWaterGoalSensor
+from .sensors.license import LicenseStatusSensor
 from .sensors.base import _CaffeineBase
 
 async def async_setup_entry(
@@ -46,6 +47,7 @@ async def async_setup_entry(
     coordinator: CaffeineCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities: list[_CaffeineBase] = [
+        LicenseStatusSensor(coordinator, entry),
         WaterConsumedTodaySensor(coordinator, entry),
         CaffeineCurrentSensor(coordinator, entry),
         CaffeineConsumedTodaySensor(coordinator, entry),

@@ -7,7 +7,8 @@
         "data": {
           "person_name": "User Name (Prefix)",
           "clone_from": "Clone settings from User (Optional)",
-          "linked_user": "Linked User Account"
+          "linked_user": "Linked User Account",
+          "license_key": "License Activation Key"
         }
       },
       "basic_settings": {
@@ -185,7 +186,8 @@
         "description": "Configure your basic body metrics and water/caffeine targets.",
         "data": {
           "person_name": "Member Name (Prefix)",
-          "linked_user": "Linked User Account"
+          "linked_user": "Linked User Account",
+          "license_key": "License Activation Key"
         }
       },
       "environment": {
@@ -422,6 +424,9 @@
       },
       "sleep_summary": {
         "name": "Sleep Summary"
+      },
+      "license_status": {
+        "name": "License Status"
       }
     },
     "number": {

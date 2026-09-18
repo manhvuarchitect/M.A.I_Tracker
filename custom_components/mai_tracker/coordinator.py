@@ -569,14 +569,11 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
 
                         tts_target = entry.options.get("tts_target", "")
                         
-                        # Send TTS
                         if tts_target:
                             tts_msg_tpl = entry.options.get("water_reminder_tts", "Sếp ơi, đã {hours} tiếng trôi qua sếp chưa uống thêm nước. Sếp hãy uống một cốc nước lọc nhé!")
+                            msg_to_say = tts_msg_tpl.replace("{hours}", hours_str)
                             self.hass.async_create_task(
-                                self.hass.services.async_call("tts", "cloud_say", {
-                                    "entity_id": tts_target,
-                                    "message": tts_msg_tpl.replace("{hours}", hours_str)
-                                }, blocking=False)
+                                self._async_call_tts(tts_target, msg_to_say)
                             )
                             
                         # Send Notify to Personal Targets (with Actionable Buttons)
@@ -827,6 +824,55 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         self.custom_tts_message = message
         await self.async_refresh()
 
+    async def _async_call_tts(self, media_player_id: str, message: str) -> bool:
+        """Call TTS service using the best available TTS engine in Home Assistant."""
+        tts_services = self.hass.services.async_services().get("tts", {})
+
+        # 1. Try google_translate_say
+        if "google_translate_say" in tts_services:
+            await self.hass.services.async_call("tts", "google_translate_say", {
+                "entity_id": media_player_id,
+                "message": message,
+            }, blocking=False)
+            return True
+
+        # 2. Try cloud_say if available
+        if "cloud_say" in tts_services:
+            await self.hass.services.async_call("tts", "cloud_say", {
+                "entity_id": media_player_id,
+                "message": message,
+            }, blocking=False)
+            return True
+
+        # 3. Try any other *_say service (e.g. piper_say)
+        say_services = [s for s in tts_services if s.endswith("_say")]
+        if say_services:
+            await self.hass.services.async_call("tts", say_services[0], {
+                "entity_id": media_player_id,
+                "message": message,
+            }, blocking=False)
+            return True
+
+        # 4. Try modern tts.speak with an existing tts.* entity
+        if "speak" in tts_services:
+            tts_entities = [
+                s.entity_id for s in self.hass.states.async_all() 
+                if s.entity_id.startswith("tts.")
+            ]
+            if tts_entities:
+                await self.hass.services.async_call("tts", "speak", {
+                    "media_player_entity_id": media_player_id,
+                    "message": message,
+                }, target={"entity_id": tts_entities[0]}, blocking=False)
+                return True
+
+        # Fallback to cloud_say
+        await self.hass.services.async_call("tts", "cloud_say", {
+            "entity_id": media_player_id,
+            "message": message,
+        }, blocking=False)
+        return True
+
     async def async_play_custom_tts(self, message: str | None = None) -> bool:
         """Play custom TTS message on the configured speaker."""
         entry = self.hass.config_entries.async_get_entry(self.entry_id)
@@ -848,28 +894,9 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             return False
 
         try:
-            if self.hass.services.has_service("tts", "cloud_say"):
-                await self.hass.services.async_call("tts", "cloud_say", {
-                    "entity_id": tts_target,
-                    "message": msg,
-                }, blocking=False)
-            elif self.hass.services.has_service("tts", "google_translate_say"):
-                await self.hass.services.async_call("tts", "google_translate_say", {
-                    "entity_id": tts_target,
-                    "message": msg,
-                }, blocking=False)
-            elif self.hass.services.has_service("tts", "speak"):
-                await self.hass.services.async_call("tts", "speak", {
-                    "media_player_entity_id": tts_target,
-                    "message": msg,
-                }, blocking=False)
-            else:
-                await self.hass.services.async_call("tts", "cloud_say", {
-                    "entity_id": tts_target,
-                    "message": msg,
-                }, blocking=False)
+            res = await self._async_call_tts(tts_target, msg)
             _LOGGER.info("Played custom TTS on %s for %s: %s", tts_target, self.person_name, msg)
-            return True
+            return res
         except Exception as err:
             _LOGGER.error("Failed to play custom TTS for %s: %s", self.person_name, err)
             return False

@@ -4,6 +4,13 @@ Tất cả các thay đổi, tính năng mới và bản sửa lỗi của integ
 
 ---
 
+## [2026.09.18.b1] - 2026-09-18
+
+### 🐛 Sửa lỗi & Tối ưu hóa TTS (Bug Fixes & Improvements)
+- **Tương thích toàn diện với tất cả TTS Engines**: Nâng cấp hàm phát âm thanh thông minh `_async_call_tts`, tự động nhận diện và gọi đúng dịch vụ TTS đang có trên Home Assistant (`google_translate_say`, `cloud_say`, `piper_say`, hoặc `tts.speak`), giúp loa Google Home Mini, Nest Hub, Echo... phát âm thanh tức thì mà không phụ thuộc vào Nabu Casa Cloud.
+
+---
+
 ## [2026.09.03.b1] - 2026-09-03
 
 ### ✨ Tính năng mới (Features)

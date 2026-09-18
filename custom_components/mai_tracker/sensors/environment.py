@@ -156,10 +156,7 @@ class DynamicWaterGoalSensor(SensorEntity):
             if tts_target:
                 msg = tts_msg.replace("{ml}", str(bonus))
                 self.hass.async_create_task(
-                    self.hass.services.async_call("tts", "cloud_say", {
-                        "entity_id": tts_target,
-                        "message": msg
-                    }, blocking=False)
+                    self._coordinator._async_call_tts(tts_target, msg)
                 )
 
         self._attr_native_value = new_goal

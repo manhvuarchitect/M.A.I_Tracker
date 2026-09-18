@@ -4,6 +4,14 @@ Tất cả các thay đổi, tính năng mới và bản sửa lỗi của integ
 
 ---
 
+## [2026.09.18.b4] - 2026-09-18
+
+### 🛡️ Tối ưu hóa Quản lý Bản quyền (License Management & Revocation)
+- **Cơ chế Thu hồi & Danh sách đen (Key Revocation)**: Bổ sung khả năng kiểm tra và thu hồi các mã bản quyền bị vi phạm hoặc hủy bỏ.
+- **Tối ưu hóa Hệ thống**: Nâng cao độ tin cậy và xử lý xác thực bản quyền mượt mà.
+
+---
+
 ## [2026.09.18.b3] - 2026-09-18
 
 ### 🔒 Tối ưu hóa & Kích hoạt Tính năng (Feature Activation)

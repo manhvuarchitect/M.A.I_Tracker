@@ -41,14 +41,26 @@ def generate_signature(tier: str, expiry: str, instance_id: str) -> str:
     return sig[:16].upper()
 
 
+def is_key_revoked(key: str, signature: str) -> bool:
+    """Check if key or signature is in revoked blacklist."""
+    import os, json
+    curr_dir = os.path.dirname(os.path.abspath(__file__))
+    rev_file = os.path.join(curr_dir, "revoked.json")
+    if os.path.exists(rev_file):
+        try:
+            with open(rev_file, "r", encoding="utf-8") as f:
+                revoked_list = json.load(f)
+                if key in revoked_list or signature in revoked_list:
+                    return True
+        except Exception:
+            pass
+    return False
+
+
 def verify_license_key(key: str | None, current_instance_id: str = "UNIVERSAL") -> dict[str, Any]:
     """
     Verify a license key offline.
     Key format: MAIT-<TIER>-<EXPIRY>-<INSTANCE_ID>-<SIGNATURE>
-    Examples:
-      MAIT-PRO-LIFETIME-ALL-A1B2C3D4E5F67890
-      MAIT-PRO-20271231-ALL-9F8E7D6C5B4A3210
-      MAIT-PRO-LIFETIME-HASS1234-8A7B6C5D4E3F2A1B
     """
     if not key or not isinstance(key, str):
         return {
@@ -74,6 +86,17 @@ def verify_license_key(key: str | None, current_instance_id: str = "UNIVERSAL") 
         }
 
     _, tier, expiry, key_instance, signature = parts
+
+    # 0. Check Blacklist / Revocation
+    if is_key_revoked(clean_key, signature):
+        return {
+            "valid": False,
+            "tier": "FREE",
+            "status": "Mã bản quyền đã bị thu hồi / vô hiệu hóa",
+            "expiry": None,
+            "is_lifetime": False,
+            "reason": "revoked",
+        }
 
     # 1. Verify instance matching (ALL = Universal key, or matches current HA instance)
     if key_instance != "ALL":

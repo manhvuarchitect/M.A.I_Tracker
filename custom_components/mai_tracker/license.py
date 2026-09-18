@@ -9,8 +9,12 @@ from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
-# Secret key for HMAC verification (Private to M.A.I Tracker)
-_LICENSE_SECRET = b"MAI_TRACKER_SECURE_SALT_2026_MIDAR_CORE_PROTECTION_V1"
+def _get_sec() -> bytes:
+    _p1 = bytes([77, 65, 73, 95, 84, 82, 65, 67, 75, 69, 82])
+    _p2 = bytes([83, 69, 67, 85, 82, 69, 95, 83, 65, 76, 84])
+    _p3 = bytes([50, 48, 50, 54, 95, 77, 73, 68, 65, 82])
+    _p4 = bytes([67, 79, 82, 69, 95, 80, 82, 79, 84, 69, 67, 84, 73, 79, 78, 95, 86, 49])
+    return b"_".join([_p1, _p2, _p3, _p4])
 
 
 def get_instance_id(hass: HomeAssistant) -> str:
@@ -33,7 +37,7 @@ def get_instance_id(hass: HomeAssistant) -> str:
 def generate_signature(tier: str, expiry: str, instance_id: str) -> str:
     """Generate signature for a given license payload."""
     payload = f"{tier.upper()}:{expiry.upper()}:{instance_id.upper()}"
-    sig = hmac.new(_LICENSE_SECRET, payload.encode("utf-8"), hashlib.sha256).hexdigest()
+    sig = hmac.new(_get_sec(), payload.encode("utf-8"), hashlib.sha256).hexdigest()
     return sig[:16].upper()
 
 

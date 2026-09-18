@@ -4,6 +4,14 @@ Tất cả các thay đổi, tính năng mới và bản sửa lỗi của integ
 
 ---
 
+## [2026.09.18.b3] - 2026-09-18
+
+### 🔒 Tăng cường Bảo mật Bản quyền (Security Enhancements)
+- **Bảo vệ công cụ tạo mã (`tools/generate_key.py`)**: Tách biệt hoàn toàn thư mục `tools/` khỏi kho mã nguồn GitHub qua `.gitignore`, đảm bảo chỉ có tác giả / quản trị viên mới có công cụ tạo License Key trên máy cục bộ.
+- **Che giấu chuỗi bảo mật (Secret Salt Obfuscation)**: Nâng cấp thuật toán che giấu chuỗi private salt trong `license.py` bằng mảng byte phân mảnh động.
+
+---
+
 ## [2026.09.18.b2] - 2026-09-18
 
 ### ✨ Tính năng mới: Khóa Tính Năng & Kích Hoạt Bản Quyền (License Key)

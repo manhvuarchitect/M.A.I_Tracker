@@ -2,13 +2,14 @@
   "domain": "mai_tracker",
   "name": "M.A.I Tracker",
   "codeowners": [
+    "@midarvn",
     "@manhvuarchitect"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/manhvuarchitect/M.A.I_Tracker",
+  "documentation": "https://github.com/midarvn/M.A.I_Tracker",
   "integration_type": "service",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/manhvuarchitect/M.A.I_Tracker/issues",
+  "issue_tracker": "https://github.com/midarvn/M.A.I_Tracker/issues",
   "requirements": [],
   "version": "2026.09.18.b3"
 }

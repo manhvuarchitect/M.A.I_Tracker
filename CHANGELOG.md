@@ -4,6 +4,14 @@ Tất cả các thay đổi, tính năng mới và bản sửa lỗi của integ
 
 ---
 
+## [2026.09.19.b1] - 2026-09-19
+
+### 🎨 Sửa lỗi Hiển thị Icon & Logo (Brand Assets Fix)
+- **Khôi phục đầy đủ Icon & Logo**: Sửa lỗi định dạng tệp ảnh PNG nhị phân bị hỏng trong thư mục integration và cấu trúc `brand/`, giúp Home Assistant UI và HACS hiển thị chính xác logo/icon thương hiệu trên giao diện Quản lý Tích hợp (*Settings > Devices & Services*).
+- **Chuẩn hóa HACS configuration**: Tối ưu cấu hình `hacs.json` nhận diện tài nguyên nội bộ.
+
+---
+
 ## [2026.09.18.b4] - 2026-09-18
 
 ### 🛡️ Tối ưu hóa Quản lý Bản quyền (License Management & Revocation)

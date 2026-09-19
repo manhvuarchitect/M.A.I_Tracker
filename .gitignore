@@ -120,3 +120,5 @@ venv.bak/
 
 # M.A.I Tracker secure deploy backup
 .private_backup/
+*.zip
+

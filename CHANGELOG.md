@@ -4,6 +4,14 @@ Tất cả các thay đổi, tính năng mới và bản sửa lỗi của integ
 
 ---
 
+## [2026.10.08.b1] - 2026-10-08
+
+### 🐛 Tương thích Home Assistant 2026.10+ (HA Core 2026.10 Compatibility)
+- **Sửa lỗi gọi dịch vụ `mai_tracker/log_drink`**: Khắc phục lỗi `'HomeAssistant' object has no attribute 'hass'` khi gọi Action/Service từ Dashboard trên Home Assistant 2026.10+.
+- **Chuẩn hóa lệnh gọi Thông báo (`persistent_notification`)**: Loại bỏ `hass.components.persistent_notification` chuyển sang module chuẩn `homeassistant.components.persistent_notification.async_create`.
+
+---
+
 ## [2026.09.19.b1] - 2026-09-19
 
 ### 🎨 Sửa lỗi Hiển thị Icon & Logo (Brand Assets Fix)

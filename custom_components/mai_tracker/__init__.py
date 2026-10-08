@@ -54,10 +54,25 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     async def handle_service(call: ServiceCall) -> None:
         """Handle the service call."""
-        entry_ids = await service.async_extract_config_entry_ids(hass, call)  # type: ignore[call-arg]
+        entry_ids = set()
+        try:
+            res = service.async_extract_config_entry_ids(hass, call)
+            if hasattr(res, "__await__"):
+                entry_ids = await res
+            elif isinstance(res, (set, list, tuple)):
+                entry_ids = set(res)
+        except Exception:
+            try:
+                res = service.async_extract_config_entry_ids(call)
+                if hasattr(res, "__await__"):
+                    entry_ids = await res
+                elif isinstance(res, (set, list, tuple)):
+                    entry_ids = set(res)
+            except Exception:
+                entry_ids = set()
 
         if not entry_ids:
-            user_id = call.context.user_id
+            user_id = call.context.user_id if call.context else None
             resolved_entry_id = resolve_entry_id_by_user_id(hass, user_id)
             if resolved_entry_id:
                 entry_ids = {resolved_entry_id}

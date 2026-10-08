@@ -10,6 +10,7 @@ from typing import Any
 import uuid
 
 from homeassistant.core import HomeAssistant
+from homeassistant.components import persistent_notification
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 import homeassistant.util.dt as dt_util
@@ -714,7 +715,8 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
             for med in self._medicines:
                 if med.med_type in ["iron", "antibiotic"] and (now - med.timestamp).total_seconds() < 7200:
                     _LOGGER.warning("Interaction alert: %s taken within 2 hours of caffeine!", med.name)
-                    self.hass.components.persistent_notification.async_create(
+                    persistent_notification.async_create(
+                        self.hass,
                         f"Cảnh báo: Bạn vừa uống {med.name} cách đây chưa tới 2 tiếng. Uống Cafe/Trà bây giờ sẽ làm mất tác dụng của thuốc!",
                         title="M.A.I Tracker Cảnh báo Y tế ⚠️"
                     )
@@ -900,7 +902,8 @@ class CaffeineCoordinator(DataUpdateCoordinator[CaffeineData]):
         tts_target = entry.options.get("tts_target", entry.data.get("tts_target", ""))
         if not tts_target:
             _LOGGER.warning("Cannot play TTS: No speaker (tts_target) configured for %s", self.person_name)
-            self.hass.components.persistent_notification.async_create(
+            persistent_notification.async_create(
+                self.hass,
                 f"Chưa cấu hình loa thông báo (TTS Speaker) cho {self.person_name}. Vui lòng vào Cấu hình Bước 4/5 để chọn Loa phát thanh.",
                 title="M.A.I Tracker - Thông báo TTS ⚠️"
             )

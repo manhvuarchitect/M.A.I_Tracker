@@ -4,6 +4,18 @@ Tất cả các thay đổi, tính năng mới và bản sửa lỗi của integ
 
 ---
 
+## [2026.10.08.b2] - 2026-10-08
+
+### 🌡️ Chuẩn hóa Thuật toán Heat Index & Mục tiêu Nước Thông minh (NOAA Standard)
+- **Áp dụng chuẩn NOAA Heat Index (Hoa Kỳ)**: Thay thế công thức Humidex cũ bằng công thức chuẩn khí tượng quốc tế NOAA/NWS, loại bỏ hiện tượng chỉ số nhiệt độ bị đẩy lên quá cao do độ ẩm cao của khí hậu nhiệt đới/mùa thu gió mùa Việt Nam.
+- **Tối ưu hóa ngưỡng tự động tăng nước (`Dynamic Water Goal`)**:
+  + Thời tiết mùa thu / mát mẻ / dịu mát ($< 32^\circ\text{C}$): **+0 ml** (giữ nguyên mục tiêu cơ bản).
+  + Oi nóng nhẹ ($32^\circ\text{C} - 36.9^\circ\text{C}$): **+250 ml**.
+  + Oi bức nặng mùa hè ($37^\circ\text{C} - 41.9^\circ\text{C}$): **+500 ml**.
+  + Nắng nóng gay gắt đỉnh điểm ($\ge 42^\circ\text{C}$): **+800 ml**.
+
+---
+
 ## [2026.10.08.b1] - 2026-10-08
 
 ### 🐛 Tương thích Home Assistant 2026.10+ (HA Core 2026.10 Compatibility)

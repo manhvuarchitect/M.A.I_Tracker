@@ -8,6 +8,39 @@ from homeassistant.helpers.event import async_track_state_change_event
 from ..const import DOMAIN
 from ..coordinator import CaffeineCoordinator
 
+def compute_noaa_heat_index(temp_c: float, humidity: float) -> float:
+    """Calculate Heat Index (Feels Like) in Celsius using NOAA/NWS standard algorithm."""
+    if temp_c <= 21.0:
+        return round(temp_c, 1)
+
+    t_f = temp_c * 1.8 + 32.0
+    rh = max(0.0, min(100.0, humidity))
+
+    hi_f = 0.5 * (t_f + 61.0 + ((t_f - 68.0) * 1.2) + (rh * 0.094))
+
+    if (hi_f + t_f) / 2.0 >= 80.0:
+        hi_f = (
+            -42.379
+            + 2.04901523 * t_f
+            + 10.14333127 * rh
+            - 0.22475541 * t_f * rh
+            - 0.006837663 * (t_f ** 2)
+            - 0.05481717 * (rh ** 2)
+            + 0.00122874 * (t_f ** 2) * rh
+            + 0.00085282 * t_f * (rh ** 2)
+            - 0.00000199 * (t_f ** 2) * (rh ** 2)
+        )
+        if rh < 13.0 and 80.0 <= t_f <= 112.0:
+            adj = ((13.0 - rh) / 4.0) * ((17.0 - abs(t_f - 95.0)) / 17.0) ** 0.5
+            hi_f -= adj
+        elif rh > 85.0 and 80.0 <= t_f <= 87.0:
+            adj = ((rh - 85.0) / 10.0) * ((87.0 - t_f) / 5.0)
+            hi_f += adj
+
+    hi_c = (hi_f - 32.0) / 1.8
+    return round(max(temp_c, hi_c) if temp_c >= 26.0 else hi_c, 1)
+
+
 class HeatIndexSensor(SensorEntity):
     _attr_icon = "mdi:sun-thermometer"
     _attr_native_unit_of_measurement = "°C"
@@ -88,8 +121,7 @@ class HeatIndexSensor(SensorEntity):
                     pass
 
         if t is not None and h is not None:
-            val = t + 0.5555 * ((6.11 * (10 ** ((7.5 * t) / (237.7 + t))) * (h / 100)) - 10)
-            self._attr_native_value = round(val, 1)
+            self._attr_native_value = compute_noaa_heat_index(t, h)
         else:
             self._attr_native_value = None
 
@@ -142,9 +174,12 @@ class DynamicWaterGoalSensor(SensorEntity):
         if heat_state and heat_state.state not in ['unavailable', 'unknown']:
             try:
                 hi = float(heat_state.state)
-                if hi > 39: bonus = 800
-                elif hi > 35: bonus = 500
-                elif hi > 32: bonus = 300
+                if hi >= 42.0:
+                    bonus = 800  # Danger: Nắng nóng gay gắt
+                elif hi >= 37.0:
+                    bonus = 500  # Extreme Caution: Oi bức nặng mùa hè
+                elif hi >= 32.0:
+                    bonus = 250  # Caution: Oi nóng nhẹ
             except ValueError:
                 pass
                 
